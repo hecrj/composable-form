@@ -1,0 +1,86 @@
+body {
+  font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+  padding: 0;
+}
+
+header {
+  text-align: center;
+  background-color: #60B5CC;
+  padding: 2em;
+  color: white;
+
+  h1 {
+    margin: 0;
+    font-size: 3em;
+  }
+
+}
+.wrapper {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+h1 {
+  margin-bottom: 1em;
+  font-weight: normal;
+}
+
+h2 {
+  font-weight: normal;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+
+  > div:not(:last-child) {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1em;
+
+    > *:not(:last-child) {
+      margin-bottom: 0.5em;
+    }
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+
+    input[type="checkbox"] {
+      margin-right: 0.5em;
+    }
+  }
+
+  input[type="text"], input[type="password"], input[type="email"] {
+    padding: 0.8em;
+    border: 1px solid #CCC;
+    border-radius: 3px;
+  }
+
+  .error {
+    color: red;
+  }
+
+  button[type="submit"] {
+    background-color: #34495E;
+    border: none;
+    border-radius: 3px;
+    padding: 0.5em 1em;
+    color: white;
+    font-size: 1.2em;
+    cursor: pointer;
+    align-self: flex-end;
+
+    &:hover {
+      background-color: #20374D;
+    }
+
+    &:disabled {
+      cursor: default;
+      background-color: #CCC;
+      color: #888;
+    }
+  }
+}
