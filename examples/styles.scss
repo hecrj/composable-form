@@ -10,15 +10,47 @@ header {
   padding: 2em;
   color: white;
 
+  > *:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+
   h1 {
-    margin: 0;
+    margin-top: 0;
     font-size: 3em;
   }
 
+  h2 {
+    margin-top: 0;
+  }
+
+  > div {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5em;
+    font-size: 1.2em;
+
+    > *:not(:last-child) {
+      margin-right: 1.5em;
+    }
+
+    a {
+      color: white;
+
+      &:hover {
+        color: #20374D;
+      }
+    }
+  }
 }
+
+footer {
+  text-align: center;
+}
+
 .wrapper {
   max-width: 400px;
   margin: 0 auto;
+  padding: 2em;
 }
 
 h1 {
@@ -53,10 +85,19 @@ form {
     }
   }
 
-  input[type="text"], input[type="password"], input[type="email"] {
+  input[type="text"], input[type="password"], input[type="email"], select, textarea {
     padding: 0.8em;
     border: 1px solid #CCC;
     border-radius: 3px;
+    background-color: #FFF;
+
+    &:disabled {
+      background-color: #CCC;
+    }
+  }
+
+  textarea {
+    resize: vertical;
   }
 
   .error {
@@ -83,4 +124,21 @@ form {
       color: #888;
     }
   }
+}
+
+ul {
+  > li:not(:last-child) {
+    margin-bottom: 1em;
+  }
+}
+
+.tabs {
+  display: flex;
+  justify-content: space-between;
+
+  button {
+    padding: 0.5em;
+  }
+
+  margin-bottom: 1em;
 }

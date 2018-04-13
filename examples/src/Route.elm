@@ -18,6 +18,8 @@ import UrlParser exposing (Parser, map, s)
 type Route
     = Top
     | Login
+    | Signup
+    | ReusingValues
     | NotFound
 
 
@@ -26,6 +28,8 @@ parser =
     UrlParser.oneOf
         [ map Top UrlParser.top
         , map Login (s "login")
+        , map Signup (s "signup")
+        , map ReusingValues (s "reusing-values")
         ]
 
 
@@ -89,6 +93,12 @@ toString route =
 
                 Login ->
                     [ "login" ]
+
+                Signup ->
+                    [ "signup" ]
+
+                ReusingValues ->
+                    [ "reusing-values" ]
 
                 NotFound ->
                     [ "404" ]

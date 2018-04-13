@@ -230,7 +230,7 @@ textArea { onInput, disabled, value, error, label, placeholder } =
             , Attributes.disabled disabled
             , Attributes.placeholder placeholder
             ]
-            []
+            [ Html.text value ]
         , errorMessage error
         ]
 

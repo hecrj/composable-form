@@ -3,6 +3,8 @@ module Main exposing (main)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Page.Login as Login
+import Page.ReusingValues as ReusingValues
+import Page.Signup as Signup
 import Route exposing (Route)
 
 
@@ -13,6 +15,8 @@ type alias Model =
 type Page
     = Home
     | Login Login.Model
+    | Signup Signup.Model
+    | ReusingValues ReusingValues.Model
     | NotFound
 
 
@@ -20,6 +24,8 @@ type Msg
     = RouteAccessed Route
     | Navigate Route
     | LoginMsg Login.Msg
+    | SignupMsg Signup.Msg
+    | ReusingValuesMsg ReusingValues.Msg
 
 
 main : Program Never Model Msg
@@ -54,13 +60,37 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        SignupMsg signupMsg ->
+            case model of
+                Signup signupModel ->
+                    ( Signup (Signup.update signupMsg signupModel), Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        ReusingValuesMsg subMsg ->
+            case model of
+                ReusingValues subModel ->
+                    ( ReusingValues (ReusingValues.update subMsg subModel), Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.header []
-            [ Html.h1 [] [ Html.text "elm-form-draft" ]
-            , Html.h2 [] [ Html.text "A draft of a form API for Elm" ]
+            [ Html.h1 [] [ Html.text "elm-wip-form" ]
+            , Html.h2 [] [ Html.text "A WIP form API for Elm" ]
+            , Html.div []
+                [ Html.a (Route.href Navigate Route.Top)
+                    [ Html.text "Examples" ]
+                , Html.a [ Attributes.href repositoryUrl ]
+                    [ Html.text "Repository" ]
+                , Html.a [ Attributes.href "https://discourse.elm-lang.org/" ]
+                    [ Html.text "Discussion" ]
+                ]
             ]
         , Html.div [ Attributes.class "wrapper" ]
             [ case model of
@@ -71,8 +101,28 @@ view model =
                     Login.view loginModel
                         |> Html.map LoginMsg
 
+                Signup signupModel ->
+                    Signup.view signupModel
+                        |> Html.map SignupMsg
+
+                ReusingValues subModel ->
+                    ReusingValues.view subModel
+                        |> Html.map ReusingValuesMsg
+
                 NotFound ->
                     Html.text "Not found"
+            ]
+        , Html.footer []
+            [ case pageCodeUri model of
+                Just uri ->
+                    Html.a
+                        [ Attributes.href (repositoryUrl ++ "/blob/master/examples/src/Page" ++ uri)
+                        , Attributes.target "_blank"
+                        ]
+                        [ Html.text "Code" ]
+
+                Nothing ->
+                    Html.text ""
             ]
         ]
 
@@ -90,6 +140,12 @@ fromRoute route =
         Route.Login ->
             Login Login.init
 
+        Route.Signup ->
+            Signup Signup.init
+
+        Route.ReusingValues ->
+            ReusingValues ReusingValues.init
+
         Route.NotFound ->
             NotFound
 
@@ -98,7 +154,10 @@ viewHome : Html Msg
 viewHome =
     let
         examples =
-            [ ( "Login", Route.Login ) ]
+            [ ( "Login", Route.Login )
+            , ( "Signup", Route.Signup )
+            , ( "Reusing values", Route.ReusingValues )
+            ]
 
         toItem ( name, route ) =
             Html.li []
@@ -109,3 +168,27 @@ viewHome =
         , Html.ul []
             (List.map toItem examples)
         ]
+
+
+repositoryUrl : String
+repositoryUrl =
+    "https://github.com/hecrj/elm-wip-form"
+
+
+pageCodeUri : Page -> Maybe String
+pageCodeUri page =
+    case page of
+        Home ->
+            Nothing
+
+        Login _ ->
+            Just "/Login.elm"
+
+        Signup _ ->
+            Just "/Signup.elm"
+
+        ReusingValues _ ->
+            Just "/ReusingValues.elm"
+
+        NotFound ->
+            Nothing

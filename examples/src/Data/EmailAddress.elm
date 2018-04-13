@@ -14,4 +14,4 @@ parse str =
     if String.contains "@" str then
         Ok (EmailAddress str)
     else
-        Err "invalid e-mail address"
+        Err "The e-mail address must contain a '@' symbol"
