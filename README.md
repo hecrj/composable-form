@@ -18,7 +18,7 @@ the current untrusted values of the fields, and the output being validated value
 Therefore, this package defines a `Form values output` type.
 
 These pipelines of data are composed of fields. Each field describes how to access data from `values`
-(`values -> Value a`), validate it (`value -> Result String b`), and how to update it
+(`values -> Value a`), validate it (`a -> Result String b`), and how to update it
 (`Value a -> values -> values`), alongside other field attributes.
 
 Finally, a `Form values output` can be rendered as `Html output`. The `Form` API allows the renderer
@@ -89,4 +89,4 @@ on top of `Form.Base` with your own custom field type (examples pending, see [Fo
 
 This API is currently WIP. Any suggestions are welcome!
 
-  * [Discourse](https://discourse.elm-lang.org/)
+  * [Discourse](https://discourse.elm-lang.org/t/a-form-api-idea-proposal/1121)
