@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf dist/ && webpack -p",
+    "build": "rm -r ../docs/ && webpack -p",
     "start": "webpack-dev-server --port 8080"
   },
   "author": "",
