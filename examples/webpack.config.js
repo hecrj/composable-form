@@ -11,7 +11,7 @@ module.exports = {
 
   output: {
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/',
+    publicPath: '/elm-wip-form/',
     filename: '[name].[hash].js'
   },
 
@@ -63,7 +63,7 @@ module.exports = {
   devServer: {
     inline: true,
     stats: { colors: true },
-    historyApiFallback: true,
+    historyApiFallback: false,
     host: '0.0.0.0',
     disableHostCheck: true,
     stats: {

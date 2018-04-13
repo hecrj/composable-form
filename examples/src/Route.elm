@@ -35,7 +35,7 @@ parser =
 
 fromLocation : Navigation.Location -> Route
 fromLocation location =
-    case UrlParser.parsePath parser location of
+    case UrlParser.parseHash parser location of
         Just route ->
             route
 
@@ -103,7 +103,7 @@ toString route =
                 NotFound ->
                     [ "404" ]
     in
-    "/" ++ String.join "/" parts
+    "#/" ++ String.join "/" parts
 
 
 
