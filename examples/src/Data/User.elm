@@ -14,7 +14,9 @@ module Data.User
 
 import Data.EmailAddress as EmailAddress exposing (EmailAddress)
 import Dict
+import Process
 import Task exposing (Task)
+import Time
 
 
 type alias User =
@@ -100,8 +102,13 @@ favoriteLanguageToString language =
 
 signUp : EmailAddress -> Name -> Password -> FavoriteLanguage -> Task String User
 signUp email name password favoriteLanguage =
+    let
+        response =
+            if EmailAddress.toString email == "free@email.com" then
+                Task.succeed (User email name favoriteLanguage)
+            else
+                Task.fail "The e-mail address is taken. Try this one: free@email.com"
+    in
     -- Here we simulate an HTTP request to some backend server
-    if EmailAddress.toString email == "free@email.com" then
-        Task.succeed (User email name favoriteLanguage)
-    else
-        Task.fail "The e-mail address is taken. Try this one: free@email.com"
+    Process.sleep (1 * Time.second)
+        |> Task.andThen (always response)
