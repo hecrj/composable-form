@@ -39,10 +39,7 @@ update msg model =
             newModel
 
         LogIn email password rememberMe ->
-            if password == "1234" then
-                { model | state = Form.View.Loading }
-            else
-                { model | state = Form.View.Error "Invalid credentials. Try this password: 1234" }
+            { model | state = Form.View.Loading }
 
 
 view : Model -> Html Msg

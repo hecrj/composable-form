@@ -3,14 +3,26 @@ module Data.User
         ( FavoriteLanguage(..)
         , Name
         , Password
+        , User
         , favoriteLanguageToString
         , favoriteLanguages
         , parseFavoriteLanguage
         , parseName
         , parsePassword
+        , signUp
         )
 
+import Data.EmailAddress as EmailAddress exposing (EmailAddress)
 import Dict
+import Task exposing (Task)
+
+
+type alias User =
+    { email : EmailAddress
+    , name : Name
+    , favoriteLanguage : FavoriteLanguage
+    }
+
 
 
 -- NAME
@@ -80,3 +92,16 @@ favoriteLanguageToString language =
 
         Other ->
             "other"
+
+
+
+-- REQUESTS
+
+
+signUp : EmailAddress -> Name -> Password -> FavoriteLanguage -> Task String User
+signUp email name password favoriteLanguage =
+    -- Here we simulate an HTTP request to some backend server
+    if EmailAddress.toString email == "free@email.com" then
+        Task.succeed (User email name favoriteLanguage)
+    else
+        Task.fail "The e-mail address is taken. Try this one: free@email.com"

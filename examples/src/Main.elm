@@ -63,7 +63,9 @@ update msg model =
         SignupMsg signupMsg ->
             case model of
                 Signup signupModel ->
-                    ( Signup (Signup.update signupMsg signupModel), Cmd.none )
+                    Signup.update signupMsg signupModel
+                        |> Tuple.mapFirst Signup
+                        |> Tuple.mapSecond (Cmd.map SignupMsg)
 
                 _ ->
                     ( model, Cmd.none )
