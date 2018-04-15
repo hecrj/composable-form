@@ -90,3 +90,4 @@ on top of `Form.Base` with your own custom field type (examples pending, see [Fo
 This API is currently WIP. Any suggestions are welcome!
 
   * [Discourse](https://discourse.elm-lang.org/t/a-form-api-idea-proposal/1121)
+  * [reddit](https://www.reddit.com/r/elm/comments/8cd2yi/a_form_api_ideaproposal/)
