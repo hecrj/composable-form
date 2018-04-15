@@ -4,8 +4,9 @@ import Html exposing (Html)
 import Html.Attributes as Attributes
 import Page.Composability.Simple as Composability
 import Page.Login as Login
-import Page.ReusingValues as ReusingValues
 import Page.Signup as Signup
+import Page.ValidationStrategies as ValidationStrategies
+import Page.ValueReusability as ValueReusability
 import Route exposing (Route)
 
 
@@ -17,7 +18,8 @@ type Page
     = Home
     | Login Login.Model
     | Signup Signup.Model
-    | ReusingValues ReusingValues.Model
+    | ValueReusability ValueReusability.Model
+    | ValidationStrategies ValidationStrategies.Model
     | Composability Composability.Model
     | NotFound
 
@@ -27,7 +29,8 @@ type Msg
     | Navigate Route
     | LoginMsg Login.Msg
     | SignupMsg Signup.Msg
-    | ReusingValuesMsg ReusingValues.Msg
+    | ValueReusabilityMsg ValueReusability.Msg
+    | ValidationStrategiesMsg ValidationStrategies.Msg
     | ComposabilityMsg Composability.Msg
 
 
@@ -73,10 +76,20 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        ReusingValuesMsg subMsg ->
+        ValueReusabilityMsg subMsg ->
             case model of
-                ReusingValues subModel ->
-                    ( ReusingValues (ReusingValues.update subMsg subModel), Cmd.none )
+                ValueReusability subModel ->
+                    ( ValueReusability (ValueReusability.update subMsg subModel), Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        ValidationStrategiesMsg subMsg ->
+            case model of
+                ValidationStrategies subModel ->
+                    ( ValidationStrategies (ValidationStrategies.update subMsg subModel)
+                    , Cmd.none
+                    )
 
                 _ ->
                     ( model, Cmd.none )
@@ -118,9 +131,13 @@ view model =
                     Signup.view signupModel
                         |> Html.map SignupMsg
 
-                ReusingValues subModel ->
-                    ReusingValues.view subModel
-                        |> Html.map ReusingValuesMsg
+                ValueReusability subModel ->
+                    ValueReusability.view subModel
+                        |> Html.map ValueReusabilityMsg
+
+                ValidationStrategies subModel ->
+                    ValidationStrategies.view subModel
+                        |> Html.map ValidationStrategiesMsg
 
                 Composability subModel ->
                     Composability.view subModel
@@ -160,8 +177,11 @@ fromRoute route =
         Route.Signup ->
             Signup Signup.init
 
-        Route.ReusingValues ->
-            ReusingValues ReusingValues.init
+        Route.ValueReusability ->
+            ValueReusability ValueReusability.init
+
+        Route.ValidationStrategies ->
+            ValidationStrategies ValidationStrategies.init
 
         Route.Composability ->
             Composability Composability.init
@@ -174,15 +194,30 @@ viewHome : Html Msg
 viewHome =
     let
         examples =
-            [ ( "Login", Route.Login )
-            , ( "Signup", Route.Signup )
-            , ( "Reusing values", Route.ReusingValues )
-            , ( "Composability", Route.Composability )
+            [ ( "Login", Route.Login, "Shows a simple login form with 3 fields." )
+            , ( "Signup"
+              , Route.Signup
+              , "Showcases a select field, a meta field and external form errors."
+              )
+            , ( "Value reusability"
+              , Route.ValueReusability
+              , "Shows how field values are decoupled from any form, and how they can be reused with a single source of truth. It also showcases an optional field."
+              )
+            , ( "Validation strategies"
+              , Route.ValidationStrategies
+              , "Showcases two different validation strategies: validation on submit and validation on blur."
+              )
+            , ( "Composability"
+              , Route.Composability
+              , "Shows an address form embedded in a bigger form."
+              )
             ]
 
-        toItem ( name, route ) =
+        toItem ( name, route, description ) =
             Html.li []
-                [ Html.a (Route.href Navigate route) [ Html.text name ] ]
+                [ Html.a (Route.href Navigate route) [ Html.text name ]
+                , Html.p [] [ Html.text description ]
+                ]
     in
     Html.div []
         [ Html.h1 [] [ Html.text "Examples" ]
@@ -208,8 +243,11 @@ pageCodeUri page =
         Signup _ ->
             Just "/Signup.elm"
 
-        ReusingValues _ ->
-            Just "/ReusingValues.elm"
+        ValueReusability _ ->
+            Just "/ValueReusability.elm"
+
+        ValidationStrategies _ ->
+            Just "/ValidationStrategies.elm"
 
         Composability _ ->
             Just "/Composability/"

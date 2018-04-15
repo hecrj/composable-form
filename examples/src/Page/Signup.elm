@@ -85,6 +85,7 @@ view model =
                     { onChange = FormChanged
                     , action = "Sign up"
                     , loadingMessage = "Loading..."
+                    , validation = Form.View.ValidateOnSubmit
                     }
                     form
                     formModel

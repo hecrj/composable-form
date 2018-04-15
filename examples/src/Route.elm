@@ -19,7 +19,8 @@ type Route
     = Top
     | Login
     | Signup
-    | ReusingValues
+    | ValueReusability
+    | ValidationStrategies
     | Composability
     | NotFound
 
@@ -30,7 +31,8 @@ parser =
         [ map Top UrlParser.top
         , map Login (s "login")
         , map Signup (s "signup")
-        , map ReusingValues (s "reusing-values")
+        , map ValueReusability (s "value-reusability")
+        , map ValidationStrategies (s "validation-strategies")
         , map Composability (s "composability")
         ]
 
@@ -99,11 +101,14 @@ toString route =
                 Signup ->
                     [ "signup" ]
 
-                ReusingValues ->
-                    [ "reusing-values" ]
+                ValueReusability ->
+                    [ "value-reusability" ]
 
                 Composability ->
                     [ "composability" ]
+
+                ValidationStrategies ->
+                    [ "validation-strategies" ]
 
                 NotFound ->
                     [ "404" ]

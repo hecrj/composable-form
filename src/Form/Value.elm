@@ -5,6 +5,7 @@ module Form.Value
         , change
         , clean
         , dirty
+        , isDirty
         , newest
         , raw
         , withDefault
@@ -40,9 +41,19 @@ dirty v =
 -- GET
 
 
+isDirty : Value a -> Bool
+isDirty value =
+    case value of
+        Dirty _ v ->
+            True
+
+        _ ->
+            False
+
+
 raw : Value a -> Maybe a
-raw field =
-    case field of
+raw value =
+    case value of
         Blank _ ->
             Nothing
 

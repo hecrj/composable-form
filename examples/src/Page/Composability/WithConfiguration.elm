@@ -53,6 +53,7 @@ view model =
             { onChange = FormChanged
             , action = "Submit"
             , loadingMessage = "Loading..."
+            , validation = Form.View.ValidateOnSubmit
             }
             form
             model

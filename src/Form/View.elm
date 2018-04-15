@@ -3,6 +3,7 @@ module Form.View
         ( BasicConfig
         , Model
         , State(..)
+        , Validation(..)
         , basic
         , field
         , idle
@@ -14,12 +15,14 @@ import Form.Value as Value
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Set exposing (Set)
 
 
 type alias Model values =
     { values : values
     , state : State
-    , showErrors : Bool
+    , showAllErrors : Bool
+    , showFieldError : Set String
     }
 
 
@@ -33,7 +36,8 @@ idle : values -> Model values
 idle values =
     { values = values
     , state = Idle
-    , showErrors = False
+    , showAllErrors = False
+    , showFieldError = Set.empty
     }
 
 
@@ -41,11 +45,17 @@ type alias BasicConfig values msg =
     { onChange : Model values -> msg
     , action : String
     , loadingMessage : String
+    , validation : Validation
     }
 
 
+type Validation
+    = ValidateOnSubmit
+    | ValidateOnBlur
+
+
 basic : BasicConfig values msg -> Form values msg -> Model values -> Html msg
-basic { onChange, action, loadingMessage } form model =
+basic { onChange, action, loadingMessage, validation } form model =
     let
         onSubmitMsg =
             case Form.result form model.values of
@@ -56,10 +66,10 @@ basic { onChange, action, loadingMessage } form model =
                         Just msg
 
                 Err _ ->
-                    if model.showErrors then
+                    if model.showAllErrors then
                         Nothing
                     else
-                        Just (onChange { model | showErrors = True })
+                        Just (onChange { model | showAllErrors = True })
 
         onSubmit =
             onSubmitMsg
@@ -69,9 +79,21 @@ basic { onChange, action, loadingMessage } form model =
         fieldToHtml =
             field
                 { onChange = \values -> onChange { model | values = values }
+                , onBlur = onBlur
                 , disabled = model.state == Loading
-                , showError = model.showErrors
+                , showError = showError
                 }
+
+        onBlur =
+            case validation of
+                ValidateOnSubmit ->
+                    Nothing
+
+                ValidateOnBlur ->
+                    Just (\label -> onChange { model | showFieldError = Set.insert label model.showFieldError })
+
+        showError label =
+            model.showAllErrors || Set.member label model.showFieldError
     in
     Html.form onSubmit
         (List.concat
@@ -97,19 +119,30 @@ basic { onChange, action, loadingMessage } form model =
         )
 
 
+
+-- FIELD
+
+
 type alias FieldConfig values msg =
     { onChange : values -> msg
+    , onBlur : Maybe (String -> msg)
     , disabled : Bool
-    , showError : Bool
+    , showError : String -> Bool
     }
 
 
 field : FieldConfig values msg -> ( Field values, Maybe Field.Error ) -> Html msg
-field { onChange, disabled, showError } ( field, maybeError ) =
+field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
     let
-        error =
-            if showError then
+        error label value =
+            if showError label then
                 Maybe.map errorToString maybeError
+            else
+                Nothing
+
+        whenDirty value x =
+            if Value.isDirty value then
+                x
             else
                 Nothing
     in
@@ -118,11 +151,12 @@ field { onChange, disabled, showError } ( field, maybeError ) =
             let
                 config =
                     { onInput = state.update >> onChange
+                    , onBlur = whenDirty state.value (Maybe.map (\onBlur -> onBlur attributes.label) onBlur)
                     , disabled = disabled
                     , label = attributes.label
                     , placeholder = attributes.placeholder
                     , value = Value.raw state.value |> Maybe.withDefault ""
-                    , error = error
+                    , error = error attributes.label state.value
                     }
             in
             case type_ of
@@ -144,17 +178,18 @@ field { onChange, disabled, showError } ( field, maybeError ) =
                 , disabled = disabled
                 , onCheck = state.update >> onChange
                 , label = attributes.label
-                , error = error
+                , error = error attributes.label state.value
                 }
 
         Field.Select { options, attributes, state } ->
             selectField options
                 { onInput = state.update >> onChange
+                , onBlur = whenDirty state.value (Maybe.map (\onBlur -> onBlur attributes.label) onBlur)
                 , disabled = disabled
                 , label = attributes.label
                 , placeholder = attributes.placeholder
                 , value = Value.raw state.value |> Maybe.withDefault ""
-                , error = error
+                , error = error attributes.label state.value
                 }
 
 
@@ -174,6 +209,7 @@ errorToString error =
 
 type alias TextFieldConfig msg =
     { onInput : String -> msg
+    , onBlur : Maybe msg
     , disabled : Bool
     , value : String
     , error : Maybe String
@@ -274,7 +310,7 @@ type alias SelectFieldConfig msg =
 
 
 selectField : List ( String, String ) -> TextFieldConfig msg -> Html msg
-selectField options { onInput, disabled, value, error, label, placeholder } =
+selectField options { onInput, onBlur, disabled, value, error, label, placeholder } =
     let
         toOption ( key, label ) =
             Html.option
@@ -289,13 +325,19 @@ selectField options { onInput, disabled, value, error, label, placeholder } =
                 , Attributes.selected (value == "")
                 ]
                 [ Html.text ("-- " ++ placeholder ++ " --") ]
-    in
-    Html.div []
-        [ fieldLabel label
-        , Html.select
+
+        fixedAttributes =
             [ Events.onInput onInput
             , Attributes.disabled disabled
             ]
+
+        attributes =
+            Maybe.map (Events.onBlur >> flip (::) fixedAttributes) onBlur
+                |> Maybe.withDefault fixedAttributes
+    in
+    Html.div []
+        [ fieldLabel label
+        , Html.select attributes
             (placeholderOption :: List.map toOption options)
         , errorMessage error
         ]
@@ -317,16 +359,23 @@ errorMessage =
 
 
 inputField : String -> TextFieldConfig msg -> Html msg
-inputField type_ { onInput, disabled, value, error, label, placeholder } =
-    Html.div []
-        [ fieldLabel label
-        , Html.input
+inputField type_ { onInput, onBlur, disabled, value, error, label, placeholder } =
+    let
+        fixedAttributes =
             [ Events.onInput onInput
             , Attributes.disabled disabled
             , Attributes.value value
             , Attributes.placeholder placeholder
             , Attributes.type_ type_
             ]
+
+        attributes =
+            Maybe.map (Events.onBlur >> flip (::) fixedAttributes) onBlur
+                |> Maybe.withDefault fixedAttributes
+    in
+    Html.div []
+        [ fieldLabel label
+        , Html.input attributes
             []
         , errorMessage error
         ]

@@ -50,6 +50,7 @@ view model =
             { onChange = FormChanged
             , action = "Log in"
             , loadingMessage = "Logging in..."
+            , validation = Form.View.ValidateOnSubmit
             }
             form
             model

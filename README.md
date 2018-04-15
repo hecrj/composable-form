@@ -8,7 +8,7 @@ This package aims to streamline form handling in Elm.
 ## Demo/Examples
 
 Try out the [live demo](https://hecrj.github.io/elm-wip-form) and/or
-[check out the examples](examples).
+[check out the examples](examples/src/Page).
 
 
 ## Introduction

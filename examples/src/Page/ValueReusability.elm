@@ -1,4 +1,4 @@
-module Page.ReusingValues exposing (Model, Msg, init, update, view)
+module Page.ValueReusability exposing (Model, Msg, init, update, view)
 
 import Data.Post as Post
 import Data.Question as Question
@@ -79,7 +79,8 @@ view model =
                 ]
     in
     Html.div []
-        [ Html.h1 [] [ Html.text "Reusing values" ]
+        [ Html.h1 [] [ Html.text "Value reusability" ]
+        , Html.p [] [ Html.text "The value for the body fields is reused in both forms with a single source of truth" ]
         , if model.form.state == Form.View.Loading then
             Html.text ""
           else
@@ -90,6 +91,7 @@ view model =
                     { onChange = FormChanged
                     , action = "New Post"
                     , loadingMessage = "Publishing post..."
+                    , validation = Form.View.ValidateOnSubmit
                     }
                     postForm
                     model.form
@@ -99,6 +101,7 @@ view model =
                     { onChange = FormChanged
                     , action = "New Question"
                     , loadingMessage = "Publishing question..."
+                    , validation = Form.View.ValidateOnSubmit
                     }
                     questionForm
                     model.form
