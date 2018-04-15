@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "Fully type-safe forms for Elm",
-    "repository": "https://github.com/hecrj/WIP.git",
+    "repository": "https://github.com/hecrj/wip.git",
     "license": "BSD3",
     "source-directories": [
         "src"

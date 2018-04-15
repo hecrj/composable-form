@@ -12,12 +12,14 @@ module Form.Base
         , emailField
         , empty
         , fields
+        , mapFields
         , optional
         , passwordField
         , result
         , selectField
         , textAreaField
         , textField
+        , valuesFrom
         )
 
 import Form.Field as Field exposing (Field)
@@ -216,6 +218,16 @@ custom factory isEmpty constructor config =
 
 
 -- OPERATIONS
+
+
+valuesFrom : (a -> b) -> Form b output custom -> Form a output custom
+valuesFrom f (Form builders output) =
+    Form (List.map (\builder -> f >> builder) builders) (f >> output)
+
+
+mapFields : (FieldBuilder values a -> FieldBuilder values b) -> Form values output a -> Form values output b
+mapFields f (Form builders output) =
+    Form (List.map f builders) output
 
 
 optional : Form values output custom -> Form values (Maybe output) custom

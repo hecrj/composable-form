@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Html exposing (Html)
 import Html.Attributes as Attributes
+import Page.Composability.Simple as Composability
 import Page.Login as Login
 import Page.ReusingValues as ReusingValues
 import Page.Signup as Signup
@@ -17,6 +18,7 @@ type Page
     | Login Login.Model
     | Signup Signup.Model
     | ReusingValues ReusingValues.Model
+    | Composability Composability.Model
     | NotFound
 
 
@@ -26,6 +28,7 @@ type Msg
     | LoginMsg Login.Msg
     | SignupMsg Signup.Msg
     | ReusingValuesMsg ReusingValues.Msg
+    | ComposabilityMsg Composability.Msg
 
 
 main : Program Never Model Msg
@@ -78,6 +81,14 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        ComposabilityMsg subMsg ->
+            case model of
+                Composability subModel ->
+                    ( Composability (Composability.update subMsg subModel), Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 view : Model -> Html Msg
 view model =
@@ -110,6 +121,10 @@ view model =
                 ReusingValues subModel ->
                     ReusingValues.view subModel
                         |> Html.map ReusingValuesMsg
+
+                Composability subModel ->
+                    Composability.view subModel
+                        |> Html.map ComposabilityMsg
 
                 NotFound ->
                     Html.text "Not found"
@@ -148,6 +163,9 @@ fromRoute route =
         Route.ReusingValues ->
             ReusingValues ReusingValues.init
 
+        Route.Composability ->
+            Composability Composability.init
+
         Route.NotFound ->
             NotFound
 
@@ -159,6 +177,7 @@ viewHome =
             [ ( "Login", Route.Login )
             , ( "Signup", Route.Signup )
             , ( "Reusing values", Route.ReusingValues )
+            , ( "Composability", Route.Composability )
             ]
 
         toItem ( name, route ) =
@@ -191,6 +210,9 @@ pageCodeUri page =
 
         ReusingValues _ ->
             Just "/ReusingValues.elm"
+
+        Composability _ ->
+            Just "/Composability/"
 
         NotFound ->
             Nothing

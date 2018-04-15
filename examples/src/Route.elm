@@ -20,6 +20,7 @@ type Route
     | Login
     | Signup
     | ReusingValues
+    | Composability
     | NotFound
 
 
@@ -30,6 +31,7 @@ parser =
         , map Login (s "login")
         , map Signup (s "signup")
         , map ReusingValues (s "reusing-values")
+        , map Composability (s "composability")
         ]
 
 
@@ -99,6 +101,9 @@ toString route =
 
                 ReusingValues ->
                     [ "reusing-values" ]
+
+                Composability ->
+                    [ "composability" ]
 
                 NotFound ->
                     [ "404" ]

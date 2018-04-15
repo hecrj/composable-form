@@ -10,6 +10,7 @@ module Form.Field
         , TextField
         , TextFieldAttributes
         , TextFieldType(..)
+        , map
         )
 
 import Form.Value exposing (Value)
@@ -19,6 +20,23 @@ type Field values
     = Text (TextField values)
     | Checkbox (CheckboxField values)
     | Select (SelectField values)
+
+
+map : (a -> b) -> Field a -> Field b
+map f field =
+    let
+        mapUpdate ({ state } as field) =
+            { field | state = { state | update = state.update >> f } }
+    in
+    case field of
+        Text textField ->
+            Text (mapUpdate textField)
+
+        Checkbox checkboxField ->
+            Checkbox (mapUpdate checkboxField)
+
+        Select selectField ->
+            Select (mapUpdate selectField)
 
 
 type Error

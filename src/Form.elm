@@ -17,6 +17,7 @@ module Form
         , selectField
         , textAreaField
         , textField
+        , wrapValues
         )
 
 import Form.Base as Base
@@ -115,6 +116,17 @@ selectField =
 
 
 -- OPERATIONS
+
+
+wrapValues : { get : a -> b, update : b -> a -> a } -> Form b output -> Form a output
+wrapValues { get, update } =
+    let
+        wrapField builder values =
+            builder values
+                |> Tuple.mapFirst (Field.map (\value -> update value values))
+    in
+    Base.valuesFrom get
+        >> Base.mapFields wrapField
 
 
 optional : Form values output -> Form values (Maybe output)
