@@ -6,19 +6,10 @@ import Form exposing (Form)
 import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
-import Html.Attributes as Attributes
-import Html.Events as Events
 
 
 type alias Model =
-    { contentType : ContentType
-    , form : Form.View.Model Values
-    }
-
-
-type ContentType
-    = Post
-    | Question
+    Form.View.Model Values
 
 
 type alias Values =
@@ -28,83 +19,55 @@ type alias Values =
 
 
 type Msg
-    = ChangeContentType ContentType
-    | FormChanged (Form.View.Model Values)
+    = FormChanged (Form.View.Model Values)
     | NewPost Post.Body
     | NewQuestion Question.Title (Maybe Question.Body)
 
 
 init : Model
 init =
-    { contentType = Post
-    , form =
-        { title = Value.blank
-        , body = Value.blank
-        }
-            |> Form.View.idle
+    { title = Value.blank
+    , body = Value.blank
     }
+        |> Form.View.idle
 
 
 update : Msg -> Model -> Model
 update msg model =
-    let
-        form =
-            model.form
-    in
     case msg of
-        ChangeContentType contentType ->
-            { model | contentType = contentType }
-
         FormChanged newForm ->
-            { model | form = newForm }
+            newForm
 
         NewPost body ->
-            { model | form = { form | state = Form.View.Loading } }
+            { model | state = Form.View.Loading }
 
         NewQuestion title maybeBody ->
-            { model | form = { form | state = Form.View.Loading } }
+            { model | state = Form.View.Loading }
 
 
 view : Model -> Html Msg
 view model =
-    let
-        contentTypeSwitch =
-            Html.div [ Attributes.class "tabs" ]
-                [ Html.button
-                    [ Events.onClick (ChangeContentType Post) ]
-                    [ Html.text "New Post" ]
-                , Html.button
-                    [ Events.onClick (ChangeContentType Question) ]
-                    [ Html.text "New Question" ]
-                ]
-    in
     Html.div []
         [ Html.h1 [] [ Html.text "Value reusability" ]
         , Html.p [] [ Html.text "The value for the body fields is reused in both forms with a single source of truth" ]
-        , if model.form.state == Form.View.Loading then
-            Html.text ""
-          else
-            contentTypeSwitch
-        , case model.contentType of
-            Post ->
-                Form.View.basic
-                    { onChange = FormChanged
-                    , action = "New Post"
-                    , loadingMessage = "Publishing post..."
-                    , validation = Form.View.ValidateOnSubmit
-                    }
-                    postForm
-                    model.form
-
-            Question ->
-                Form.View.basic
-                    { onChange = FormChanged
-                    , action = "New Question"
-                    , loadingMessage = "Publishing question..."
-                    , validation = Form.View.ValidateOnSubmit
-                    }
-                    questionForm
-                    model.form
+        , Html.h2 [] [ Html.text "New Post" ]
+        , Form.View.basic
+            { onChange = FormChanged
+            , action = "New Post"
+            , loadingMessage = "Loading..."
+            , validation = Form.View.ValidateOnSubmit
+            }
+            postForm
+            model
+        , Html.h2 [] [ Html.text "New Question" ]
+        , Form.View.basic
+            { onChange = FormChanged
+            , action = "New Question"
+            , loadingMessage = "Loading..."
+            , validation = Form.View.ValidateOnSubmit
+            }
+            questionForm
+            model
         ]
 
 
