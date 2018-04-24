@@ -5,6 +5,7 @@ module Form.View
         , State(..)
         , Validation(..)
         , basic
+        , errorMessage
         , field
         , idle
         )
@@ -95,7 +96,7 @@ basic { onChange, action, loadingMessage, validation } form model =
         showError label =
             model.showAllErrors || Set.member label model.showFieldError
     in
-    Html.form onSubmit
+    Html.form (Attributes.class "elm-form" :: onSubmit)
         (List.concat
             [ Form.fields form model.values
                 |> List.map fieldToHtml
@@ -259,7 +260,7 @@ type alias TextAreaConfig msg =
 
 textArea : TextAreaConfig msg -> Html msg
 textArea { onInput, disabled, value, error, label, placeholder } =
-    Html.div []
+    Html.div [ Attributes.class "elm-form-field" ]
         [ fieldLabel label
         , Html.textarea
             [ Events.onInput onInput
@@ -286,7 +287,12 @@ type alias CheckboxFieldConfig msg =
 
 checkboxField : CheckboxFieldConfig msg -> Html msg
 checkboxField { checked, disabled, onCheck, label, error } =
-    Html.div []
+    Html.div
+        [ Attributes.classList
+            [ ( "elm-form-field", True )
+            , ( "elm-form-field-error", error /= Nothing )
+            ]
+        ]
         [ Html.label []
             [ Html.input
                 [ Events.onCheck onCheck
@@ -335,7 +341,12 @@ selectField options { onInput, onBlur, disabled, value, error, label, placeholde
             Maybe.map (Events.onBlur >> flip (::) fixedAttributes) onBlur
                 |> Maybe.withDefault fixedAttributes
     in
-    Html.div []
+    Html.div
+        [ Attributes.classList
+            [ ( "elm-form-field", True )
+            , ( "elm-form-field-error", error /= Nothing )
+            ]
+        ]
         [ fieldLabel label
         , Html.select attributes
             (placeholderOption :: List.map toOption options)
@@ -354,7 +365,7 @@ fieldLabel label =
 
 errorMessage : Maybe String -> Html msg
 errorMessage =
-    Maybe.map (Html.text >> List.singleton >> Html.div [ Attributes.class "error" ])
+    Maybe.map (Html.text >> List.singleton >> Html.div [ Attributes.class "elm-form-error" ])
         >> Maybe.withDefault (Html.text "")
 
 
@@ -373,7 +384,12 @@ inputField type_ { onInput, onBlur, disabled, value, error, label, placeholder }
             Maybe.map (Events.onBlur >> flip (::) fixedAttributes) onBlur
                 |> Maybe.withDefault fixedAttributes
     in
-    Html.div []
+    Html.div
+        [ Attributes.classList
+            [ ( "elm-form-field", True )
+            , ( "elm-form-field-error", error /= Nothing )
+            ]
+        ]
         [ fieldLabel label
         , Html.input attributes
             []

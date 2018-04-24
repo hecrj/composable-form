@@ -62,7 +62,7 @@ h2 {
   font-weight: normal;
 }
 
-form {
+form.elm-form, form.elm-multistage-form {
   display: flex;
   flex-direction: column;
 
@@ -71,8 +71,27 @@ form {
     flex-direction: column;
     margin-bottom: 1em;
 
+    &.elm-form-field-error {
+      color: red;
+
+      input, select, textarea {
+        border-color: #F88;
+      }
+    }
+
     > *:not(:last-child) {
       margin-bottom: 0.5em;
+    }
+  }
+
+  .elm-multistage-form-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    a.elm-multistage-form-back {
+      color: #777;
+      cursor: pointer;
     }
   }
 
@@ -100,7 +119,7 @@ form {
     resize: vertical;
   }
 
-  .error {
+  .elm-form-error {
     color: red;
   }
 
@@ -124,6 +143,10 @@ form {
       color: #888;
     }
   }
+}
+
+.stage h3 {
+  margin: 0;
 }
 
 ul {

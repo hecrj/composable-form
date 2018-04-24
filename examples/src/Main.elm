@@ -4,6 +4,7 @@ import Html exposing (Html)
 import Html.Attributes as Attributes
 import Page.Composability.Simple as Composability
 import Page.Login as Login
+import Page.MultiStage as MultiStage
 import Page.Signup as Signup
 import Page.ValidationStrategies as ValidationStrategies
 import Page.ValueReusability as ValueReusability
@@ -21,6 +22,7 @@ type Page
     | ValueReusability ValueReusability.Model
     | ValidationStrategies ValidationStrategies.Model
     | Composability Composability.Model
+    | MultiStage MultiStage.Model
     | NotFound
 
 
@@ -32,6 +34,7 @@ type Msg
     | ValueReusabilityMsg ValueReusability.Msg
     | ValidationStrategiesMsg ValidationStrategies.Msg
     | ComposabilityMsg Composability.Msg
+    | MultiStageMsg MultiStage.Msg
 
 
 main : Program Never Model Msg
@@ -102,6 +105,16 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        MultiStageMsg subMsg ->
+            case model of
+                MultiStage subModel ->
+                    MultiStage.update subMsg subModel
+                        |> Tuple.mapFirst MultiStage
+                        |> Tuple.mapSecond (Cmd.map MultiStageMsg)
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 view : Model -> Html Msg
 view model =
@@ -142,6 +155,10 @@ view model =
                 Composability subModel ->
                     Composability.view subModel
                         |> Html.map ComposabilityMsg
+
+                MultiStage subModel ->
+                    MultiStage.view subModel
+                        |> Html.map MultiStageMsg
 
                 NotFound ->
                     Html.text "Not found"
@@ -186,6 +203,9 @@ fromRoute route =
         Route.Composability ->
             Composability Composability.init
 
+        Route.MultiStage ->
+            MultiStage MultiStage.init
+
         Route.NotFound ->
             NotFound
 
@@ -210,6 +230,10 @@ viewHome =
             , ( "Composability"
               , Route.Composability
               , "Shows an address form embedded in a bigger form."
+              )
+            , ( "Multiple stages"
+              , Route.MultiStage
+              , "Showcases a form that is filled in multiple stages."
               )
             ]
 
@@ -251,6 +275,9 @@ pageCodeUri page =
 
         Composability _ ->
             Just "/Composability/"
+
+        MultiStage _ ->
+            Just "/MultiStage.elm"
 
         NotFound ->
             Nothing

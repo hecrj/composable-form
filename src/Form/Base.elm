@@ -61,15 +61,6 @@ empty output =
     Form [] (always (Ok output))
 
 
-appendMeta : Form values a custom -> Form values b custom -> Form values b custom
-appendMeta (Form newFields newOutput) (Form fields output) =
-    Form (fields ++ newFields)
-        (\values ->
-            newOutput values
-                |> Result.andThen (always (output values))
-        )
-
-
 
 -- TEXT FIELD
 
@@ -271,4 +262,13 @@ append (Form newFields newOutput) (Form fields output) =
 
                         Err newErrors ->
                             Err (List.Nonempty.append errors newErrors)
+        )
+
+
+appendMeta : Form values a custom -> Form values b custom -> Form values b custom
+appendMeta (Form newFields newOutput) (Form fields output) =
+    Form (fields ++ newFields)
+        (\values ->
+            newOutput values
+                |> Result.andThen (always (output values))
         )

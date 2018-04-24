@@ -6,9 +6,11 @@ module Data.User
         , User
         , favoriteLanguageToString
         , favoriteLanguages
+        , nameToString
         , parseFavoriteLanguage
         , parseName
         , parsePassword
+        , passwordLength
         , signUp
         )
 
@@ -34,6 +36,11 @@ type Name
     = Name String
 
 
+nameToString : Name -> String
+nameToString (Name name) =
+    name
+
+
 parseName : String -> Result String Name
 parseName name =
     if String.length name < 2 then
@@ -48,6 +55,11 @@ parseName name =
 
 type Password
     = Password String
+
+
+passwordLength : Password -> Int
+passwordLength (Password password) =
+    String.length password
 
 
 parsePassword : String -> Result String Password

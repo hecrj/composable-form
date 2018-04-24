@@ -22,6 +22,7 @@ type Route
     | ValueReusability
     | ValidationStrategies
     | Composability
+    | MultiStage
     | NotFound
 
 
@@ -34,6 +35,7 @@ parser =
         , map ValueReusability (s "value-reusability")
         , map ValidationStrategies (s "validation-strategies")
         , map Composability (s "composability")
+        , map MultiStage (s "multi-stage")
         ]
 
 
@@ -104,11 +106,14 @@ toString route =
                 ValueReusability ->
                     [ "value-reusability" ]
 
+                ValidationStrategies ->
+                    [ "validation-strategies" ]
+
                 Composability ->
                     [ "composability" ]
 
-                ValidationStrategies ->
-                    [ "validation-strategies" ]
+                MultiStage ->
+                    [ "multi-stage" ]
 
                 NotFound ->
                     [ "404" ]
