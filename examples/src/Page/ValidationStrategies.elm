@@ -72,12 +72,12 @@ form =
                 { parser = Ok
                 , value = .validationStrategy
                 , update = \value values -> { values | validationStrategy = value }
-                , options =
-                    [ Form.View.ValidateOnSubmit, Form.View.ValidateOnBlur ]
-                        |> List.map strategyToOption
                 , attributes =
                     { label = "Validation strategy"
                     , placeholder = "Choose a strategy"
+                    , options =
+                        [ Form.View.ValidateOnSubmit, Form.View.ValidateOnBlur ]
+                            |> List.map strategyToOption
                     }
                 }
 

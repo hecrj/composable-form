@@ -12,20 +12,23 @@ module Form.View.MultiStage
         )
 
 import Form
-import Form.Field as Field exposing (Field)
+import Form.Error exposing (Error)
 import Form.View
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
-import List.Nonempty exposing (Nonempty)
 
 
 type Form values output
-    = Form (List (Stage values)) (values -> Result (Nonempty Field.Error) output)
+    = Form (List (Stage values)) (Form.Form values output)
 
 
 type Stage values
-    = Stage (values -> List ( Field values, Maybe Field.Error )) (values -> Maybe (Html Never))
+    = Stage (values -> List ( Form.Field values, Maybe Error )) (values -> Maybe (Html Never))
+
+
+
+-- Build
 
 
 type Build values output
@@ -34,33 +37,20 @@ type Build values output
 
 build : output -> Build values output
 build output =
-    Form [] (always (Ok output))
+    Form [] (Form.empty output)
         |> Build
 
 
 add : Form.Form values a -> (a -> Html Never) -> Build values (a -> b) -> Build values b
-add form view (Build (Form stages parser)) =
+add form view (Build (Form stages currentForm)) =
     let
         viewStage =
             Form.result form >> Result.map view >> Result.toMaybe
 
         newStage =
             Stage (Form.fields form) viewStage
-
-        newParser values =
-            parser values
-                |> Result.andThen (\f -> Form.result form values |> Result.map f)
-                |> Result.mapError
-                    (\errors ->
-                        case Form.result form values of
-                            Ok _ ->
-                                errors
-
-                            Err newErrors ->
-                                List.Nonempty.append errors newErrors
-                    )
     in
-    Form (stages ++ [ newStage ]) newParser
+    Form (stages ++ [ newStage ]) (currentForm |> Form.append form)
         |> Build
 
 
@@ -72,7 +62,7 @@ end form build =
 
 
 
--- VIEW
+-- View
 
 
 type alias Model values =
@@ -108,7 +98,7 @@ type alias ViewConfig values msg =
 
 
 view : ViewConfig values output -> Form values output -> Model values -> Html output
-view { onChange, action, loading, next, back } (Form stages parser) model =
+view { onChange, action, loading, next, back } (Form stages form) model =
     let
         isLastStage =
             model.stage + 1 == List.length stages
@@ -124,7 +114,7 @@ view { onChange, action, loading, next, back } (Form stages parser) model =
 
         onSubmitMsg =
             if isLastStage then
-                case parser model.values of
+                case Form.result form model.values of
                     Ok msg ->
                         if model.state == Loading then
                             Nothing
@@ -183,12 +173,12 @@ view { onChange, action, loading, next, back } (Form stages parser) model =
 
                 _ ->
                     Html.text ""
-            , Html.div [ Attributes.class "elm-multistage-form-controls" ]
+            , Html.div [ Attributes.class "elm-form-multistage-controls" ]
                 [ if model.stage == 0 || model.state == Loading then
                     Html.div [] []
                   else
                     Html.a
-                        [ Attributes.class "elm-multistage-form-back"
+                        [ Attributes.class "elm-form-multistage-back"
                         , Events.onClick (onChange { model | stage = model.stage - 1 })
                         ]
                         [ Html.text back ]
@@ -206,7 +196,7 @@ view { onChange, action, loading, next, back } (Form stages parser) model =
                 ]
             ]
     in
-    Html.form (Attributes.class "elm-multistage-form" :: onSubmit)
+    Html.form (Attributes.class "elm-form-multistage" :: onSubmit)
         (List.concat
             [ filledStages
             , currentStageFields

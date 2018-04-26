@@ -172,16 +172,16 @@ favoriteLanguageField =
                     )
         , value = .favoriteLanguage
         , update = \value values -> { values | favoriteLanguage = value }
-        , options =
-            User.favoriteLanguages
-                |> List.map
-                    (\lang ->
-                        ( User.favoriteLanguageToString lang
-                        , langLabel lang
-                        )
-                    )
         , attributes =
             { label = "Which is your favorite language?"
             , placeholder = "Choose a language"
+            , options =
+                User.favoriteLanguages
+                    |> List.map
+                        (\lang ->
+                            ( User.favoriteLanguageToString lang
+                            , langLabel lang
+                            )
+                        )
             }
         }

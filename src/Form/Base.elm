@@ -1,28 +1,20 @@
 module Form.Base
     exposing
-        ( CheckboxFieldConfig
-        , FieldConfig
+        ( FieldConfig
         , Form
         , Parser
-        , SelectFieldConfig
         , append
         , appendMeta
-        , checkboxField
         , custom
-        , emailField
         , empty
+        , field
         , fields
-        , mapFields
         , optional
-        , passwordField
         , result
-        , selectField
-        , textAreaField
-        , textField
-        , valuesFrom
         )
 
-import Form.Field as Field exposing (Field)
+import Form.Error as Error exposing (Error)
+import Form.Field.State exposing (State)
 import Form.Value as Value exposing (Value)
 import List.Nonempty exposing (Nonempty)
 
@@ -31,23 +23,23 @@ import List.Nonempty exposing (Nonempty)
 
 
 type Form values output field
-    = Form (List (FieldBuilder values field)) (values -> Result (Nonempty Field.Error) output)
+    = Form (List (FieldBuilder values field)) (values -> Result (Nonempty Error) output)
 
 
 type alias FieldBuilder values field =
-    values -> ( field, Maybe Field.Error )
+    values -> ( field, Maybe Error )
 
 
 type alias Parser a b =
     a -> Result String b
 
 
-fields : Form values output field -> values -> List ( field, Maybe Field.Error )
+fields : Form values output field -> values -> List ( field, Maybe Error )
 fields (Form fields _) values =
     List.map (\builder -> builder values) fields
 
 
-result : Form values output field -> values -> Result (Nonempty Field.Error) output
+result : Form values output field -> values -> Result (Nonempty Error) output
 result (Form _ parser) =
     parser
 
@@ -62,95 +54,17 @@ empty output =
 
 
 
--- TEXT FIELD
-
-
-textField : (Field.TextField values -> field) -> FieldConfig Field.TextFieldAttributes values String output -> Form values output field
-textField =
-    custom (Field.TextField Field.RawText) String.isEmpty
-
-
-
--- TEXTAREA FIELD
-
-
-textAreaField : (Field.TextField values -> field) -> FieldConfig Field.TextFieldAttributes values String output -> Form values output field
-textAreaField =
-    custom (Field.TextField Field.TextArea) String.isEmpty
-
-
-
--- EMAIL FIELD
-
-
-emailField : (Field.TextField values -> field) -> FieldConfig Field.TextFieldAttributes values String output -> Form values output field
-emailField =
-    custom (Field.TextField Field.Email) String.isEmpty
-
-
-
--- PASSWORD FIELD
-
-
-passwordField : (Field.TextField values -> field) -> FieldConfig Field.TextFieldAttributes values String output -> Form values output field
-passwordField =
-    custom (Field.TextField Field.Password) String.isEmpty
-
-
-
 -- CHECKBOX FIELD
+-- Custom fields
 
 
-type alias CheckboxFieldConfig values output =
-    { parser : Parser Bool output
-    , value : values -> Value Bool
-    , update : Value Bool -> values -> values
-    , attributes : Field.CheckboxFieldAttributes
+type alias BuildConfig attrs values input field =
+    { builder : attrs -> State input values -> field
+    , isEmpty : input -> Bool
     }
 
 
-checkboxField : (Field.CheckboxField values -> field) -> CheckboxFieldConfig values output -> Form values output field
-checkboxField toField { parser, value, update, attributes } =
-    custom Field.CheckboxField
-        (always False)
-        toField
-        { parser = parser
-        , value = value >> Value.withDefault False
-        , update = update
-        , attributes = attributes
-        }
-
-
-
--- SELECT FIELD
-
-
-type alias SelectFieldConfig values output =
-    { parser : Parser String output
-    , value : values -> Value String
-    , update : Value String -> values -> values
-    , options : List ( String, String )
-    , attributes : Field.SelectFieldAttributes
-    }
-
-
-selectField : (Field.SelectField values -> field) -> SelectFieldConfig values output -> Form values output field
-selectField toField { parser, value, update, options, attributes } =
-    custom (Field.SelectField options)
-        String.isEmpty
-        toField
-        { parser = parser
-        , value = value
-        , update = update
-        , attributes = attributes
-        }
-
-
-
--- HELPERS
-
-
-type alias FieldConfig attrs values input output =
+type alias FieldConfig attrs input values output =
     { parser : Parser input output
     , value : values -> Value input
     , update : Value input -> values -> values
@@ -158,20 +72,20 @@ type alias FieldConfig attrs values input output =
     }
 
 
-custom : (attrs -> Field.State a values -> config) -> (a -> Bool) -> (config -> field) -> FieldConfig attrs values a b -> Form values b field
-custom factory isEmpty constructor config =
+field : BuildConfig attrs values input field -> (field -> custom) -> FieldConfig attrs input values output -> Form values output custom
+field { builder, isEmpty } map config =
     let
         requiredParser maybeValue =
             case maybeValue of
                 Nothing ->
-                    Err (List.Nonempty.fromElement Field.EmptyError)
+                    Err (List.Nonempty.fromElement Error.EmptyField)
 
                 Just value ->
                     if isEmpty value then
-                        Err (List.Nonempty.fromElement Field.EmptyError)
+                        Err (List.Nonempty.fromElement Error.EmptyField)
                     else
                         config.parser value
-                            |> Result.mapError (Field.ParserError >> List.Nonempty.fromElement)
+                            |> Result.mapError (Error.ParserError >> List.Nonempty.fromElement)
 
         parse =
             config.value >> Value.raw >> requiredParser
@@ -201,24 +115,25 @@ custom factory isEmpty constructor config =
             , update = update values
             }
 
-        builder values =
-            ( factory config.attributes (attributes values) |> constructor, error values )
+        fieldBuilder values =
+            ( builder config.attributes (attributes values) |> map, error values )
     in
-    Form [ builder ] parse
+    Form [ fieldBuilder ] parse
+
+
+type alias CustomFieldConfig values output field =
+    { builder : FieldBuilder values field
+    , result : values -> Result (Nonempty Error) output
+    }
+
+
+custom : CustomFieldConfig values output custom -> Form values output custom
+custom { builder, result } =
+    Form [ builder ] result
 
 
 
 -- OPERATIONS
-
-
-valuesFrom : (a -> b) -> Form b output custom -> Form a output custom
-valuesFrom f (Form builders output) =
-    Form (List.map (\builder -> f >> builder) builders) (f >> output)
-
-
-mapFields : (FieldBuilder values a -> FieldBuilder values b) -> Form values output a -> Form values output b
-mapFields f (Form builders output) =
-    Form (List.map f builders) output
 
 
 optional : Form values output custom -> Form values (Maybe output) custom
@@ -226,7 +141,7 @@ optional (Form builders output) =
     let
         optionalBuilder builder values =
             case builder values of
-                ( field, Just Field.EmptyError ) ->
+                ( field, Just Error.EmptyField ) ->
                     ( field, Nothing )
 
                 result ->
@@ -238,7 +153,7 @@ optional (Form builders output) =
                     Ok (Just value)
 
                 Err errors ->
-                    if List.Nonempty.all ((==) Field.EmptyError) errors then
+                    if List.Nonempty.all ((==) Error.EmptyField) errors then
                         Ok Nothing
                     else
                         Err errors

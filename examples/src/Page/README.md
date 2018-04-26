@@ -3,7 +3,6 @@
   * [ValueReusability](ValueReusability.elm) shows how field values are decoupled from any form, and how they can be reused with a single source of truth. It also showcases an optional field.
   * [ValidationStrategies](ValidationStrategies.elm) showcases two different validation strategies: validation on submit and validation on blur.
   * [Composability](Composability) shows three different approaches to form composition:
-    * [Simple](Composability/Simple.elm) uses `Form.wrapValues`.
     * [WithConfiguration](Composability/WithConfiguration.elm) uses a function that configures the composable form.
     * [WithExtensibleRecords](Composability/WithExtensibleRecords.elm) uses extensible records.
   * [MultiStage](MultiStage.elm) showcases a form that is filled in multiple stages.

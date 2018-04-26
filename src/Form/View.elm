@@ -11,7 +11,8 @@ module Form.View
         )
 
 import Form exposing (Form)
-import Form.Field as Field exposing (Field)
+import Form.Error as Error exposing (Error)
+import Form.Field.TextField as TextField
 import Form.Value as Value
 import Html exposing (Html)
 import Html.Attributes as Attributes
@@ -132,7 +133,7 @@ type alias FieldConfig values msg =
     }
 
 
-field : FieldConfig values msg -> ( Field values, Maybe Field.Error ) -> Html msg
+field : FieldConfig values msg -> ( Form.Field values, Maybe Error ) -> Html msg
 field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
     let
         error label value =
@@ -148,7 +149,7 @@ field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
                 Nothing
     in
     case field of
-        Field.Text { type_, attributes, state } ->
+        Form.Text { type_, attributes, state } ->
             let
                 config =
                     { onInput = state.update >> onChange
@@ -161,19 +162,19 @@ field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
                     }
             in
             case type_ of
-                Field.RawText ->
+                TextField.RawText ->
                     textField config
 
-                Field.TextArea ->
+                TextField.TextArea ->
                     textArea config
 
-                Field.Password ->
+                TextField.Password ->
                     passwordField config
 
-                Field.Email ->
+                TextField.Email ->
                     emailField config
 
-        Field.Checkbox { attributes, state } ->
+        Form.Checkbox { attributes, state } ->
             checkboxField
                 { checked = Value.raw state.value |> Maybe.withDefault False
                 , disabled = disabled
@@ -182,8 +183,8 @@ field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
                 , error = error attributes.label state.value
                 }
 
-        Field.Select { options, attributes, state } ->
-            selectField options
+        Form.Select { attributes, state } ->
+            selectField attributes.options
                 { onInput = state.update >> onChange
                 , onBlur = whenDirty state.value (Maybe.map (\onBlur -> onBlur attributes.label) onBlur)
                 , disabled = disabled
@@ -194,13 +195,13 @@ field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
                 }
 
 
-errorToString : Field.Error -> String
+errorToString : Error -> String
 errorToString error =
     case error of
-        Field.EmptyError ->
+        Error.EmptyField ->
             "This field is required"
 
-        Field.ParserError parserError ->
+        Error.ParserError parserError ->
             parserError
 
 

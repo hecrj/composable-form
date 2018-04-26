@@ -1,10 +1,7 @@
 module Form
     exposing
-        ( CheckboxFieldConfig
-        , FieldConfig
+        ( Field(..)
         , Form
-        , Parser
-        , SelectFieldConfig
         , append
         , appendMeta
         , checkboxField
@@ -17,11 +14,13 @@ module Form
         , selectField
         , textAreaField
         , textField
-        , wrapValues
         )
 
 import Form.Base as Base
-import Form.Field as Field exposing (Field)
+import Form.Error exposing (Error)
+import Form.Field.CheckboxField as CheckboxField exposing (CheckboxField)
+import Form.Field.SelectField as SelectField exposing (SelectField)
+import Form.Field.TextField as TextField exposing (TextField)
 import List.Nonempty exposing (Nonempty)
 
 
@@ -29,22 +28,18 @@ type alias Form values output =
     Base.Form values output (Field values)
 
 
-type alias Parser a b =
-    Base.Parser a b
-
-
-fields : Form values output -> values -> List ( Field values, Maybe Field.Error )
+fields : Form values output -> values -> List ( Field values, Maybe Error )
 fields =
     Base.fields
 
 
-result : Form values output -> values -> Result (Nonempty Field.Error) output
+result : Form values output -> values -> Result (Nonempty Error) output
 result =
     Base.result
 
 
 
--- CONSTRUCTORS
+-- Constructors
 
 
 empty : output -> Form values output
@@ -52,81 +47,8 @@ empty =
     Base.empty
 
 
-type alias FieldConfig attrs values input output =
-    Base.FieldConfig attrs values input output
 
-
-
--- TEXT FIELD
-
-
-textField : FieldConfig Field.TextFieldAttributes values String output -> Form values output
-textField =
-    Base.textField Field.Text
-
-
-textAreaField : FieldConfig Field.TextFieldAttributes values String output -> Form values output
-textAreaField =
-    Base.textAreaField Field.Text
-
-
-
--- EMAIL FIELD
-
-
-emailField : FieldConfig Field.TextFieldAttributes values String output -> Form values output
-emailField =
-    Base.emailField Field.Text
-
-
-
--- PASSWORD FIELD
-
-
-passwordField : FieldConfig Field.TextFieldAttributes values String output -> Form values output
-passwordField =
-    Base.passwordField Field.Text
-
-
-
--- CHECKBOX FIELD
-
-
-type alias CheckboxFieldConfig values output =
-    Base.CheckboxFieldConfig values output
-
-
-checkboxField : CheckboxFieldConfig values output -> Form values output
-checkboxField =
-    Base.checkboxField Field.Checkbox
-
-
-
--- SELECT FIELD
-
-
-type alias SelectFieldConfig values output =
-    Base.SelectFieldConfig values output
-
-
-selectField : SelectFieldConfig values output -> Form values output
-selectField =
-    Base.selectField Field.Select
-
-
-
--- OPERATIONS
-
-
-wrapValues : { get : a -> b, update : b -> a -> a } -> Form b output -> Form a output
-wrapValues { get, update } =
-    let
-        wrapField builder values =
-            builder values
-                |> Tuple.mapFirst (Field.map (\value -> update value values))
-    in
-    Base.valuesFrom get
-        >> Base.mapFields wrapField
+-- Operations
 
 
 optional : Form values output -> Form values (Maybe output)
@@ -142,3 +64,55 @@ append =
 appendMeta : Form values a -> Form values b -> Form values b
 appendMeta =
     Base.appendMeta
+
+
+
+-- Field
+
+
+type Field values
+    = Text (TextField values)
+    | Checkbox (CheckboxField values)
+    | Select (SelectField values)
+
+
+
+-- Text fields
+
+
+textField : Base.FieldConfig TextField.Attributes String values output -> Form values output
+textField =
+    TextField.text Text
+
+
+textAreaField : Base.FieldConfig TextField.Attributes String values output -> Form values output
+textAreaField =
+    TextField.textArea Text
+
+
+passwordField : Base.FieldConfig TextField.Attributes String values output -> Form values output
+passwordField =
+    TextField.password Text
+
+
+emailField : Base.FieldConfig TextField.Attributes String values output -> Form values output
+emailField =
+    TextField.email Text
+
+
+
+-- Checkbox field
+
+
+checkboxField : Base.FieldConfig CheckboxField.Attributes Bool values output -> Form values output
+checkboxField =
+    CheckboxField.build Checkbox
+
+
+
+-- Select field
+
+
+selectField : Base.FieldConfig SelectField.Attributes String values output -> Form values output
+selectField =
+    SelectField.build Select

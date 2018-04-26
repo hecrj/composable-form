@@ -62,7 +62,7 @@ h2 {
   font-weight: normal;
 }
 
-form.elm-form, form.elm-multistage-form {
+form.elm-form, form.elm-form-multistage {
   display: flex;
   flex-direction: column;
 
@@ -84,12 +84,12 @@ form.elm-form, form.elm-multistage-form {
     }
   }
 
-  .elm-multistage-form-controls {
+  .elm-form-multistage-controls {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    a.elm-multistage-form-back {
+    a.elm-form-multistage-back {
       color: #777;
       cursor: pointer;
     }
