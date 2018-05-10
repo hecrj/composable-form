@@ -134,7 +134,7 @@ type alias FieldConfig values msg =
 
 
 field : FieldConfig values msg -> ( Form.Field values, Maybe Error ) -> Html msg
-field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
+field { onChange, onBlur, disabled, showError } ( field_, maybeError ) =
     let
         error label value =
             if showError label then
@@ -148,12 +148,12 @@ field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
             else
                 Nothing
     in
-    case field of
+    case field_ of
         Form.Text { type_, attributes, state } ->
             let
                 config =
                     { onInput = state.update >> onChange
-                    , onBlur = whenDirty state.value (Maybe.map (\onBlur -> onBlur attributes.label) onBlur)
+                    , onBlur = whenDirty state.value (Maybe.map (\onBlur_ -> onBlur_ attributes.label) onBlur)
                     , disabled = disabled
                     , label = attributes.label
                     , placeholder = attributes.placeholder
@@ -186,7 +186,7 @@ field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
         Form.Select { attributes, state } ->
             selectField attributes.options
                 { onInput = state.update >> onChange
-                , onBlur = whenDirty state.value (Maybe.map (\onBlur -> onBlur attributes.label) onBlur)
+                , onBlur = whenDirty state.value (Maybe.map (\onBlur_ -> onBlur_ attributes.label) onBlur)
                 , disabled = disabled
                 , label = attributes.label
                 , placeholder = attributes.placeholder
@@ -319,12 +319,12 @@ type alias SelectFieldConfig msg =
 selectField : List ( String, String ) -> TextFieldConfig msg -> Html msg
 selectField options { onInput, onBlur, disabled, value, error, label, placeholder } =
     let
-        toOption ( key, label ) =
+        toOption ( key, label_ ) =
             Html.option
                 [ Attributes.value key
                 , Attributes.selected (value == key)
                 ]
-                [ Html.text label ]
+                [ Html.text label_ ]
 
         placeholderOption =
             Html.option
@@ -339,7 +339,7 @@ selectField options { onInput, onBlur, disabled, value, error, label, placeholde
             ]
 
         attributes =
-            Maybe.map (Events.onBlur >> flip (::) fixedAttributes) onBlur
+            Maybe.map (Events.onBlur >> (\b -> b :: fixedAttributes)) onBlur
                 |> Maybe.withDefault fixedAttributes
     in
     Html.div
@@ -382,7 +382,7 @@ inputField type_ { onInput, onBlur, disabled, value, error, label, placeholder }
             ]
 
         attributes =
-            Maybe.map (Events.onBlur >> flip (::) fixedAttributes) onBlur
+            Maybe.map (Events.onBlur >> (\b -> b :: fixedAttributes)) onBlur
                 |> Maybe.withDefault fixedAttributes
     in
     Html.div

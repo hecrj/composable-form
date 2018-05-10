@@ -11,7 +11,7 @@ module.exports = {
 
   output: {
     path: path.resolve(__dirname, '../docs'),
-    publicPath: '/elm-wip-form/',
+    publicPath: '/',
     filename: '[name].[hash].js'
   },
 
@@ -38,7 +38,8 @@ module.exports = {
           {
             loader: 'elm-webpack-loader',
             options: {
-              warn: true
+              pathToMake: './elm-make',
+              yes: false
             }
           }
         ]
@@ -63,7 +64,7 @@ module.exports = {
   devServer: {
     inline: true,
     stats: { colors: true },
-    historyApiFallback: false,
+    historyApiFallback: true,
     host: '0.0.0.0',
     disableHostCheck: true,
     stats: {

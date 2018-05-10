@@ -122,5 +122,5 @@ signUp email name password favoriteLanguage =
                 Task.fail "The e-mail address is taken. Try this one: free@email.com"
     in
     -- Here we simulate an HTTP request to some backend server
-    Process.sleep (1 * Time.second)
+    Process.sleep 1000
         |> Task.andThen (always response)

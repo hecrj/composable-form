@@ -7,12 +7,13 @@ module Route
         , program
         )
 
+import Browser
+import Browser.Navigation as Navigation
 import Html exposing (Attribute, Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Json.Decode as Decode exposing (Decoder)
-import Navigation
-import UrlParser exposing (Parser, map, s)
+import Url.Parser as UrlParser exposing (Parser, map, s)
 
 
 type Route
@@ -39,9 +40,9 @@ parser =
         ]
 
 
-fromLocation : Navigation.Location -> Route
+fromLocation : UrlParser.Url -> Route
 fromLocation location =
-    case UrlParser.parseHash parser location of
+    case UrlParser.parse parser location of
         Just route ->
             route
 
@@ -56,20 +57,20 @@ program :
         , update : msg -> model -> ( model, Cmd msg )
         , view : model -> Html msg
         }
-    -> Program Never model msg
+    -> Program () model msg
 program toMsg { init, update, view } =
-    Navigation.program
-        (fromLocation >> toMsg)
-        { init = fromLocation >> init
+    Browser.fullscreen
+        { init = .url >> fromLocation >> init
         , update = update
-        , view = view
+        , view = view >> List.singleton >> Browser.Page "elm-form"
+        , onNavigation = Just (fromLocation >> toMsg)
         , subscriptions = always Sub.none
         }
 
 
 navigate : Route -> Cmd msg
 navigate =
-    Navigation.newUrl << toString
+    Navigation.pushUrl << toString
 
 
 goBack : Cmd msg
@@ -80,12 +81,9 @@ goBack =
 href : (Route -> msg) -> Route -> List (Attribute msg)
 href toMsg route =
     [ Attributes.attribute "href" (toString route)
-    , Events.onWithOptions
+    , Events.preventDefaultOn
         "click"
-        { stopPropagation = False, preventDefault = True }
-        (preventDefault2
-            |> Decode.andThen (maybePreventDefault <| toMsg route)
-        )
+        (maybePreventDefault <| toMsg route)
     ]
 
 
@@ -118,7 +116,7 @@ toString route =
                 NotFound ->
                     [ "404" ]
     in
-    "#/" ++ String.join "/" parts
+    "/" ++ String.join "/" parts
 
 
 
@@ -135,14 +133,9 @@ preventDefault2 =
         (Decode.field "metaKey" Decode.bool)
 
 
-maybePreventDefault : msg -> Bool -> Decoder msg
-maybePreventDefault msg preventDefault =
-    case preventDefault of
-        True ->
-            Decode.succeed msg
-
-        False ->
-            Decode.fail "Normal link"
+maybePreventDefault : msg -> Decoder ( msg, Bool )
+maybePreventDefault msg =
+    Decode.map (Tuple.pair msg) preventDefault2
 
 
 invertedOr : Bool -> Bool -> Bool

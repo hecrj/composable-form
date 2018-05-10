@@ -35,8 +35,8 @@ type alias Parser a b =
 
 
 fields : Form values output field -> values -> List ( field, Maybe Error )
-fields (Form fields _) values =
-    List.map (\builder -> builder values) fields
+fields (Form fields_ _) values =
+    List.map (\builder -> builder values) fields_
 
 
 result : Form values output field -> values -> Result (Nonempty Error) output
@@ -94,13 +94,10 @@ field { builder, isEmpty } map config =
             let
                 value =
                     config.value values
-
-                result =
-                    config.parser newValue
             in
             value
                 |> Value.change newValue
-                |> flip config.update values
+                |> (\v -> config.update v values)
 
         error values =
             case parse values of
@@ -128,8 +125,8 @@ type alias CustomFieldConfig values output field =
 
 
 custom : CustomFieldConfig values output custom -> Form values output custom
-custom { builder, result } =
-    Form [ builder ] result
+custom config =
+    Form [ config.builder ] config.result
 
 
 
@@ -141,11 +138,11 @@ optional (Form builders output) =
     let
         optionalBuilder builder values =
             case builder values of
-                ( field, Just Error.EmptyField ) ->
-                    ( field, Nothing )
+                ( field_, Just Error.EmptyField ) ->
+                    ( field_, Nothing )
 
-                result ->
-                    result
+                result_ ->
+                    result_
 
         optionalOutput values =
             case output values of
@@ -162,8 +159,8 @@ optional (Form builders output) =
 
 
 append : Form values a custom -> Form values (a -> b) custom -> Form values b custom
-append (Form newFields newOutput) (Form fields output) =
-    Form (fields ++ newFields)
+append (Form newFields newOutput) (Form fields_ output) =
+    Form (fields_ ++ newFields)
         (\values ->
             case output values of
                 Ok f ->
@@ -181,8 +178,8 @@ append (Form newFields newOutput) (Form fields output) =
 
 
 appendMeta : Form values a custom -> Form values b custom -> Form values b custom
-appendMeta (Form newFields newOutput) (Form fields output) =
-    Form (fields ++ newFields)
+appendMeta (Form newFields newOutput) (Form fields_ output) =
+    Form (fields_ ++ newFields)
         (\values ->
             newOutput values
                 |> Result.andThen (always (output values))

@@ -42,10 +42,10 @@ build output =
 
 
 add : Form.Form values a -> (a -> Html Never) -> Build values (a -> b) -> Build values b
-add form view (Build (Form stages currentForm)) =
+add form toHtml (Build (Form stages currentForm)) =
     let
         viewStage =
-            Form.result form >> Result.map view >> Result.toMaybe
+            Form.result form >> Result.map toHtml >> Result.toMaybe
 
         newStage =
             Stage (Form.fields form) viewStage
@@ -55,8 +55,8 @@ add form view (Build (Form stages currentForm)) =
 
 
 end : Form.Form values a -> Build values (a -> b) -> Form values b
-end form build =
-    case add form (always (Html.text "")) build of
+end form build_ =
+    case add form (always (Html.text "")) build_ of
         Build multiStageForm ->
             multiStageForm
 
@@ -125,8 +125,8 @@ view { onChange, action, loading, next, back } (Form stages form) model =
                         maybeShowErrors
             else
                 case currentStage of
-                    Just (Stage _ view) ->
-                        case view model.values of
+                    Just (Stage _ stageView) ->
+                        case stageView model.values of
                             Just _ ->
                                 Just (onChange { model | stage = model.stage + 1, showErrors = False })
 
@@ -142,10 +142,10 @@ view { onChange, action, loading, next, back } (Form stages form) model =
                 |> Maybe.withDefault []
 
         filledStages =
-            List.take model.stage stages
+            List.keep model.stage stages
                 |> List.map
-                    (\(Stage _ view) ->
-                        view model.values
+                    (\(Stage _ stageView) ->
+                        stageView model.values
                             |> Maybe.map (Html.map (always (onChange model)))
                             |> Maybe.withDefault (Html.text "error")
                     )

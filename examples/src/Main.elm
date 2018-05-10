@@ -37,7 +37,7 @@ type Msg
     | MultiStageMsg MultiStage.Msg
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     Route.program
         RouteAccessed

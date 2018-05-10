@@ -106,11 +106,11 @@ newest getter values1 values2 =
 version : Value a -> Int
 version value =
     case value of
-        Blank version ->
-            version
+        Blank v ->
+            v
 
-        Clean version _ ->
-            version
+        Clean v _ ->
+            v
 
-        Dirty version _ ->
-            version
+        Dirty v _ ->
+            v

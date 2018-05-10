@@ -5,6 +5,5 @@ import './styles.scss'
 
 // Elm
 var Elm = require('Main.elm');
-var node = document.getElementById('elm-app');
-var app = Elm.Main.embed(node);
+var app = Elm.Elm.Main.fullscreen();
 

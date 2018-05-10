@@ -139,7 +139,7 @@ passwordField =
 viewPassword : User.Password -> Html msg
 viewPassword password =
     Html.div [ Attributes.class "stage" ]
-        [ Html.text ("Your password length is: " ++ toString (User.passwordLength password)) ]
+        [ Html.text ("Your password length is: " ++ String.fromInt (User.passwordLength password)) ]
 
 
 

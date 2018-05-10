@@ -54,8 +54,8 @@ update msg model =
 
         SignUp email name password favoriteLanguage ->
             case model of
-                FillingForm form ->
-                    ( FillingForm { form | state = Form.View.Loading }
+                FillingForm formModel ->
+                    ( FillingForm { formModel | state = Form.View.Loading }
                     , User.signUp email name password favoriteLanguage
                         |> Task.attempt SignupAttempted
                     )
@@ -68,8 +68,8 @@ update msg model =
 
         SignupAttempted (Err error) ->
             case model of
-                FillingForm form ->
-                    ( FillingForm { form | state = Form.View.Error error }, Cmd.none )
+                FillingForm formModel ->
+                    ( FillingForm { formModel | state = Form.View.Error error }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -94,7 +94,7 @@ view model =
         SignedUp user ->
             Html.div []
                 [ Html.h1 [] [ Html.text "Signup successful!" ]
-                , Html.text (toString user)
+                , Html.text (Debug.toString user)
                 ]
 
 
