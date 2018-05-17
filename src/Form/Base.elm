@@ -4,32 +4,40 @@ module Form.Base
         , Form
         , Parser
         , append
-        , appendMeta
         , custom
-        , empty
         , field
         , fields
         , optional
         , result
+        , succeed
         )
 
 import Form.Error as Error exposing (Error)
 import Form.Field.State exposing (State)
 import Form.Value as Value exposing (Value)
-import List.Nonempty exposing (Nonempty)
-
-
--- FORM
 
 
 type Form values output field
-    = Form (List (FieldBuilder values field)) (values -> Result (Nonempty Error) output)
+    = Form (List (FieldBuilder values field)) (values -> Result ( Error, List Error ) output)
 
 
 type alias FieldBuilder values field =
     values -> ( field, Maybe Error )
 
 
+{-| A `Parser` is a function that processes some `input` and returns a correct `output`, or a
+`String` describing some problem.
+
+For instance, a `Parser String EmailAddress` could be defined this way:
+
+    parseEmailAddress : String -> Result String EmailAddress
+    parseEmailAddress string =
+        if String.contains "@" string then
+            EmailAddress string
+        else
+            Err "an e-mail address should contain the symbol '@'"
+
+-}
 type alias Parser a b =
     a -> Result String b
 
@@ -39,7 +47,7 @@ fields (Form fields _) values =
     List.map (\builder -> builder values) fields
 
 
-result : Form values output field -> values -> Result (Nonempty Error) output
+result : Form values output field -> values -> Result ( Error, List Error ) output
 result (Form _ parser) =
     parser
 
@@ -48,13 +56,12 @@ result (Form _ parser) =
 -- CONSTRUCTORS
 
 
-empty : output -> Form values output custom
-empty output =
+succeed : output -> Form values output custom
+succeed output =
     Form [] (always (Ok output))
 
 
 
--- CHECKBOX FIELD
 -- Custom fields
 
 
@@ -64,6 +71,17 @@ type alias BuildConfig attrs values input field =
     }
 
 
+{-| Most form fields require configuration! `FieldConfig` allows you to specify how a field is
+validated and updated, alongside its attributes:
+
+  - `parser` must be a function that validates the `input` of the field and produces a correct
+    `output` or a `String` describing a problem
+  - `value` defines how the [`Value`](Form.Value) of the field is obtained from the form `values`
+  - `update` defines how the current form `values` should be updated with a new field
+    [`Value`](Form.Value)
+  - `attributes` represent the attributes of the field
+
+-}
 type alias FieldConfig attrs input values output =
     { parser : Parser input output
     , value : values -> Value input
@@ -78,14 +96,14 @@ field { builder, isEmpty } map config =
         requiredParser maybeValue =
             case maybeValue of
                 Nothing ->
-                    Err (List.Nonempty.fromElement Error.EmptyField)
+                    Err ( Error.EmptyField, [] )
 
                 Just value ->
                     if isEmpty value then
-                        Err (List.Nonempty.fromElement Error.EmptyField)
+                        Err ( Error.EmptyField, [] )
                     else
                         config.parser value
-                            |> Result.mapError (Error.ParserError >> List.Nonempty.fromElement)
+                            |> Result.mapError (\error -> ( Error.ParserError error, [] ))
 
         parse =
             config.value >> Value.raw >> requiredParser
@@ -107,8 +125,8 @@ field { builder, isEmpty } map config =
                 Ok _ ->
                     Nothing
 
-                Err errors ->
-                    Just (List.Nonempty.head errors)
+                Err ( firstError, otherErrors ) ->
+                    Just firstError
 
         attributes values =
             { value = config.value values
@@ -123,7 +141,7 @@ field { builder, isEmpty } map config =
 
 type alias CustomFieldConfig values output field =
     { builder : FieldBuilder values field
-    , result : values -> Result (Nonempty Error) output
+    , result : values -> Result ( Error, List Error ) output
     }
 
 
@@ -152,11 +170,11 @@ optional (Form builders output) =
                 Ok value ->
                     Ok (Just value)
 
-                Err errors ->
-                    if List.Nonempty.all ((==) Error.EmptyField) errors then
+                Err ( firstError, otherErrors ) ->
+                    if List.all ((==) Error.EmptyField) (firstError :: otherErrors) then
                         Ok Nothing
                     else
-                        Err errors
+                        Err ( firstError, otherErrors )
     in
     Form (List.map optionalBuilder builders) optionalOutput
 
@@ -170,20 +188,11 @@ append (Form newFields newOutput) (Form fields output) =
                     newOutput values
                         |> Result.map f
 
-                Err errors ->
+                Err (( firstError, otherErrors ) as errors) ->
                     case newOutput values of
                         Ok _ ->
                             Err errors
 
-                        Err newErrors ->
-                            Err (List.Nonempty.append errors newErrors)
-        )
-
-
-appendMeta : Form values a custom -> Form values b custom -> Form values b custom
-appendMeta (Form newFields newOutput) (Form fields output) =
-    Form (fields ++ newFields)
-        (\values ->
-            newOutput values
-                |> Result.andThen (always (output values))
+                        Err ( newFirstError, newOtherErrors ) ->
+                            Err ( firstError, otherErrors ++ (newFirstError :: newOtherErrors) )
         )
