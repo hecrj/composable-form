@@ -15,7 +15,7 @@ module Form
         , textareaField
         )
 
-{-| This module helps you build [composable forms](#Form) made of [simple fields](#Fields).
+{-| This module helps you build [composable forms](#Form) made of [simple fields](#simple-fields).
 
 
 # Definition
@@ -23,27 +23,27 @@ module Form
 @docs Form
 
 
-# Fields
+# Simple fields
 
 @docs textField, emailField, passwordField, textareaField, checkboxField, selectField
 
 
 # Composition
 
-All the functions in [the previous section](#Fields) produce a `Form` with a **single** field.
-You might then be wondering... "How do I create a `Form` with multiple fields?!" Remember the
-name of this package: `composable-form`! A `Form` is composable! This section explains how you can
-combine different forms into bigger and more complex ones.
+All the functions in [the previous section](#simple-fields) produce a `Form` with a **single**
+field. You might then be wondering... "How do I create a `Form` with multiple fields?!"
+Remember the name of this package: `composable-form`! A `Form` is composable! This section
+explains how you can combine different forms into bigger and more complex ones.
 
 @docs succeed, append, optional
 
 
 # Results
 
-This section describes how to obtain the different [`fields`](#fields) that conform a `Form` and
+This section describes how to obtain the different [`fields`](#fields) that comprise a `Form` and
 how to obtain the [resulting](#result) `output`. This is mostly used to build custom form renderers.
 
-If you just want to render a simple `Form` as `Html`, check [`Form.View`](Form/View) first as it
+If you just want to render a simple `Form` as `Html`, check [`Form.View`](Form-View) first as it
 might suit your needs just well.
 
 @docs Field, fields, result
@@ -84,13 +84,13 @@ It requires some configuration:
     the field and produces either:
       - a correct `output`
       - a `String` describing an error
-  - `value` describes how to obtain the field [`Value`](Form/Value) from the form `values`
+  - `value` describes how to obtain the field [`Value`](Form-Value) from the form `values`
   - `update` describes how the current form `values` should be updated with a new field
-    [`Value`](Form/Value)
+    [`Value`](Form-Value)
   - `attributes` let you define the specific attributes of the field (`label` and `placeholder`
-    in this case, see [`TextField.Attributes`](Form/Field/TextField#Attributes))
+    in this case, see [`TextField.Attributes`](Form-Field-TextField#Attributes))
 
-It might seem like a lot of configuration... But, don't be scared! In practice, it is not that much!
+It might seem like a lot of configuration... But, don't be scared! In practice, it isn't!
 For instance, you could use this function to build a `nameField` that only succeeds when the
 inputted name has at least 2 characters, like this:
 
@@ -185,8 +185,8 @@ textareaField =
 It has a very similar configuration to [`textField`](#textField), the only differences are:
 
   - Its value is a `Bool` instead of `String`
-  - Its attributes are [`CheckboxField.Attributes`](Form/Field/CheckboxField#Attributes)
-    instead of [`TextField.Attributes`](Form/Field/TextField#Attributes).
+  - Its attributes are [`CheckboxField.Attributes`](Form-Field-CheckboxField#Attributes)
+    instead of [`TextField.Attributes`](Form-Field-TextField#Attributes).
 
 -}
 checkboxField :
@@ -204,8 +204,8 @@ checkboxField =
 
 It has a very similar configuration to [`textField`](#textField), the only difference is:
 
-  - Its attributes are [`SelectField.Attributes`](Form/Field/SelectField#Attributes)
-    instead of [`TextField.Attributes`](Form/Field/TextField#Attributes).
+  - Its attributes are [`SelectField.Attributes`](Form-Field-SelectField#Attributes)
+    instead of [`TextField.Attributes`](Form-Field-TextField#Attributes).
 
 -}
 selectField :
@@ -226,7 +226,7 @@ selectField =
 {-| Produces an **empty** form that always succeeds when submitted, returning the given `output`.
 
 It might seem pointless on its own, but it becomes useful when used in combination with other
-functions. The docs for [`append`](#append) has some great examples.
+functions. The docs for [`append`](#append) have some great examples.
 
 -}
 succeed : output -> Form values output

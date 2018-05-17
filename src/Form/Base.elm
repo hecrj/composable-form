@@ -2,7 +2,6 @@ module Form.Base
     exposing
         ( FieldConfig
         , Form
-        , Parser
         , append
         , custom
         , field
@@ -17,29 +16,14 @@ import Form.Field.State exposing (State)
 import Form.Value as Value exposing (Value)
 
 
-type Form values output field
+type
+    Form values output field
+    -- TODO: Merge into a single (values -> Internal field output) function
     = Form (List (FieldBuilder values field)) (values -> Result ( Error, List Error ) output)
 
 
 type alias FieldBuilder values field =
     values -> ( field, Maybe Error )
-
-
-{-| A `Parser` is a function that processes some `input` and returns a correct `output`, or a
-`String` describing some problem.
-
-For instance, a `Parser String EmailAddress` could be defined this way:
-
-    parseEmailAddress : String -> Result String EmailAddress
-    parseEmailAddress string =
-        if String.contains "@" string then
-            EmailAddress string
-        else
-            Err "an e-mail address should contain the symbol '@'"
-
--}
-type alias Parser a b =
-    a -> Result String b
 
 
 fields : Form values output field -> values -> List ( field, Maybe Error )
@@ -83,7 +67,7 @@ validated and updated, alongside its attributes:
 
 -}
 type alias FieldConfig attrs input values output =
-    { parser : Parser input output
+    { parser : input -> Result String output
     , value : values -> Value input
     , update : Value input -> values -> values
     , attributes : attrs
