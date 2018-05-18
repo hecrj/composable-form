@@ -1,13 +1,13 @@
 module Form.Base
     exposing
         ( FieldConfig
+        , Filled
         , Form
         , append
         , custom
         , field
-        , fields
+        , fill
         , optional
-        , result
         , succeed
         )
 
@@ -16,24 +16,23 @@ import Form.Field.State exposing (State)
 import Form.Value as Value exposing (Value)
 
 
-type
-    Form values output field
-    -- TODO: Merge into a single (values -> Internal field output) function
-    = Form (List (FieldBuilder values field)) (values -> Result ( Error, List Error ) output)
+type Form values output field
+    = Form (values -> Filled field output)
+
+
+type alias Filled field output =
+    { fields : List ( field, Maybe Error )
+    , result : Result ( Error, List Error ) output
+    }
 
 
 type alias FieldBuilder values field =
     values -> ( field, Maybe Error )
 
 
-fields : Form values output field -> values -> List ( field, Maybe Error )
-fields (Form fields _) values =
-    List.map (\builder -> builder values) fields
-
-
-result : Form values output field -> values -> Result ( Error, List Error ) output
-result (Form _ parser) =
-    parser
+fill : Form values output field -> values -> Filled field output
+fill (Form fill_) =
+    fill_
 
 
 
@@ -42,16 +41,16 @@ result (Form _ parser) =
 
 succeed : output -> Form values output custom
 succeed output =
-    Form [] (always (Ok output))
+    Form (always { fields = [], result = Ok output })
 
 
 
 -- Custom fields
 
 
-type alias BuildConfig attrs values input field =
-    { builder : attrs -> State input values -> field
-    , isEmpty : input -> Bool
+type alias GenericField attributes input values =
+    { attributes : attributes
+    , state : State input values
     }
 
 
@@ -74,8 +73,12 @@ type alias FieldConfig attrs input values output =
     }
 
 
-field : BuildConfig attrs values input field -> (field -> custom) -> FieldConfig attrs input values output -> Form values output custom
-field { builder, isEmpty } map config =
+field :
+    { isEmpty : input -> Bool }
+    -> (GenericField attributes input values -> field)
+    -> FieldConfig attributes input values output
+    -> Form values output field
+field { isEmpty } build config =
     let
         requiredParser maybeValue =
             case maybeValue of
@@ -92,46 +95,67 @@ field { builder, isEmpty } map config =
         parse =
             config.value >> Value.raw >> requiredParser
 
-        update values newValue =
+        field values =
             let
                 value =
                     config.value values
 
-                result =
-                    config.parser newValue
+                update newValue =
+                    value
+                        |> Value.change newValue
+                        |> flip config.update values
             in
-            value
-                |> Value.change newValue
-                |> flip config.update values
-
-        error values =
-            case parse values of
-                Ok _ ->
-                    Nothing
-
-                Err ( firstError, otherErrors ) ->
-                    Just firstError
-
-        attributes values =
-            { value = config.value values
-            , update = update values
-            }
-
-        fieldBuilder values =
-            ( builder config.attributes (attributes values) |> map, error values )
+            build
+                { attributes = config.attributes
+                , state = { value = value, update = update }
+                }
     in
-    Form [ fieldBuilder ] parse
+    Form
+        (\values ->
+            let
+                result =
+                    parse values
+            in
+            { fields =
+                [ ( field values
+                  , case result of
+                        Ok _ ->
+                            Nothing
+
+                        Err ( firstError, _ ) ->
+                            Just firstError
+                  )
+                ]
+            , result = result
+            }
+        )
 
 
-type alias CustomFieldConfig values output field =
-    { builder : FieldBuilder values field
-    , result : values -> Result ( Error, List Error ) output
-    }
+type alias FilledField output field =
+    ( field, Result ( Error, List Error ) output )
 
 
-custom : CustomFieldConfig values output custom -> Form values output custom
-custom { builder, result } =
-    Form [ builder ] result
+custom : (values -> FilledField output custom) -> Form values output custom
+custom fillField =
+    Form
+        (\values ->
+            let
+                ( field, result ) =
+                    fillField values
+            in
+            { fields =
+                [ ( field
+                  , case result of
+                        Ok _ ->
+                            Nothing
+
+                        Err ( firstError, _ ) ->
+                            Just firstError
+                  )
+                ]
+            , result = result
+            }
+        )
 
 
 
@@ -139,44 +163,74 @@ custom { builder, result } =
 
 
 optional : Form values output custom -> Form values (Maybe output) custom
-optional (Form builders output) =
-    let
-        optionalBuilder builder values =
-            case builder values of
-                ( field, Just Error.RequiredFieldIsEmpty ) ->
-                    ( field, Nothing )
-
-                result ->
-                    result
-
-        optionalOutput values =
-            case output values of
+optional form =
+    Form
+        (\values ->
+            let
+                filled =
+                    fill form values
+            in
+            case filled.result of
                 Ok value ->
-                    Ok (Just value)
+                    { fields = filled.fields
+                    , result = Ok (Just value)
+                    }
 
                 Err ( firstError, otherErrors ) ->
-                    if List.all ((==) Error.RequiredFieldIsEmpty) (firstError :: otherErrors) then
-                        Ok Nothing
+                    let
+                        allErrors =
+                            firstError :: otherErrors
+                    in
+                    if
+                        List.length allErrors
+                            == List.length filled.fields
+                            && List.all ((==) Error.RequiredFieldIsEmpty) allErrors
+                    then
+                        { fields = filled.fields
+                        , result = Ok Nothing
+                        }
                     else
-                        Err ( firstError, otherErrors )
-    in
-    Form (List.map optionalBuilder builders) optionalOutput
+                        { fields = filled.fields
+                        , result = Err ( firstError, otherErrors )
+                        }
+        )
 
 
 append : Form values a custom -> Form values (a -> b) custom -> Form values b custom
-append (Form newFields newOutput) (Form fields output) =
-    Form (fields ++ newFields)
+append new current =
+    Form
         (\values ->
-            case output values of
+            let
+                filledNew =
+                    fill new values
+
+                filledCurrent =
+                    fill current values
+
+                fields =
+                    filledCurrent.fields ++ filledNew.fields
+            in
+            case filledCurrent.result of
                 Ok f ->
-                    newOutput values
-                        |> Result.map f
+                    { fields = fields
+                    , result =
+                        filledNew.result
+                            |> Result.map f
+                    }
 
                 Err (( firstError, otherErrors ) as errors) ->
-                    case newOutput values of
+                    case filledCurrent.result of
                         Ok _ ->
-                            Err errors
+                            { fields = fields
+                            , result = Err errors
+                            }
 
                         Err ( newFirstError, newOtherErrors ) ->
-                            Err ( firstError, otherErrors ++ (newFirstError :: newOtherErrors) )
+                            { fields = fields
+                            , result =
+                                Err
+                                    ( firstError
+                                    , otherErrors ++ (newFirstError :: newOtherErrors)
+                                    )
+                            }
         )

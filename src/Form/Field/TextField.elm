@@ -77,7 +77,4 @@ form :
     -> Base.FieldConfig Attributes String values output
     -> Base.Form values output field
 form =
-    Base.field
-        { builder = TextField
-        , isEmpty = String.isEmpty
-        }
+    Base.field { isEmpty = String.isEmpty }

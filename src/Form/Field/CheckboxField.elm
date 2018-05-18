@@ -59,9 +59,9 @@ form :
     (CheckboxField values -> field)
     -> Base.FieldConfig Attributes Bool values output
     -> Base.Form values output field
-form toField { parser, value, update, attributes } =
-    Base.field { builder = CheckboxField, isEmpty = always False }
-        toField
+form build { parser, value, update, attributes } =
+    Base.field { isEmpty = always False }
+        build
         { parser = parser
         , value = value >> Value.withDefault False
         , update = update

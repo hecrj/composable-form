@@ -1,4 +1,4 @@
-module Form.Field.SelectField
+module Form.Field.Select
     exposing
         ( Attributes
         , SelectField
@@ -62,4 +62,4 @@ form :
     -> Form.FieldConfig Attributes String values output
     -> Form values output field
 form =
-    Form.field { builder = SelectField, isEmpty = String.isEmpty }
+    Form.field { isEmpty = String.isEmpty }

@@ -6,6 +6,8 @@ of a form field.
 **Note:** You should not need to care about this unless you are creating your own
 custom fields or writing your own form renderer.
 
+@docs State
+
 -}
 
 import Form.Value exposing (Value)
