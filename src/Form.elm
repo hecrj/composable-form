@@ -5,10 +5,9 @@ module Form
         , append
         , checkboxField
         , emailField
-        , fields
+        , fill
         , optional
         , passwordField
-        , result
         , selectField
         , succeed
         , textField
@@ -38,34 +37,35 @@ explains how you can combine different forms into bigger and more complex ones.
 @docs succeed, append, optional
 
 
-# Results
+# Output
 
-This section describes how to obtain the different [`fields`](#fields) that comprise a `Form` and
-how to obtain the [resulting](#result) `output`. This is mostly used to build custom form renderers.
+This section describes how to fill a `Form` with its `values` and obtain its
+different fields and its `output`. This is mostly used to build custom form renderers.
 
-If you just want to render a simple `Form` as `Html`, check [`Form.View`](Form-View) first as it
+If you just want to render a simple form as `Html`, check [`Form.View`](Form-View) first as it
 might suit your needs just well.
 
-@docs Field, fields, result
+@docs Field, fill
 
 -}
 
 import Form.Base as Base
+import Form.Base.CheckboxField as CheckboxField exposing (CheckboxField)
+import Form.Base.SelectField as SelectField exposing (SelectField)
+import Form.Base.TextField as TextField exposing (TextField)
 import Form.Error exposing (Error)
-import Form.Field.CheckboxField as CheckboxField exposing (CheckboxField)
-import Form.Field.SelectField as SelectField exposing (SelectField)
-import Form.Field.TextField as TextField exposing (TextField)
 import Form.Value exposing (Value)
 
 
 -- Definition
 
 
-{-| A `Form` represents one or more fields. Form fields are filled with some `values` and together
-produce an `output` when submitted.
+{-| A `Form` represents one or more fields. A `Form` can be filled with some `values`,
+producing some `output` when validation succeeds.
 
 For example, a `Form String EmailAddress` is a form that is filled with a `String` and produces
-an `EmailAddress` when submitted. This form could very well be an [`emailField`](#emailField)!
+an `EmailAddress` if validation succeeds. This form could very well be an
+[`emailField`](#emailField)!
 
 -}
 type alias Form values output =
@@ -76,14 +76,14 @@ type alias Form values output =
 -- Fields
 
 
-{-| Produces a `Form` that contains a single text field.
+{-| Create a form that contains a single text field.
 
 It requires some configuration:
 
   - `parser` specifies how to validate the field. It needs a function that processes the value of
     the field and produces either:
-      - a correct `output`
       - a `String` describing an error
+      - a correct `output`
   - `value` describes how to obtain the field [`Value`](Form-Value) from the form `values`
   - `update` describes how the current form `values` should be updated with a new field
     [`Value`](Form-Value)
@@ -132,7 +132,7 @@ textField =
     TextField.form (Text TextField.Raw)
 
 
-{-| Produces a `Form` that contains a single email field.
+{-| Create a form that contains a single email field.
 
 It has the same configuration options as [`textField`](#textField).
 
@@ -148,7 +148,7 @@ emailField =
     TextField.form (Text TextField.Email)
 
 
-{-| Produces a `Form` that contains a single password field.
+{-| Create a form that contains a single password field.
 
 It has the same configuration options as [`textField`](#textField).
 
@@ -164,7 +164,7 @@ passwordField =
     TextField.form (Text TextField.Password)
 
 
-{-| Produces a `Form` that contains a single textarea field.
+{-| Create a form that contains a single textarea field.
 
 It has the same configuration options as [`textField`](#textField).
 
@@ -180,7 +180,7 @@ textareaField =
     TextField.form (Text TextField.Textarea)
 
 
-{-| Produces a `Form` that contains a single checkbox field.
+{-| Create a form that contains a single checkbox field.
 
 It has a very similar configuration to [`textField`](#textField), the only differences are:
 
@@ -200,7 +200,7 @@ checkboxField =
     CheckboxField.form Checkbox
 
 
-{-| Produces a `Form` that contains a single select field.
+{-| Create a form that contains a single select field.
 
 It has a very similar configuration to [`textField`](#textField), the only difference is:
 
@@ -223,7 +223,7 @@ selectField =
 -- Composition
 
 
-{-| Produces an **empty** form that always succeeds when submitted, returning the given `output`.
+{-| Create an **empty** form that always succeeds when submitted, returning the given `output`.
 
 It might seem pointless on its own, but it becomes useful when used in combination with other
 functions. The docs for [`append`](#append) have some great examples.
@@ -234,7 +234,7 @@ succeed =
     Base.succeed
 
 
-{-| Appends a form to another one while **capturing** the `output` of the first one.
+{-| Append a form to another one while **capturing** the `output` of the first one.
 
 For instance, we could build a signup form:
 
@@ -308,10 +308,10 @@ append =
     Base.append
 
 
-{-| Makes a `Form` optional. An optional form succeeds when:
+{-| Make a form optional. An optional form succeeds when:
 
-  - Its `values` are **empty**, producing `Nothing`
-  - Its `values` are **correct**, producing `Just` the `output`
+  - All of its fields are **empty**, producing `Nothing`
+  - All of its fields are **correct**, producing `Just` the `output`
 
 -}
 optional : Form values output -> Form values (Maybe output)
@@ -320,10 +320,14 @@ optional =
 
 
 
--- Results
+-- Output
 
 
-{-| Represents a form field
+{-| Represents a form field.
+
+If you are building your own form renderer you will probably need to pattern match this type,
+using the result of [`fill`](#fill).
+
 -}
 type Field values
     = Text TextField.Type (TextField values)
@@ -331,19 +335,22 @@ type Field values
     | Select (SelectField values)
 
 
-{-| Given a `Form` and its `values`, it obtains the fields of the form alongside their first error.
--}
-fields : Form values output -> values -> List ( Field values, Maybe Error )
-fields =
-    Base.fields
+{-| Fill a form with some `values`.
 
+It returns:
 
-{-| Given a `Form` and its `values`, it produces a result with either:
-
-  - A non-empty list of validation errors
-  - The correct `output` of the form
+  - a list of the fields of the form, alongside their errors
+  - the result of the filled form, which can either be:
+      - a non-empty list of validation errors
+      - the correct `output`
 
 -}
-result : Form values output -> values -> Result ( Error, List Error ) output
-result =
-    Base.result
+fill :
+    Form values output
+    -> values
+    ->
+        { fields : List ( Field values, Maybe Error )
+        , result : Result ( Error, List Error ) output
+        }
+fill =
+    Base.fill

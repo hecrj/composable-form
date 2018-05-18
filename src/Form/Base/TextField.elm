@@ -1,4 +1,4 @@
-module Form.Field.TextField
+module Form.Base.TextField
     exposing
         ( Attributes
         , TextField

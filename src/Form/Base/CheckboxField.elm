@@ -1,4 +1,4 @@
-module Form.Field.CheckboxField
+module Form.Base.CheckboxField
     exposing
         ( Attributes
         , CheckboxField

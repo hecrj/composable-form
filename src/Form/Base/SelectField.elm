@@ -1,4 +1,4 @@
-module Form.Field.Select
+module Form.Base.SelectField
     exposing
         ( Attributes
         , SelectField
