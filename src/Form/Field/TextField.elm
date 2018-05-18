@@ -2,6 +2,7 @@ module Form.Field.TextField
     exposing
         ( Attributes
         , TextField
+        , Type(..)
         , form
         )
 
@@ -10,7 +11,7 @@ module Form.Field.TextField
 
 # Definition
 
-@docs TextField, Attributes
+@docs TextField, Attributes, Type
 
 
 # Helpers
@@ -33,6 +34,15 @@ type alias TextField values =
     { attributes : Attributes
     , state : State String values
     }
+
+
+{-| Represents a type of text field
+-}
+type Type
+    = Raw
+    | Email
+    | Password
+    | Textarea
 
 
 {-| The attributes of a TextField.

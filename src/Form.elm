@@ -129,7 +129,7 @@ textField :
     }
     -> Form values output
 textField =
-    TextField.form (Text Raw)
+    TextField.form (Text TextField.Raw)
 
 
 {-| Produces a `Form` that contains a single email field.
@@ -145,7 +145,7 @@ emailField :
     }
     -> Form values output
 emailField =
-    TextField.form (Text Email)
+    TextField.form (Text TextField.Email)
 
 
 {-| Produces a `Form` that contains a single password field.
@@ -161,7 +161,7 @@ passwordField :
     }
     -> Form values output
 passwordField =
-    TextField.form (Text Password)
+    TextField.form (Text TextField.Password)
 
 
 {-| Produces a `Form` that contains a single textarea field.
@@ -177,7 +177,7 @@ textareaField :
     }
     -> Form values output
 textareaField =
-    TextField.form (Text Textarea)
+    TextField.form (Text TextField.Textarea)
 
 
 {-| Produces a `Form` that contains a single checkbox field.
@@ -197,7 +197,7 @@ checkboxField :
     }
     -> Form values output
 checkboxField =
-    CheckboxField.build Checkbox
+    CheckboxField.form Checkbox
 
 
 {-| Produces a `Form` that contains a single select field.
@@ -216,7 +216,7 @@ selectField :
     }
     -> Form values output
 selectField =
-    SelectField.build Select
+    SelectField.form Select
 
 
 
@@ -326,18 +326,9 @@ optional =
 {-| Represents a form field
 -}
 type Field values
-    = Text TextType (TextField values)
+    = Text TextField.Type (TextField values)
     | Checkbox (CheckboxField values)
     | Select (SelectField values)
-
-
-{-| Represents a type of text field
--}
-type TextType
-    = Raw
-    | Email
-    | Password
-    | Textarea
 
 
 {-| Given a `Form` and its `values`, it obtains the fields of the form alongside their first error.

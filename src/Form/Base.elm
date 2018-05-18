@@ -80,14 +80,14 @@ field { builder, isEmpty } map config =
         requiredParser maybeValue =
             case maybeValue of
                 Nothing ->
-                    Err ( Error.EmptyField, [] )
+                    Err ( Error.RequiredFieldIsEmpty, [] )
 
                 Just value ->
                     if isEmpty value then
-                        Err ( Error.EmptyField, [] )
+                        Err ( Error.RequiredFieldIsEmpty, [] )
                     else
                         config.parser value
-                            |> Result.mapError (\error -> ( Error.ParserError error, [] ))
+                            |> Result.mapError (\error -> ( Error.ValidationFailed error, [] ))
 
         parse =
             config.value >> Value.raw >> requiredParser
@@ -143,7 +143,7 @@ optional (Form builders output) =
     let
         optionalBuilder builder values =
             case builder values of
-                ( field, Just Error.EmptyField ) ->
+                ( field, Just Error.RequiredFieldIsEmpty ) ->
                     ( field, Nothing )
 
                 result ->
@@ -155,7 +155,7 @@ optional (Form builders output) =
                     Ok (Just value)
 
                 Err ( firstError, otherErrors ) ->
-                    if List.all ((==) Error.EmptyField) (firstError :: otherErrors) then
+                    if List.all ((==) Error.RequiredFieldIsEmpty) (firstError :: otherErrors) then
                         Ok Nothing
                     else
                         Err ( firstError, otherErrors )
