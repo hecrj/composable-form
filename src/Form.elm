@@ -2,10 +2,12 @@ module Form
     exposing
         ( Field(..)
         , Form
+        , andThen
         , append
         , checkboxField
         , emailField
         , fill
+        , meta
         , optional
         , passwordField
         , selectField
@@ -34,7 +36,7 @@ field. You might then be wondering... "How do I create a `Form` with multiple fi
 Remember the name of this package: `composable-form`! A `Form` is composable! This section
 explains how you can combine different forms into bigger and more complex ones.
 
-@docs succeed, append, optional
+@docs succeed, append, andThen, optional, meta
 
 
 # Output
@@ -60,12 +62,11 @@ import Form.Value exposing (Value)
 -- Definition
 
 
-{-| A `Form` represents one or more fields. A `Form` can be filled with some `values`,
-producing some `output` when validation succeeds.
+{-| A `Form` helps to collect user input with fields. When a form is filled with `values`,
+it produces some `output` if validation succeeds.
 
 For example, a `Form String EmailAddress` is a form that is filled with a `String` and produces
-an `EmailAddress` if validation succeeds. This form could very well be an
-[`emailField`](#emailField)!
+an `EmailAddress` when correct. This form could very well be an [`emailField`](#emailField)!
 
 -}
 type alias Form values output =
@@ -268,44 +269,98 @@ into a bigger form that outputs `( EmailAddress, Password )` when submitted.
 This is useful when you want to append some fields in your form to perform validation, but
 you do not care about the `output` they produce. An example of this is a "repeat password" field:
 
-    repeatPasswordField :
-        String
-        -> Form { r | repeatPassword : Value String } ()
-    repeatPasswordField currentPassword =
-        Form.passwordField
-            { parser =
-                \repeatedPassword ->
-                    if repeatedPassword == currentPassword then
-                        Ok ()
-                    else
-                        Err "the passwords do not match"
-            , value = .repeatPassword
-            , update =
-                \newValue values ->
-                    { values | repeatPassword = newValue }
-            , attributes =
-                { label = "Repeat password"
-                , placeholder = "Type your password again..."
-                }
-            }
-
     passwordForm :
-        String
-        ->
-            Form
-                { password : Value String
-                , repeatPassword : Value String
-                }
-                Password
-    passwordForm currentPassword =
+        Form
+            { password : Value String
+            , repeatPassword : Value String
+            }
+            Password
+    passwordForm =
         Form.succeed (\password repeatedPassword -> password)
             |> Form.append passwordField
-            |> Form.append (repeatPasswordField currentPassword)
+            |> Form.append repeatPasswordField
 
 -}
 append : Form values a -> Form values (a -> b) -> Form values b
 append =
     Base.append
+
+
+{-| Fill a form `andThen` fill another one.
+
+This is useful to build dynamic forms. For instance, you could use the output of a `selectField`
+to choose between different forms, like this:
+
+    type Msg
+        = CreatePost Post.Body
+        | CreateQuestion Question.Title Question.Body
+
+    type ContentType
+        = Post
+        | Question
+
+    type alias Values =
+        { type_ : Value String
+        , title : Value String
+        , body : Value String
+        }
+
+    contentForm : Form Values Msg
+    contentForm =
+        Form.selectField
+            { parser =
+                \value ->
+                    case value of
+                        "post" ->
+                            Post
+
+                        "question" ->
+                            Question
+
+                        _ ->
+                            Err "invalid content type"
+            , value = .type_
+            , update = \newValue values -> { values | type_ = newValue }
+            , attributes =
+                { label = "Which type of content do you want to create?"
+                , placeholder = "Choose a type of content"
+                , options = [ ( "post", "Post" ), ( "question", "Question" ) ]
+                }
+            }
+            |> Form.andThen
+                (\contentType ->
+                    case contentType of
+                        Post ->
+                            let
+                                bodyField =
+                                    Form.textareaField
+                                        { -- ...
+                                        }
+                            in
+                            Form.succeed CreatePost
+                                |> Form.append bodyField
+
+                        Question ->
+                            let
+                                titleField =
+                                    Form.textField
+                                        { -- ...
+                                        }
+
+                                bodyField =
+                                    Form.textareaField
+                                        { -- ...
+                                        }
+                            in
+                            Form.succeed CreateQuestion
+                                |> Form.append titleField
+                                |> Form.append bodyField
+                )
+
+-}
+andThen : (a -> Form values b) -> Form values a -> Form values b
+andThen =
+    Base.andThen
 
 
 {-| Make a form optional. An optional form succeeds when:
@@ -317,6 +372,45 @@ append =
 optional : Form values output -> Form values (Maybe output)
 optional =
     Base.optional
+
+
+{-| Build a form that depends on its own `values`.
+
+This is useful when you need some fields to perform validation based on
+the values of other fields. An example of this is a "repeat password" field:
+
+    repeatPasswordField :
+        Form
+            { r
+                | password : Value String
+                , repeatPassword : Value String
+            }
+            ()
+    repeatPasswordField =
+        Form.meta
+            (\values ->
+                Form.passwordField
+                    { parser =
+                        \value ->
+                            if Just value == Value.raw values.password then
+                                Ok ()
+                            else
+                                Err "the passwords do not match"
+                    , value = .repeatPassword
+                    , update =
+                        \newValue values ->
+                            { values | repeatPassword = newValue }
+                    , attributes =
+                        { label = "Repeat password"
+                        , placeholder = "Type your password again..."
+                        }
+                    }
+            )
+
+-}
+meta : (values -> Form values output) -> Form values output
+meta =
+    Base.meta
 
 
 

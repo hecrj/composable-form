@@ -3,10 +3,12 @@ module Form.Base
         ( FieldConfig
         , Filled
         , Form
+        , andThen
         , append
         , custom
         , field
         , fill
+        , meta
         , optional
         , succeed
         )
@@ -162,40 +164,6 @@ custom fillField =
 -- OPERATIONS
 
 
-optional : Form values output custom -> Form values (Maybe output) custom
-optional form =
-    Form
-        (\values ->
-            let
-                filled =
-                    fill form values
-            in
-            case filled.result of
-                Ok value ->
-                    { fields = filled.fields
-                    , result = Ok (Just value)
-                    }
-
-                Err ( firstError, otherErrors ) ->
-                    let
-                        allErrors =
-                            firstError :: otherErrors
-                    in
-                    if
-                        List.length allErrors
-                            == List.length filled.fields
-                            && List.all ((==) Error.RequiredFieldIsEmpty) allErrors
-                    then
-                        { fields = filled.fields
-                        , result = Ok Nothing
-                        }
-                    else
-                        { fields = filled.fields
-                        , result = Err ( firstError, otherErrors )
-                        }
-        )
-
-
 append : Form values a custom -> Form values (a -> b) custom -> Form values b custom
 append new current =
     Form
@@ -234,3 +202,67 @@ append new current =
                                     )
                             }
         )
+
+
+andThen : (a -> Form values b field) -> Form values a field -> Form values b field
+andThen child parent =
+    Form
+        (\values ->
+            let
+                filled =
+                    fill parent values
+            in
+            case filled.result of
+                Ok output ->
+                    let
+                        childFilled =
+                            fill (child output) values
+                    in
+                    { fields = filled.fields ++ childFilled.fields
+                    , result = childFilled.result
+                    }
+
+                Err errors ->
+                    { fields = filled.fields
+                    , result = Err errors
+                    }
+        )
+
+
+optional : Form values output custom -> Form values (Maybe output) custom
+optional form =
+    Form
+        (\values ->
+            let
+                filled =
+                    fill form values
+            in
+            case filled.result of
+                Ok value ->
+                    { fields = filled.fields
+                    , result = Ok (Just value)
+                    }
+
+                Err ( firstError, otherErrors ) ->
+                    let
+                        allErrors =
+                            firstError :: otherErrors
+                    in
+                    if
+                        List.length allErrors
+                            == List.length filled.fields
+                            && List.all ((==) Error.RequiredFieldIsEmpty) allErrors
+                    then
+                        { fields = filled.fields
+                        , result = Ok Nothing
+                        }
+                    else
+                        { fields = filled.fields
+                        , result = Err ( firstError, otherErrors )
+                        }
+        )
+
+
+meta : (values -> Form values output field) -> Form values output field
+meta fn =
+    Form (\values -> fill (fn values) values)
