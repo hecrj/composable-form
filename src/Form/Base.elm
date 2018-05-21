@@ -15,7 +15,7 @@ module Form.Base
 
 import Form.Error as Error exposing (Error)
 import Form.Field.State exposing (State)
-import Form.Value as Value exposing (Value)
+import Form.Field.Value as Value exposing (Value)
 
 
 type Form values output field
@@ -104,7 +104,7 @@ field { isEmpty } build config =
 
                 update newValue =
                     value
-                        |> Value.change newValue
+                        |> Value.update newValue
                         |> flip config.update values
             in
             build

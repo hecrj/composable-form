@@ -56,7 +56,7 @@ import Form.Base.CheckboxField as CheckboxField exposing (CheckboxField)
 import Form.Base.SelectField as SelectField exposing (SelectField)
 import Form.Base.TextField as TextField exposing (TextField)
 import Form.Error exposing (Error)
-import Form.Value exposing (Value)
+import Form.Field.Value exposing (Value)
 
 
 -- Definition
@@ -224,7 +224,7 @@ selectField =
 -- Composition
 
 
-{-| Create an **empty** form that always succeeds when submitted, returning the given `output`.
+{-| Create an **empty** form that always succeeds when filled, returning the given `output`.
 
 It might seem pointless on its own, but it becomes useful when used in combination with other
 functions. The docs for [`append`](#append) have some great examples.
@@ -312,10 +312,10 @@ to choose between different forms, like this:
                 \value ->
                     case value of
                         "post" ->
-                            Post
+                            Ok Post
 
                         "question" ->
-                            Question
+                            Ok Question
 
                         _ ->
                             Err "invalid content type"
@@ -367,6 +367,18 @@ andThen =
 
   - All of its fields are **empty**, producing `Nothing`
   - All of its fields are **correct**, producing `Just` the `output`
+
+Let's say we want to optionally ask for a website name and address:
+
+    websiteForm =
+        Form.optional
+            (Form.succeed InvoiceAddress
+                |> Form.append websiteNameField
+                |> Form.append websiteAddressField
+            )
+
+This `websiteForm` will only be valid if **both** fields are blank, or **both** fields
+are filled correctly.
 
 -}
 optional : Form values output -> Form values (Maybe output)

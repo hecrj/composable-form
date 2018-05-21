@@ -10,7 +10,7 @@ custom fields or writing your own form renderer.
 
 -}
 
-import Form.Value exposing (Value)
+import Form.Field.Value exposing (Value)
 
 
 {-| Represents the state of a form field.

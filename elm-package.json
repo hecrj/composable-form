@@ -1,6 +1,6 @@
 {
     "version": "1.0.0",
-    "summary": "Build composable forms in Elm",
+    "summary": "Build type-safe composable forms in Elm",
     "repository": "https://github.com/hecrj/composable-form.git",
     "license": "BSD3",
     "source-directories": [
@@ -12,7 +12,9 @@
         "Form.Base.CheckboxField",
         "Form.Base.SelectField",
         "Form.Field.State",
-        "Form.Error"
+        "Form.Field.Value",
+        "Form.Error",
+        "Form.View"
     ],
     "dependencies": {
         "elm-lang/core": "5.1.1 <= v < 6.0.0",
