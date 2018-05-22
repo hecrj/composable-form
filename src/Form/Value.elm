@@ -1,4 +1,4 @@
-module Form.Field.Value
+module Form.Value
     exposing
         ( Value
         , blank
@@ -57,6 +57,7 @@ Use this to initialize the values of your empty fields:
     values =
         { email = Value.blank
         , password = Value.blank
+        , rememberMe = Value.blank
         }
 
 -}
@@ -65,7 +66,7 @@ blank =
     Blank 0
 
 
-{-| Build a filled value.
+{-| Build an already filled value.
 
 Use this when you are using forms to edit existing values:
 
@@ -139,7 +140,7 @@ lost.
                     }
             }
 
-**Note:** This issue _seems_ fixed in Elm 0.19. This whole module might be unnecessary soon.
+**Note:** This issue _seems_ fixed in Elm 0.19, thus this function will be removed soon.
 
 -}
 newest : (values -> Value a) -> values -> values -> Value a

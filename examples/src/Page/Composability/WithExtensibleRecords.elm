@@ -8,6 +8,7 @@ import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
 import Page.Composability.WithExtensibleRecords.AddressForm as AddressForm exposing (AddressForm)
+import View
 
 
 type alias Model =
@@ -49,10 +50,11 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.h1 [] [ Html.text "Composability" ]
-        , Form.View.basic
+        , code
+        , Form.View.asHtml
             { onChange = FormChanged
             , action = "Submit"
-            , loadingMessage = "Loading..."
+            , loading = "Loading..."
             , validation = Form.View.ValidateOnSubmit
             }
             form
@@ -85,7 +87,27 @@ form =
                     }
                 }
     in
-    Form.empty Submit
+    Form.succeed Submit
         |> Form.append emailField
         |> Form.append nameField
         |> Form.append AddressForm.form
+
+
+code : Html msg
+code =
+    View.code
+        [ { filename = "AddressForm.elm"
+          , path = "Composability/WithExtensibleRecords/AddressForm.elm"
+          , code = """Form.succeed Address
+    |> Form.append countryField
+    |> Form.append cityField
+    |> Form.append postalCodeField"""
+          }
+        , { filename = "Composability.elm"
+          , path = "Composability/WithExtensibleRecords.elm"
+          , code = """Form.succeed Submit
+    |> Form.append emailField
+    |> Form.append nameField
+    |> Form.append AddressForm.form"""
+          }
+        ]

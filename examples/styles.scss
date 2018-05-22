@@ -2,6 +2,7 @@ body {
   font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
   font-size: 16px;
   padding: 0;
+  padding-bottom: 1em;
 }
 
 header {
@@ -54,7 +55,7 @@ footer {
 }
 
 h1 {
-  margin-bottom: 1em;
+  margin-bottom: 0.5em;
   font-weight: normal;
 }
 
@@ -168,4 +169,11 @@ ul {
   }
 
   margin-bottom: 1em;
+}
+
+pre {
+  font-size: 0.8em;
+  background-color: #FAFAFA;
+  padding: 1em;
+  overflow-x: auto;
 }

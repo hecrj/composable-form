@@ -20,20 +20,18 @@ module Form.Base.CheckboxField
 -}
 
 import Form.Base as Base
-import Form.Field.State exposing (State)
-import Form.Field.Value as Value
+import Form.Field exposing (Field)
+import Form.Value as Value
 
 
-{-| A CheckboxField has some [`Attributes`](#Attributes) and some [`State`](Form-Field-State#State).
+{-| Represents a checkbox field.
 
 **Note:** You should not need to care about this unless you are creating your own
 custom fields or writing your own form renderer.
 
 -}
 type alias CheckboxField values =
-    { attributes : Attributes
-    , state : State Bool values
-    }
+    Field Attributes Bool values
 
 
 {-| The attributes of a CheckboxField.

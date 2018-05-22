@@ -2,7 +2,6 @@ module Form.Base.TextField
     exposing
         ( Attributes
         , TextField
-        , Type(..)
         , form
         )
 
@@ -11,7 +10,7 @@ module Form.Base.TextField
 
 # Definition
 
-@docs TextField, Attributes, Type
+@docs TextField, Attributes
 
 
 # Helpers
@@ -21,28 +20,17 @@ module Form.Base.TextField
 -}
 
 import Form.Base as Base
-import Form.Field.State exposing (State)
+import Form.Field exposing (Field)
 
 
-{-| A TextField has some [`Attributes`](#Attributes) and some [`State`](Form-Field-State#State).
+{-| Represents a text field.
 
 **Note:** You should not need to care about this unless you are creating your own
 custom fields or writing your own form renderer.
 
 -}
 type alias TextField values =
-    { attributes : Attributes
-    , state : State String values
-    }
-
-
-{-| Represents a type of text field
--}
-type Type
-    = Raw
-    | Email
-    | Password
-    | Textarea
+    Field Attributes String values
 
 
 {-| The attributes of a TextField.

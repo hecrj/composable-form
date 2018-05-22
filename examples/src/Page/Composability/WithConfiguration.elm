@@ -49,10 +49,10 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.h1 [] [ Html.text "Composability" ]
-        , Form.View.basic
+        , Form.View.asHtml
             { onChange = FormChanged
             , action = "Submit"
-            , loadingMessage = "Loading..."
+            , loading = "Loading..."
             , validation = Form.View.ValidateOnSubmit
             }
             form
@@ -85,7 +85,7 @@ form =
                     }
                 }
     in
-    Form.empty Submit
+    Form.succeed Submit
         |> Form.append emailField
         |> Form.append nameField
         |> Form.append

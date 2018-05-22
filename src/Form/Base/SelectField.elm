@@ -20,19 +20,17 @@ module Form.Base.SelectField
 -}
 
 import Form.Base as Form exposing (Form)
-import Form.Field.State exposing (State)
+import Form.Field exposing (Field)
 
 
-{-| A SelectField has some [`Attributes`](#Attributes) and some [`State`](Form-Field-State#State).
+{-| Represents a select field.
 
 **Note:** You should not need to care about this unless you are creating your own
 custom fields or writing your own form renderer.
 
 -}
 type alias SelectField values =
-    { attributes : Attributes
-    , state : State String values
-    }
+    Field Attributes String values
 
 
 {-| The attributes of a SelectField.

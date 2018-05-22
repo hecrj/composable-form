@@ -2,6 +2,7 @@ module Form
     exposing
         ( Field(..)
         , Form
+        , TextType(..)
         , andThen
         , append
         , checkboxField
@@ -47,7 +48,7 @@ different fields and its `output`. This is mostly used to build custom form rend
 If you just want to render a simple form as `Html`, check [`Form.View`](Form-View) first as it
 might suit your needs just well.
 
-@docs Field, fill
+@docs Field, TextType, fill
 
 -}
 
@@ -56,7 +57,7 @@ import Form.Base.CheckboxField as CheckboxField exposing (CheckboxField)
 import Form.Base.SelectField as SelectField exposing (SelectField)
 import Form.Base.TextField as TextField exposing (TextField)
 import Form.Error exposing (Error)
-import Form.Field.Value exposing (Value)
+import Form.Value exposing (Value)
 
 
 -- Definition
@@ -130,7 +131,7 @@ textField :
     }
     -> Form values output
 textField =
-    TextField.form (Text TextField.Raw)
+    TextField.form (Text TextRaw)
 
 
 {-| Create a form that contains a single email field.
@@ -146,7 +147,7 @@ emailField :
     }
     -> Form values output
 emailField =
-    TextField.form (Text TextField.Email)
+    TextField.form (Text TextEmail)
 
 
 {-| Create a form that contains a single password field.
@@ -162,7 +163,7 @@ passwordField :
     }
     -> Form values output
 passwordField =
-    TextField.form (Text TextField.Password)
+    TextField.form (Text TextPassword)
 
 
 {-| Create a form that contains a single textarea field.
@@ -178,7 +179,7 @@ textareaField :
     }
     -> Form values output
 textareaField =
-    TextField.form (Text TextField.Textarea)
+    TextField.form (Text TextArea)
 
 
 {-| Create a form that contains a single checkbox field.
@@ -436,9 +437,18 @@ using the result of [`fill`](#fill).
 
 -}
 type Field values
-    = Text TextField.Type (TextField values)
+    = Text TextType (TextField values)
     | Checkbox (CheckboxField values)
     | Select (SelectField values)
+
+
+{-| Represents a type of text field
+-}
+type TextType
+    = TextRaw
+    | TextEmail
+    | TextPassword
+    | TextArea
 
 
 {-| Fill a form with some `values`.
@@ -449,6 +459,7 @@ It returns:
   - the result of the filled form, which can either be:
       - a non-empty list of validation errors
       - the correct `output`
+  - whether the form is empty or not
 
 -}
 fill :
@@ -457,6 +468,7 @@ fill :
     ->
         { fields : List ( Field values, Maybe Error )
         , result : Result ( Error, List Error ) output
+        , isEmpty : Bool
         }
 fill =
     Base.fill

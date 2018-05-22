@@ -5,6 +5,7 @@ import Form exposing (Form)
 import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
+import View
 
 
 type alias Model =
@@ -46,10 +47,11 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.h1 [] [ Html.text "Login" ]
-        , Form.View.basic
+        , code
+        , Form.View.asHtml
             { onChange = FormChanged
             , action = "Log in"
-            , loadingMessage = "Logging in..."
+            , loading = "Logging in..."
             , validation = Form.View.ValidateOnSubmit
             }
             form
@@ -91,7 +93,20 @@ form =
                     { label = "Remember me" }
                 }
     in
-    Form.empty LogIn
+    Form.succeed LogIn
         |> Form.append emailField
         |> Form.append passwordField
         |> Form.append rememberMeCheckbox
+
+
+code : Html msg
+code =
+    View.code
+        [ { filename = "Login.elm"
+          , path = "Login.elm"
+          , code = """Form.succeed LogIn
+    |> Form.append emailField
+    |> Form.append passwordField
+    |> Form.append rememberMeCheckbox"""
+          }
+        ]

@@ -52,7 +52,7 @@ import Form.Base.CheckboxField as CheckboxField
 import Form.Base.SelectField as SelectField
 import Form.Base.TextField as TextField
 import Form.Error as Error exposing (Error)
-import Form.Field.Value as Value
+import Form.Value as Value
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -71,7 +71,7 @@ type alias Model values =
 {-| Represents the state of the form.
 
 You can change it at will from your `update` function. For example, you can set the state to
-`Loading` when submitting the form fires a remote action, or you can set it to `Error` when
+`Loading` if submitting the form fires a remote action, or you can set it to `Error` when
 such action fails.
 
     update : Msg -> Model -> ( Model, Cmd Msg )
@@ -362,47 +362,47 @@ field customConfig { onChange, onBlur, disabled, showError } ( field, maybeError
                 Maybe.map (\onBlur -> onBlur label) onBlur
     in
     case field of
-        Form.Text type_ { attributes, state } ->
+        Form.Text type_ { attributes, value, update } ->
             let
                 config =
-                    { onInput = state.update >> onChange
-                    , onBlur = blurWhenNotBlank state.value attributes.label
+                    { onInput = update >> onChange
+                    , onBlur = blurWhenNotBlank value attributes.label
                     , disabled = disabled
-                    , value = Value.raw state.value |> Maybe.withDefault ""
+                    , value = Value.raw value |> Maybe.withDefault ""
                     , error = maybeError
                     , showError = showError attributes.label
                     , attributes = attributes
                     }
             in
             case type_ of
-                TextField.Raw ->
+                Form.TextRaw ->
                     customConfig.textField config
 
-                TextField.Textarea ->
+                Form.TextArea ->
                     customConfig.textareaField config
 
-                TextField.Password ->
+                Form.TextPassword ->
                     customConfig.passwordField config
 
-                TextField.Email ->
+                Form.TextEmail ->
                     customConfig.emailField config
 
-        Form.Checkbox { attributes, state } ->
+        Form.Checkbox { attributes, value, update } ->
             customConfig.checkboxField
-                { checked = Value.raw state.value |> Maybe.withDefault False
+                { checked = Value.raw value |> Maybe.withDefault False
                 , disabled = disabled
-                , onCheck = state.update >> onChange
+                , onCheck = update >> onChange
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes
                 }
 
-        Form.Select { attributes, state } ->
+        Form.Select { attributes, value, update } ->
             customConfig.selectField
-                { onInput = state.update >> onChange
-                , onBlur = blurWhenNotBlank state.value attributes.label
+                { onInput = update >> onChange
+                , onBlur = blurWhenNotBlank value attributes.label
                 , disabled = disabled
-                , value = Value.raw state.value |> Maybe.withDefault ""
+                , value = Value.raw value |> Maybe.withDefault ""
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes
@@ -510,7 +510,7 @@ inputField type_ { onInput, onBlur, disabled, value, error, showError, attribute
     Html.div
         [ Attributes.classList
             [ ( "elm-form-field", True )
-            , ( "elm-form-field-error", error /= Nothing )
+            , ( "elm-form-field-error", showError && error /= Nothing )
             ]
         ]
         [ fieldLabel attributes.label
@@ -522,7 +522,12 @@ inputField type_ { onInput, onBlur, disabled, value, error, showError, attribute
 
 textareaField : TextFieldConfig msg -> Html msg
 textareaField { onInput, disabled, value, error, showError, attributes } =
-    Html.div [ Attributes.class "elm-form-field" ]
+    Html.div
+        [ Attributes.classList
+            [ ( "elm-form-field", True )
+            , ( "elm-form-field-error", showError && error /= Nothing )
+            ]
+        ]
         [ fieldLabel attributes.label
         , Html.textarea
             [ Events.onInput onInput
@@ -539,7 +544,7 @@ checkboxField { checked, disabled, onCheck, error, showError, attributes } =
     Html.div
         [ Attributes.classList
             [ ( "elm-form-field", True )
-            , ( "elm-form-field-error", error /= Nothing )
+            , ( "elm-form-field-error", showError && error /= Nothing )
             ]
         ]
         [ Html.label []
@@ -585,7 +590,7 @@ selectField { onInput, onBlur, disabled, value, error, showError, attributes } =
     Html.div
         [ Attributes.classList
             [ ( "elm-form-field", True )
-            , ( "elm-form-field-error", error /= Nothing )
+            , ( "elm-form-field-error", showError && error /= Nothing )
             ]
         ]
         [ fieldLabel attributes.label

@@ -63,7 +63,7 @@ form { get, update } =
                     }
                 }
     in
-    Form.empty Address
+    Form.succeed Address
         |> Form.append countryField
         |> Form.append cityField
         |> Form.append postalCodeField

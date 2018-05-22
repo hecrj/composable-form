@@ -14,8 +14,8 @@ module Form.Base
         )
 
 import Form.Error as Error exposing (Error)
-import Form.Field.State exposing (State)
-import Form.Field.Value as Value exposing (Value)
+import Form.Field exposing (Field)
+import Form.Value as Value exposing (Value)
 
 
 type Form values output field
@@ -25,6 +25,7 @@ type Form values output field
 type alias Filled field output =
     { fields : List ( field, Maybe Error )
     , result : Result ( Error, List Error ) output
+    , isEmpty : Bool
     }
 
 
@@ -43,17 +44,11 @@ fill (Form fill_) =
 
 succeed : output -> Form values output custom
 succeed output =
-    Form (always { fields = [], result = Ok output })
+    Form (always { fields = [], result = Ok output, isEmpty = True })
 
 
 
 -- Custom fields
-
-
-type alias GenericField attributes input values =
-    { attributes : attributes
-    , state : State input values
-    }
 
 
 {-| Most form fields require configuration! `FieldConfig` allows you to specify how a field is
@@ -77,7 +72,7 @@ type alias FieldConfig attrs input values output =
 
 field :
     { isEmpty : input -> Bool }
-    -> (GenericField attributes input values -> field)
+    -> (Field attributes input values -> field)
     -> FieldConfig attributes input values output
     -> Form values output field
 field { isEmpty } build config =
@@ -108,8 +103,9 @@ field { isEmpty } build config =
                         |> flip config.update values
             in
             build
-                { attributes = config.attributes
-                , state = { value = value, update = update }
+                { value = value
+                , update = update
+                , attributes = config.attributes
                 }
     in
     Form
@@ -117,24 +113,27 @@ field { isEmpty } build config =
             let
                 result =
                     parse values
-            in
-            { fields =
-                [ ( field values
-                  , case result of
+
+                ( error, isEmpty ) =
+                    case result of
                         Ok _ ->
-                            Nothing
+                            ( Nothing, False )
 
                         Err ( firstError, _ ) ->
-                            Just firstError
-                  )
-                ]
+                            ( Just firstError, firstError == Error.RequiredFieldIsEmpty )
+            in
+            { fields = [ ( field values, error ) ]
             , result = result
+            , isEmpty = isEmpty
             }
         )
 
 
 type alias FilledField output field =
-    ( field, Result ( Error, List Error ) output )
+    { field : field
+    , result : Result ( Error, List Error ) output
+    , isEmpty : Bool
+    }
 
 
 custom : (values -> FilledField output custom) -> Form values output custom
@@ -142,7 +141,7 @@ custom fillField =
     Form
         (\values ->
             let
-                ( field, result ) =
+                { field, result, isEmpty } =
                     fillField values
             in
             { fields =
@@ -156,6 +155,7 @@ custom fillField =
                   )
                 ]
             , result = result
+            , isEmpty = isEmpty
             }
         )
 
@@ -177,6 +177,9 @@ append new current =
 
                 fields =
                     filledCurrent.fields ++ filledNew.fields
+
+                isEmpty =
+                    filledCurrent.isEmpty && filledNew.isEmpty
             in
             case filledCurrent.result of
                 Ok f ->
@@ -184,6 +187,7 @@ append new current =
                     , result =
                         filledNew.result
                             |> Result.map f
+                    , isEmpty = isEmpty
                     }
 
                 Err (( firstError, otherErrors ) as errors) ->
@@ -191,6 +195,7 @@ append new current =
                         Ok _ ->
                             { fields = fields
                             , result = Err errors
+                            , isEmpty = isEmpty
                             }
 
                         Err ( newFirstError, newOtherErrors ) ->
@@ -200,6 +205,7 @@ append new current =
                                     ( firstError
                                     , otherErrors ++ (newFirstError :: newOtherErrors)
                                     )
+                            , isEmpty = isEmpty
                             }
         )
 
@@ -220,11 +226,13 @@ andThen child parent =
                     in
                     { fields = filled.fields ++ childFilled.fields
                     , result = childFilled.result
+                    , isEmpty = filled.isEmpty && childFilled.isEmpty
                     }
 
                 Err errors ->
                     { fields = filled.fields
                     , result = Err errors
+                    , isEmpty = filled.isEmpty
                     }
         )
 
@@ -241,24 +249,19 @@ optional form =
                 Ok value ->
                     { fields = filled.fields
                     , result = Ok (Just value)
+                    , isEmpty = filled.isEmpty
                     }
 
                 Err ( firstError, otherErrors ) ->
-                    let
-                        allErrors =
-                            firstError :: otherErrors
-                    in
-                    if
-                        List.length allErrors
-                            == List.length filled.fields
-                            && List.all ((==) Error.RequiredFieldIsEmpty) allErrors
-                    then
-                        { fields = filled.fields
+                    if filled.isEmpty then
+                        { fields = List.map (\( field, _ ) -> ( field, Nothing )) filled.fields
                         , result = Ok Nothing
+                        , isEmpty = True
                         }
                     else
                         { fields = filled.fields
                         , result = Err ( firstError, otherErrors )
+                        , isEmpty = False
                         }
         )
 

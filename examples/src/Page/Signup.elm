@@ -7,6 +7,7 @@ import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
 import Task
+import View
 
 
 type Model
@@ -81,10 +82,11 @@ view model =
         FillingForm formModel ->
             Html.div []
                 [ Html.h1 [] [ Html.text "Signup" ]
-                , Form.View.basic
+                , code
+                , Form.View.asHtml
                     { onChange = FormChanged
                     , action = "Sign up"
-                    , loadingMessage = "Loading..."
+                    , loading = "Loading..."
                     , validation = Form.View.ValidateOnSubmit
                     }
                     form
@@ -186,9 +188,30 @@ form =
                 User.Other ->
                     "Other"
     in
-    Form.empty SignUp
+    Form.succeed
+        (\email name password favoriteLanguage _ ->
+            SignUp email name password favoriteLanguage
+        )
         |> Form.append emailField
         |> Form.append nameField
         |> Form.append passwordField
         |> Form.append favoriteLanguageField
-        |> Form.appendMeta acceptTermsCheckbox
+        |> Form.append acceptTermsCheckbox
+
+
+code : Html msg
+code =
+    View.code
+        [ { filename = "Signup.elm"
+          , path = "Signup.elm"
+          , code = """Form.succeed
+    (\\email name password favoriteLanguage _ ->
+        SignUp email name password favoriteLanguage
+    )
+    |> Form.append emailField
+    |> Form.append nameField
+    |> Form.append passwordField
+    |> Form.append favoriteLanguageField
+    |> Form.append acceptTermsCheckbox"""
+          }
+        ]

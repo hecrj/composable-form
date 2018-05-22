@@ -3,11 +3,11 @@ module Main exposing (main)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Page.Composability.WithExtensibleRecords as Composability
+import Page.DynamicForm as DynamicForm
 import Page.Login as Login
 import Page.MultiStage as MultiStage
 import Page.Signup as Signup
 import Page.ValidationStrategies as ValidationStrategies
-import Page.ValueReusability as ValueReusability
 import Route exposing (Route)
 
 
@@ -19,7 +19,7 @@ type Page
     = Home
     | Login Login.Model
     | Signup Signup.Model
-    | ValueReusability ValueReusability.Model
+    | DynamicForm DynamicForm.Model
     | ValidationStrategies ValidationStrategies.Model
     | Composability Composability.Model
     | MultiStage MultiStage.Model
@@ -31,7 +31,7 @@ type Msg
     | Navigate Route
     | LoginMsg Login.Msg
     | SignupMsg Signup.Msg
-    | ValueReusabilityMsg ValueReusability.Msg
+    | DynamicFormMsg DynamicForm.Msg
     | ValidationStrategiesMsg ValidationStrategies.Msg
     | ComposabilityMsg Composability.Msg
     | MultiStageMsg MultiStage.Msg
@@ -79,10 +79,10 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        ValueReusabilityMsg subMsg ->
+        DynamicFormMsg subMsg ->
             case model of
-                ValueReusability subModel ->
-                    ( ValueReusability (ValueReusability.update subMsg subModel), Cmd.none )
+                DynamicForm subModel ->
+                    ( DynamicForm (DynamicForm.update subMsg subModel), Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -120,8 +120,8 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.header []
-            [ Html.h1 [] [ Html.text "elm-wip-form" ]
-            , Html.h2 [] [ Html.text "A WIP form API for Elm" ]
+            [ Html.h1 [] [ Html.text "composable-form" ]
+            , Html.h2 [] [ Html.text "Build type-safe composable forms in Elm" ]
             , Html.div []
                 [ Html.a (Route.href Navigate Route.Top)
                     [ Html.text "Examples" ]
@@ -144,9 +144,9 @@ view model =
                     Signup.view signupModel
                         |> Html.map SignupMsg
 
-                ValueReusability subModel ->
-                    ValueReusability.view subModel
-                        |> Html.map ValueReusabilityMsg
+                DynamicForm subModel ->
+                    DynamicForm.view subModel
+                        |> Html.map DynamicFormMsg
 
                 ValidationStrategies subModel ->
                     ValidationStrategies.view subModel
@@ -194,8 +194,8 @@ fromRoute route =
         Route.Signup ->
             Signup Signup.init
 
-        Route.ValueReusability ->
-            ValueReusability ValueReusability.init
+        Route.DynamicForm ->
+            DynamicForm DynamicForm.init
 
         Route.ValidationStrategies ->
             ValidationStrategies ValidationStrategies.init
@@ -217,11 +217,11 @@ viewHome =
             [ ( "Login", Route.Login, "Shows a simple login form with 3 fields." )
             , ( "Signup"
               , Route.Signup
-              , "Showcases a select field, a meta field and external form errors."
+              , "Showcases a select field and external form errors."
               )
-            , ( "Value reusability"
-              , Route.ValueReusability
-              , "Shows how field values are decoupled from any form, and how they can be reused with a single source of truth. It also showcases an optional field."
+            , ( "Dynamic form"
+              , Route.DynamicForm
+              , "Shows how forms can dynamically change based on their own values. It also showcases an optional field."
               )
             , ( "Validation strategies"
               , Route.ValidationStrategies
@@ -267,8 +267,8 @@ pageCodeUri page =
         Signup _ ->
             Just "/Signup.elm"
 
-        ValueReusability _ ->
-            Just "/ValueReusability.elm"
+        DynamicForm _ ->
+            Just "/DynamicForm.elm"
 
         ValidationStrategies _ ->
             Just "/ValidationStrategies.elm"

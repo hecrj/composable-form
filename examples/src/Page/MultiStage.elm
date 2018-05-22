@@ -7,6 +7,7 @@ import Form.Value as Value exposing (Value)
 import Form.View.MultiStage as MultiStage
 import Html exposing (Html)
 import Html.Attributes as Attributes
+import View
 
 
 type alias Model =
@@ -52,6 +53,7 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.h1 [] [ Html.text "Multiple stages" ]
+        , code
         , MultiStage.view
             { onChange = FormChanged
             , action = "Sign up"
@@ -107,7 +109,7 @@ emailAndNameForm =
                     }
                 }
     in
-    Form.empty EmailAndName
+    Form.succeed EmailAndName
         |> Form.append emailField
         |> Form.append nameField
 
@@ -185,3 +187,16 @@ favoriteLanguageField =
                         )
             }
         }
+
+
+code : Html msg
+code =
+    View.code
+        [ { filename = "MultiStage.elm"
+          , path = "MultiStage.elm"
+          , code = """MultiStage.build SignUp
+    |> MultiStage.add emailAndNameForm viewEmailAndNameForm
+    |> MultiStage.add passwordField viewPassword
+    |> MultiStage.end favoriteLanguageField"""
+          }
+        ]

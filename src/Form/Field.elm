@@ -1,25 +1,25 @@
-module Form.Field.State exposing (State)
+module Form.Field exposing (Field)
 
-{-| This module contains a type that represents the [`State`](#State)
-of a form field.
+{-| This module contains a type that represents the state of a form field.
 
 **Note:** You should not need to care about this unless you are creating your own
 custom fields or writing your own form renderer.
 
-@docs State
+@docs FieldState
 
 -}
 
-import Form.Field.Value exposing (Value)
+import Form.Value exposing (Value)
 
 
-{-| Represents the state of a form field.
+{-| Represents a form field.
 
 It contains:
 
   - the current `value` of the field
   - an `update` function that takes a new **field** value and returns updated
     **form** values
+  - the `attributes` of the field
 
 These attributes are normally used in renderers to set up the `value` and `onInput`
 attributes. For example, you could render a `TextField` like this:
@@ -58,7 +58,8 @@ attributes. For example, you could render a `TextField` like this:
                 -- ...
 
 -}
-type alias State value values =
+type alias Field attributes value values =
     { value : Value value
     , update : value -> values
+    , attributes : attributes
     }
