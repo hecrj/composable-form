@@ -8,13 +8,14 @@
     ],
     "exposed-modules": [
         "Form",
+        "Form.Value",
+        "Form.View",
+        "Form.Error",
+        "Form.Field",
+        "Form.Base",
         "Form.Base.TextField",
         "Form.Base.CheckboxField",
-        "Form.Base.SelectField",
-        "Form.Field.State",
-        "Form.Field.Value",
-        "Form.Error",
-        "Form.View"
+        "Form.Base.SelectField"
     ],
     "dependencies": {
         "elm-lang/core": "5.1.1 <= v < 6.0.0",

@@ -17,7 +17,7 @@ module Form
         , textareaField
         )
 
-{-| This module helps you build [composable forms](#Form) made of [simple fields](#simple-fields).
+{-| Build [composable forms](#Form) made of [simple fields](#fields).
 
 
 # Definition
@@ -25,17 +25,17 @@ module Form
 @docs Form
 
 
-# Simple fields
+# Fields
 
 @docs textField, emailField, passwordField, textareaField, checkboxField, selectField
 
 
 # Composition
 
-All the functions in [the previous section](#simple-fields) produce a `Form` with a **single**
+All the functions in [the previous section](#fields) produce a `Form` with a **single**
 field. You might then be wondering... "How do I create a `Form` with multiple fields?!"
-Remember the name of this package: `composable-form`! A `Form` is composable! This section
-explains how you can combine different forms into bigger and more complex ones.
+Well, as the name of this package says... A `Form` is composable! This section explains how you
+can combine different forms into bigger and more complex ones.
 
 @docs succeed, append, andThen, optional, meta
 

@@ -124,7 +124,7 @@ idle values =
 -- Configuration
 
 
-{-| This type allows you to configure the renderer behavior.
+{-| This allows you to configure the renderer behavior.
 
   - `onChange` specifies the message that should be thrown when the `Model` changes.
   - `action` is the text of the submit button when the form is not loading.
