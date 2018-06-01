@@ -59,12 +59,13 @@ import Html.Events as Events
 import Set exposing (Set)
 
 
-{-| This type gathers the values of the form, with some exposed state and internal view state.
+{-| This type gathers the values of the form, with some exposed state and internal view state that
+tracks which fields should show validation errors.
 -}
 type alias Model values =
     { values : values
     , state : State
-    , internal : Internal
+    , errorTracking : ErrorTracking
     }
 
 
@@ -99,8 +100,8 @@ type State
     | Error String
 
 
-type Internal
-    = Internal { showAllErrors : Bool, showFieldError : Set String }
+type ErrorTracking
+    = ErrorTracking { showAllErrors : Bool, showFieldError : Set String }
 
 
 {-| Create a `Model` representing an idle form.
@@ -112,8 +113,8 @@ idle : values -> Model values
 idle values =
     { values = values
     , state = Idle
-    , internal =
-        Internal
+    , errorTracking =
+        ErrorTracking
             { showAllErrors = False
             , showFieldError = Set.empty
             }
@@ -281,8 +282,8 @@ custom config { onChange, action, loading, validation } form model =
             Form.fill form model.values
 
         internal =
-            case model.internal of
-                Internal internal ->
+            case model.errorTracking of
+                ErrorTracking internal ->
                     internal
 
         onSubmit =
@@ -300,7 +301,7 @@ custom config { onChange, action, loading, validation } form model =
                         Just
                             (onChange
                                 { model
-                                    | internal = Internal { internal | showAllErrors = True }
+                                    | errorTracking = ErrorTracking { internal | showAllErrors = True }
                                 }
                             )
 
@@ -323,8 +324,8 @@ custom config { onChange, action, loading, validation } form model =
                         (\label ->
                             onChange
                                 { model
-                                    | internal =
-                                        Internal
+                                    | errorTracking =
+                                        ErrorTracking
                                             { internal
                                                 | showFieldError =
                                                     Set.insert label internal.showFieldError

@@ -1,8 +1,8 @@
 module Form.Base
     exposing
         ( FieldConfig
-        , Filled
         , FilledField
+        , FilledForm
         , Form
         , andThen
         , append
@@ -72,7 +72,7 @@ import `Form.Base` every time we needed to use those operations with our brand n
 
 # Output
 
-@docs Filled, fill
+@docs FilledForm, fill
 
 -}
 
@@ -84,7 +84,7 @@ import Form.Value as Value exposing (Value)
 {-| A [`Form`](Form#Form) that can contain any type of `field`.
 -}
 type Form values output field
-    = Form (values -> Filled field output)
+    = Form (values -> FilledForm field output)
 
 
 
@@ -380,7 +380,7 @@ meta fn =
 You can obtain this by using [`fill`](#fill).
 
 -}
-type alias Filled field output =
+type alias FilledForm field output =
     { fields : List ( field, Maybe Error )
     , result : Result ( Error, List Error ) output
     , isEmpty : Bool
@@ -389,6 +389,6 @@ type alias Filled field output =
 
 {-| Like [`Form.fill`](Form#fill) but not tied to a particular type of `field`.
 -}
-fill : Form values output field -> values -> Filled field output
+fill : Form values output field -> values -> FilledForm field output
 fill (Form fill_) =
     fill_
