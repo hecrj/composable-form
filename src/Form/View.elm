@@ -225,6 +225,7 @@ The other record fields are described in [`TextFieldConfig`](#TextFieldConfig).
 -}
 type alias CheckboxFieldConfig msg =
     { onChange : Bool -> msg
+    , onBlur : Maybe msg
     , disabled : Bool
     , checked : Bool
     , error : Maybe Error
@@ -397,6 +398,7 @@ field customConfig { onChange, onBlur, disabled, showError } ( field, maybeError
                 { checked = Value.raw value |> Maybe.withDefault False
                 , disabled = disabled
                 , onChange = update >> onChange
+                , onBlur = blurWhenNotBlank value attributes.label
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes
@@ -499,19 +501,6 @@ form { onSubmit, action, loading, state, fields } =
 
 inputField : String -> TextFieldConfig msg -> Html msg
 inputField type_ { onChange, onBlur, disabled, value, error, showError, attributes } =
-    let
-        fixedAttributes =
-            [ Events.onInput onChange
-            , Attributes.disabled disabled
-            , Attributes.value value
-            , Attributes.placeholder attributes.placeholder
-            , Attributes.type_ type_
-            ]
-
-        inputAttributes =
-            Maybe.map (Events.onBlur >> flip (::) fixedAttributes) onBlur
-                |> Maybe.withDefault fixedAttributes
-    in
     Html.div
         [ Attributes.classList
             [ ( "elm-form-field", True )
@@ -519,7 +508,15 @@ inputField type_ { onChange, onBlur, disabled, value, error, showError, attribut
             ]
         ]
         [ fieldLabel attributes.label
-        , Html.input inputAttributes
+        , Html.input
+            ([ Events.onInput onChange
+             , Attributes.disabled disabled
+             , Attributes.value value
+             , Attributes.placeholder attributes.placeholder
+             , Attributes.type_ type_
+             ]
+                |> blurEvent onBlur
+            )
             []
         , maybeErrorMessage showError error
         ]
@@ -545,7 +542,7 @@ textareaField { onChange, disabled, value, error, showError, attributes } =
 
 
 checkboxField : CheckboxFieldConfig msg -> Html msg
-checkboxField { checked, disabled, onChange, error, showError, attributes } =
+checkboxField { checked, disabled, onChange, onBlur, error, showError, attributes } =
     Html.div
         [ Attributes.classList
             [ ( "elm-form-field", True )
@@ -554,11 +551,13 @@ checkboxField { checked, disabled, onChange, error, showError, attributes } =
         ]
         [ Html.label []
             [ Html.input
-                [ Events.onCheck onChange
-                , Attributes.checked checked
-                , Attributes.disabled disabled
-                , Attributes.type_ "checkbox"
-                ]
+                ([ Events.onCheck onChange
+                 , Attributes.checked checked
+                 , Attributes.disabled disabled
+                 , Attributes.type_ "checkbox"
+                 ]
+                    |> blurEvent onBlur
+                )
                 []
             , Html.text attributes.label
             ]
@@ -582,15 +581,6 @@ selectField { onChange, onBlur, disabled, value, error, showError, attributes } 
                 , Attributes.selected (value == "")
                 ]
                 [ Html.text ("-- " ++ attributes.placeholder ++ " --") ]
-
-        fixedAttributes =
-            [ Events.onInput onChange
-            , Attributes.disabled disabled
-            ]
-
-        selectAttributes =
-            Maybe.map (Events.onBlur >> flip (::) fixedAttributes) onBlur
-                |> Maybe.withDefault fixedAttributes
     in
     Html.div
         [ Attributes.classList
@@ -599,7 +589,12 @@ selectField { onChange, onBlur, disabled, value, error, showError, attributes } 
             ]
         ]
         [ fieldLabel attributes.label
-        , Html.select selectAttributes
+        , Html.select
+            ([ Events.onInput onChange
+             , Attributes.disabled disabled
+             ]
+                |> blurEvent onBlur
+            )
             (placeholderOption :: List.map toOption attributes.options)
         , maybeErrorMessage showError error
         ]
@@ -634,3 +629,9 @@ errorToString error =
 
         Error.ValidationFailed validationError ->
             validationError
+
+
+blurEvent : Maybe msg -> List (Html.Attribute msg) -> List (Html.Attribute msg)
+blurEvent onBlur attrs =
+    Maybe.map (Events.onBlur >> flip (::) attrs) onBlur
+        |> Maybe.withDefault attrs
