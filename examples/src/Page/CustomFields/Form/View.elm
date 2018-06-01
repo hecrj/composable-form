@@ -117,9 +117,9 @@ asHtml { onChange, action, loading } form model =
 field : { disabled : Bool, showError : Bool } -> ( Form.Field values msg, Maybe Error ) -> Html msg
 field { disabled, showError } ( field, maybeError ) =
     case field of
-        Form.Email { onInput, value, attributes } ->
+        Form.Email { onChange, value, attributes } ->
             inputField "email"
-                { onInput = onInput
+                { onChange = onChange
                 , onBlur = Nothing
                 , value = Value.raw value |> Maybe.withDefault ""
                 , disabled = disabled
@@ -130,7 +130,7 @@ field { disabled, showError } ( field, maybeError ) =
 
 
 inputField : String -> Form.View.TextFieldConfig msg -> Html msg
-inputField type_ { onInput, disabled, value, error, showError, attributes } =
+inputField type_ { onChange, disabled, value, error, showError, attributes } =
     Html.div
         [ Attributes.classList
             [ ( "elm-form-field", True )
@@ -139,7 +139,7 @@ inputField type_ { onInput, disabled, value, error, showError, attributes } =
         ]
         [ fieldLabel attributes.label
         , Html.input
-            [ Events.onInput onInput
+            [ Events.onInput onChange
             , Attributes.disabled disabled
             , Attributes.value value
             , Attributes.placeholder attributes.placeholder

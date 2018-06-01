@@ -193,7 +193,7 @@ type alias FormConfig msg element =
 
 {-| Describes how a text field should be rendered.
 
-  - `onInput` takes a new value for the field and returns the `msg` that should be produced.
+  - `onChange` takes a new value for the field and returns the `msg` that should be produced.
   - `onBlur` might contain a `msg` that should be produced when the field is blurred.
   - `disabled` tells you whether the field should be disabled or not. It is `True` when the form is
     loading.
@@ -205,7 +205,7 @@ type alias FormConfig msg element =
 
 -}
 type alias TextFieldConfig msg =
-    { onInput : String -> msg
+    { onChange : String -> msg
     , onBlur : Maybe msg
     , disabled : Bool
     , value : String
@@ -217,7 +217,6 @@ type alias TextFieldConfig msg =
 
 {-| Describes how a checkbox field should be rendered.
 
-  - `onCheck` takes a new value for the checkbox and returns the `msg` that should be produced.
   - `checked` tells you whether the checkbox should be checked or not.
   - `attributes` are [`CheckboxField.Attributes`](Form-Base-CheckboxField#Attributes).
 
@@ -225,7 +224,7 @@ The other record fields are described in [`TextFieldConfig`](#TextFieldConfig).
 
 -}
 type alias CheckboxFieldConfig msg =
-    { onCheck : Bool -> msg
+    { onChange : Bool -> msg
     , disabled : Bool
     , checked : Bool
     , error : Maybe Error
@@ -241,7 +240,7 @@ This is basically a [`TextFieldConfig`](#TextFieldConfig), but its `attributes` 
 
 -}
 type alias SelectFieldConfig msg =
-    { onInput : String -> msg
+    { onChange : String -> msg
     , onBlur : Maybe msg
     , disabled : Bool
     , value : String
@@ -371,7 +370,7 @@ field customConfig { onChange, onBlur, disabled, showError } ( field, maybeError
         Form.Text type_ { attributes, value, update } ->
             let
                 config =
-                    { onInput = update >> onChange
+                    { onChange = update >> onChange
                     , onBlur = blurWhenNotBlank value attributes.label
                     , disabled = disabled
                     , value = Value.raw value |> Maybe.withDefault ""
@@ -397,7 +396,7 @@ field customConfig { onChange, onBlur, disabled, showError } ( field, maybeError
             customConfig.checkboxField
                 { checked = Value.raw value |> Maybe.withDefault False
                 , disabled = disabled
-                , onCheck = update >> onChange
+                , onChange = update >> onChange
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes
@@ -405,7 +404,7 @@ field customConfig { onChange, onBlur, disabled, showError } ( field, maybeError
 
         Form.Select { attributes, value, update } ->
             customConfig.selectField
-                { onInput = update >> onChange
+                { onChange = update >> onChange
                 , onBlur = blurWhenNotBlank value attributes.label
                 , disabled = disabled
                 , value = Value.raw value |> Maybe.withDefault ""
@@ -499,10 +498,10 @@ form { onSubmit, action, loading, state, fields } =
 
 
 inputField : String -> TextFieldConfig msg -> Html msg
-inputField type_ { onInput, onBlur, disabled, value, error, showError, attributes } =
+inputField type_ { onChange, onBlur, disabled, value, error, showError, attributes } =
     let
         fixedAttributes =
-            [ Events.onInput onInput
+            [ Events.onInput onChange
             , Attributes.disabled disabled
             , Attributes.value value
             , Attributes.placeholder attributes.placeholder
@@ -527,7 +526,7 @@ inputField type_ { onInput, onBlur, disabled, value, error, showError, attribute
 
 
 textareaField : TextFieldConfig msg -> Html msg
-textareaField { onInput, disabled, value, error, showError, attributes } =
+textareaField { onChange, disabled, value, error, showError, attributes } =
     Html.div
         [ Attributes.classList
             [ ( "elm-form-field", True )
@@ -536,7 +535,7 @@ textareaField { onInput, disabled, value, error, showError, attributes } =
         ]
         [ fieldLabel attributes.label
         , Html.textarea
-            [ Events.onInput onInput
+            [ Events.onInput onChange
             , Attributes.disabled disabled
             , Attributes.placeholder attributes.placeholder
             ]
@@ -546,7 +545,7 @@ textareaField { onInput, disabled, value, error, showError, attributes } =
 
 
 checkboxField : CheckboxFieldConfig msg -> Html msg
-checkboxField { checked, disabled, onCheck, error, showError, attributes } =
+checkboxField { checked, disabled, onChange, error, showError, attributes } =
     Html.div
         [ Attributes.classList
             [ ( "elm-form-field", True )
@@ -555,7 +554,7 @@ checkboxField { checked, disabled, onCheck, error, showError, attributes } =
         ]
         [ Html.label []
             [ Html.input
-                [ Events.onCheck onCheck
+                [ Events.onCheck onChange
                 , Attributes.checked checked
                 , Attributes.disabled disabled
                 , Attributes.type_ "checkbox"
@@ -568,7 +567,7 @@ checkboxField { checked, disabled, onCheck, error, showError, attributes } =
 
 
 selectField : SelectFieldConfig msg -> Html msg
-selectField { onInput, onBlur, disabled, value, error, showError, attributes } =
+selectField { onChange, onBlur, disabled, value, error, showError, attributes } =
     let
         toOption ( key, label ) =
             Html.option
@@ -585,7 +584,7 @@ selectField { onInput, onBlur, disabled, value, error, showError, attributes } =
                 [ Html.text ("-- " ++ attributes.placeholder ++ " --") ]
 
         fixedAttributes =
-            [ Events.onInput onInput
+            [ Events.onInput onChange
             , Attributes.disabled disabled
             ]
 

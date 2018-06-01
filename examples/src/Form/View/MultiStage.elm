@@ -239,7 +239,7 @@ field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
         Form.Text type_ { attributes, value, update } ->
             let
                 config =
-                    { onInput = update >> onChange
+                    { onChange = update >> onChange
                     , onBlur = whenDirty value (Maybe.map (\onBlur -> onBlur attributes.label) onBlur)
                     , disabled = disabled
                     , label = attributes.label
@@ -272,7 +272,7 @@ field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
 
         Form.Select { attributes, value, update } ->
             selectField attributes.options
-                { onInput = update >> onChange
+                { onChange = update >> onChange
                 , onBlur = whenDirty value (Maybe.map (\onBlur -> onBlur attributes.label) onBlur)
                 , disabled = disabled
                 , label = attributes.label
@@ -297,7 +297,7 @@ errorToString error =
 
 
 type alias TextFieldConfig msg =
-    { onInput : String -> msg
+    { onChange : String -> msg
     , onBlur : Maybe msg
     , disabled : Bool
     , value : String
@@ -347,11 +347,11 @@ type alias TextAreaConfig msg =
 
 
 textArea : TextAreaConfig msg -> Html msg
-textArea { onInput, disabled, value, error, label, placeholder } =
+textArea { onChange, disabled, value, error, label, placeholder } =
     Html.div [ Attributes.class "elm-form-field" ]
         [ fieldLabel label
         , Html.textarea
-            [ Events.onInput onInput
+            [ Events.onInput onChange
             , Attributes.disabled disabled
             , Attributes.placeholder placeholder
             ]
@@ -404,7 +404,7 @@ type alias SelectFieldConfig msg =
 
 
 selectField : List ( String, String ) -> TextFieldConfig msg -> Html msg
-selectField options { onInput, onBlur, disabled, value, error, label, placeholder } =
+selectField options { onChange, onBlur, disabled, value, error, label, placeholder } =
     let
         toOption ( key, label ) =
             Html.option
@@ -421,7 +421,7 @@ selectField options { onInput, onBlur, disabled, value, error, label, placeholde
                 [ Html.text ("-- " ++ placeholder ++ " --") ]
 
         fixedAttributes =
-            [ Events.onInput onInput
+            [ Events.onInput onChange
             , Attributes.disabled disabled
             ]
 
@@ -458,10 +458,10 @@ errorMessage =
 
 
 inputField : String -> TextFieldConfig msg -> Html msg
-inputField type_ { onInput, onBlur, disabled, value, error, label, placeholder } =
+inputField type_ { onChange, onBlur, disabled, value, error, label, placeholder } =
     let
         fixedAttributes =
-            [ Events.onInput onInput
+            [ Events.onInput onChange
             , Attributes.disabled disabled
             , Attributes.value value
             , Attributes.placeholder placeholder

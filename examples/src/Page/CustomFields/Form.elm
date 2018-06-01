@@ -45,7 +45,7 @@ customEmailField { toMsg, state, attributes } =
             in
             { field =
                 Email
-                    { onInput = ComplexValidationField.InputChanged >> toMsg
+                    { onChange = ComplexValidationField.InputChanged >> toMsg
                     , value = value
                     , attributes = attributes
                     }
@@ -97,7 +97,7 @@ meta =
 
 type Field values msg
     = Email
-        { onInput : String -> msg
+        { onChange : String -> msg
         , value : Value String
         , attributes : TextField.Attributes
         }
