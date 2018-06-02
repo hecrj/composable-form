@@ -11,7 +11,7 @@ module.exports = {
 
   output: {
     path: path.resolve(__dirname, '../docs'),
-    publicPath: '/elm-wip-form/',
+    publicPath: '/composable-form/',
     filename: '[name].[hash].js'
   },
 

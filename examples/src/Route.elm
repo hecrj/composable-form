@@ -23,6 +23,7 @@ type Route
     | ValidationStrategies
     | Composability
     | MultiStage
+    | CustomFields
     | NotFound
 
 
@@ -36,6 +37,7 @@ parser =
         , map ValidationStrategies (s "validation-strategies")
         , map Composability (s "composability")
         , map MultiStage (s "multi-stage")
+        , map CustomFields (s "custom-fields")
         ]
 
 
@@ -114,6 +116,9 @@ toString route =
 
                 MultiStage ->
                     [ "multi-stage" ]
+
+                CustomFields ->
+                    [ "custom-fields" ]
 
                 NotFound ->
                     [ "404" ]

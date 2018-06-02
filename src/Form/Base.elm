@@ -220,6 +220,10 @@ type alias FilledField output field =
 
 You only need to provide a function that given some `values` produces a [`FilledField`](#FilledField).
 
+You can check the [custom fields example][custom-fields] for some inspiration.
+
+[custom-fields]: https://hecrj.github.io/composable-form/#/custom-fields
+
 -}
 custom : (values -> FilledField output custom) -> Form values output custom
 custom fillField =

@@ -6,3 +6,4 @@
     * [WithExtensibleRecords](Composability/WithExtensibleRecords.elm) uses extensible records.
     * [WithConfiguration](Composability/WithConfiguration.elm) uses a function that configures the composable form.
   * [MultiStage](MultiStage.elm) showcases a form that is filled in multiple stages.
+  * [CustomFields](CustomFields.elm) showcases how custom fields can be implemented to suit your needs.

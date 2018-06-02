@@ -23,7 +23,7 @@ If you just want to quickly render a [`Form`](Form#Form) as HTML, take a look at
 you cannot use this module. You should use [`Form.Base.fill`](Form-Base#fill) to write your
 own renderer. Take a look at [the source code of this module][source] for inspiration.
 
-[source]: https://github.com/hecrj/composable-form/tree/master/src/Form/View.elm
+[source]: https://github.com/hecrj/composable-form/blob/1.0.0/src/Form/View.elm
 
 
 # Model

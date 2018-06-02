@@ -1,4 +1,4 @@
-module View exposing (code)
+module View exposing (code, repositoryUrl)
 
 import Html exposing (Html)
 import Html.Attributes as Attributes
