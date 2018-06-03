@@ -280,11 +280,11 @@ append new current =
                     filledCurrent.isEmpty && filledNew.isEmpty
             in
             case filledCurrent.result of
-                Ok f ->
+                Ok fn ->
                     { fields = fields
                     , result =
                         filledNew.result
-                            |> Result.map f
+                            |> Result.map fn
                     , isEmpty = isEmpty
                     }
 

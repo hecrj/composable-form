@@ -57,10 +57,8 @@ asHtml { onChange, action, loading } form model =
         { fields, result } =
             Form.fill form model.values
 
-        internal =
-            case model.errorTracking of
-                ErrorTracking internal ->
-                    internal
+        errorTracking =
+            (\(ErrorTracking e) -> e) model.errorTracking
 
         onSubmit =
             case result of
@@ -71,20 +69,21 @@ asHtml { onChange, action, loading } form model =
                         Just msg
 
                 Err _ ->
-                    if internal.showAllErrors then
+                    if errorTracking.showAllErrors then
                         Nothing
                     else
                         Just
                             (onChange
                                 { model
-                                    | errorTracking = ErrorTracking { internal | showAllErrors = True }
+                                    | errorTracking =
+                                        ErrorTracking { errorTracking | showAllErrors = True }
                                 }
                             )
 
         fieldToElement =
             field
                 { disabled = model.state == Loading
-                , showError = internal.showAllErrors
+                , showError = errorTracking.showAllErrors
                 }
 
         onSubmitEvent =

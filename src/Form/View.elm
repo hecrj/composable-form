@@ -275,16 +275,19 @@ a [`ViewConfig`](#ViewConfig). In fact, [`asHtml`](#asHtml) is implemented using
             }
 
 -}
-custom : CustomConfig msg element -> ViewConfig values msg -> Form values msg -> Model values -> element
+custom :
+    CustomConfig msg element
+    -> ViewConfig values msg
+    -> Form values msg
+    -> Model values
+    -> element
 custom config { onChange, action, loading, validation } form model =
     let
         { fields, result } =
             Form.fill form model.values
 
-        internal =
-            case model.errorTracking of
-                ErrorTracking internal ->
-                    internal
+        errorTracking =
+            (\(ErrorTracking e) -> e) model.errorTracking
 
         onSubmit =
             case result of
@@ -295,13 +298,15 @@ custom config { onChange, action, loading, validation } form model =
                         Just msg
 
                 Err _ ->
-                    if internal.showAllErrors then
+                    if errorTracking.showAllErrors then
                         Nothing
                     else
                         Just
                             (onChange
                                 { model
-                                    | errorTracking = ErrorTracking { internal | showAllErrors = True }
+                                    | errorTracking =
+                                        ErrorTracking
+                                            { errorTracking | showAllErrors = True }
                                 }
                             )
 
@@ -326,15 +331,15 @@ custom config { onChange, action, loading, validation } form model =
                                 { model
                                     | errorTracking =
                                         ErrorTracking
-                                            { internal
+                                            { errorTracking
                                                 | showFieldError =
-                                                    Set.insert label internal.showFieldError
+                                                    Set.insert label errorTracking.showFieldError
                                             }
                                 }
                         )
 
         showError label =
-            internal.showAllErrors || Set.member label internal.showFieldError
+            errorTracking.showAllErrors || Set.member label errorTracking.showFieldError
     in
     config.form
         { onSubmit = onSubmit
