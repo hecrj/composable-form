@@ -11,6 +11,7 @@ module Form
         , meta
         , optional
         , passwordField
+        , radioField
         , selectField
         , succeed
         , textField
@@ -27,7 +28,7 @@ module Form
 
 # Fields
 
-@docs textField, emailField, passwordField, textareaField, checkboxField, selectField
+@docs textField, emailField, passwordField, textareaField, checkboxField, radioField, selectField
 
 
 # Composition
@@ -54,6 +55,7 @@ might suit your needs just well.
 
 import Form.Base as Base
 import Form.Base.CheckboxField as CheckboxField exposing (CheckboxField)
+import Form.Base.RadioField as RadioField exposing (RadioField)
 import Form.Base.SelectField as SelectField exposing (SelectField)
 import Form.Base.TextField as TextField exposing (TextField)
 import Form.Error exposing (Error)
@@ -200,6 +202,25 @@ checkboxField :
     -> Form values output
 checkboxField =
     CheckboxField.form Checkbox
+
+
+{-| Create a form that contains a single fieldset of radio fields.
+
+It has a very similar configuration to [`textField`](#textField), the only difference is:
+
+  - Its attributes are [`RadioField.Attributes`](Form-Field-RadioField#Attributes)
+    instead of [`TextField.Attributes`](Form-Field-TextField#Attributes).
+
+-}
+radioField :
+    { parser : String -> Result String output
+    , value : values -> Value String
+    , update : Value String -> values -> values
+    , attributes : RadioField.Attributes
+    }
+    -> Form values output
+radioField =
+    RadioField.form Radio
 
 
 {-| Create a form that contains a single select field.
@@ -439,6 +460,7 @@ using the result of [`fill`](#fill).
 type Field values
     = Text TextType (TextField values)
     | Checkbox (CheckboxField values)
+    | Radio (RadioField values)
     | Select (SelectField values)
 
 

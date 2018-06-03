@@ -49,6 +49,7 @@ own renderer. Take a look at [the source code of this module][source] for inspir
 
 import Form exposing (Form)
 import Form.Base.CheckboxField as CheckboxField
+import Form.Base.RadioField as RadioField
 import Form.Base.SelectField as SelectField
 import Form.Base.TextField as TextField
 import Form.Error as Error exposing (Error)
@@ -169,6 +170,7 @@ type alias CustomConfig msg element =
     , passwordField : TextFieldConfig msg -> element
     , textareaField : TextFieldConfig msg -> element
     , checkboxField : CheckboxFieldConfig msg -> element
+    , radioField : RadioFieldConfig msg -> element
     , selectField : SelectFieldConfig msg -> element
     }
 
@@ -231,6 +233,23 @@ type alias CheckboxFieldConfig msg =
     , error : Maybe Error
     , showError : Bool
     , attributes : CheckboxField.Attributes
+    }
+
+
+{-| Describes how a radio field should be rendered.
+
+This is basically a [`TextFieldConfig`](#TextFieldConfig), but its `attributes` are
+[`RadioField.Attributes`](Form-Base-RadioField#Attributes).
+
+-}
+type alias RadioFieldConfig msg =
+    { onChange : String -> msg
+    , onBlur : Maybe msg
+    , disabled : Bool
+    , value : String
+    , error : Maybe Error
+    , showError : Bool
+    , attributes : RadioField.Attributes
     }
 
 
@@ -404,6 +423,17 @@ field customConfig { onChange, onBlur, disabled, showError } ( field, maybeError
                 , attributes = attributes
                 }
 
+        Form.Radio { attributes, value, update } ->
+            customConfig.radioField
+                { onChange = update >> onChange
+                , onBlur = blurWhenNotBlank value attributes.label
+                , disabled = disabled
+                , value = Value.raw value |> Maybe.withDefault ""
+                , error = maybeError
+                , showError = showError attributes.label
+                , attributes = attributes
+                }
+
         Form.Select { attributes, value, update } ->
             customConfig.selectField
                 { onChange = update >> onChange
@@ -464,6 +494,7 @@ asHtml =
         , passwordField = inputField "password"
         , textareaField = textareaField
         , checkboxField = checkboxField
+        , radioField = radioField
         , selectField = selectField
         }
 
@@ -561,6 +592,38 @@ checkboxField { checked, disabled, onChange, onBlur, error, showError, attribute
                 []
             , Html.text attributes.label
             ]
+        , maybeErrorMessage showError error
+        ]
+
+
+radioField : RadioFieldConfig msg -> Html msg
+radioField { onChange, onBlur, disabled, value, error, showError, attributes } =
+    let
+        radio ( key, label ) =
+            Html.label []
+                [ Html.input
+                    ([ Attributes.name attributes.label
+                     , Attributes.value key
+                     , Attributes.checked (value == key)
+                     , Attributes.disabled disabled
+                     , Attributes.type_ "radio"
+                     , Events.onClick (onChange key)
+                     ]
+                        |> blurEvent onBlur
+                    )
+                    []
+                , Html.text label
+                ]
+    in
+    Html.div
+        [ Attributes.classList
+            [ ( "elm-form-field", True )
+            , ( "elm-form-field-error", showError && error /= Nothing )
+            ]
+        ]
+        [ fieldLabel attributes.label
+        , Html.fieldset []
+            (List.map radio attributes.options)
         , maybeErrorMessage showError error
         ]
 

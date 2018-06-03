@@ -15,6 +15,7 @@
         "Form.Base",
         "Form.Base.TextField",
         "Form.Base.CheckboxField",
+        "Form.Base.RadioField",
         "Form.Base.SelectField"
     ],
     "dependencies": {

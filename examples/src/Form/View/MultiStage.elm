@@ -270,6 +270,16 @@ field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
                 , error = error attributes.label value
                 }
 
+        Form.Radio { attributes, value, update } ->
+            radioField attributes.options
+                { onChange = update >> onChange
+                , onBlur = whenDirty value (Maybe.map (\onBlur -> onBlur attributes.label) onBlur)
+                , disabled = disabled
+                , label = attributes.label
+                , value = Value.raw value |> Maybe.withDefault ""
+                , error = error attributes.label value
+                }
+
         Form.Select { attributes, value, update } ->
             selectField attributes.options
                 { onChange = update >> onChange
@@ -391,6 +401,56 @@ checkboxField { checked, disabled, onCheck, label, error } =
                 []
             , Html.text label
             ]
+        , errorMessage error
+        ]
+
+
+
+-- RADIO FIELD
+
+
+type alias RadioFieldConfig msg =
+    { onChange : String -> msg
+    , onBlur : Maybe msg
+    , disabled : Bool
+    , value : String
+    , error : Maybe String
+    , label : String
+    }
+
+
+radioField : List ( String, String ) -> RadioFieldConfig msg -> Html msg
+radioField options { onChange, onBlur, disabled, value, error, label } =
+    let
+        blurEvent onBlur attrs =
+            Maybe.map (Events.onBlur >> flip (::) attrs) onBlur
+                |> Maybe.withDefault attrs
+
+        radio ( key, label ) =
+            Html.label []
+                [ Html.input
+                    ([ Attributes.name label
+                     , Attributes.value key
+                     , Attributes.checked (value == key)
+                     , Attributes.disabled disabled
+                     , Attributes.type_ "radio"
+                     , Events.onClick (onChange key)
+                     ]
+                        |> blurEvent onBlur
+                    )
+                    []
+                , Html.text label
+                ]
+    in
+    Html.div
+        [ Attributes.classList
+            [ ( "elm-form-field", True )
+            , ( "elm-form-field-error", error /= Nothing )
+            ]
+        ]
+        [ fieldLabel label
+        , Html.fieldset []
+            (List.map radio options)
         , errorMessage error
         ]
 
