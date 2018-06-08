@@ -18,7 +18,7 @@ module Form
         , textareaField
         )
 
-{-| Build [composable forms](#Form) made of [simple fields](#fields).
+{-| Build [composable forms](#Form) comprised of [fields](#fields).
 
 
 # Definition
@@ -34,8 +34,8 @@ module Form
 # Composition
 
 All the functions in [the previous section](#fields) produce a `Form` with a **single**
-field. You might then be wondering... "How do I create a `Form` with multiple fields?!"
-Well, as the name of this package says... A `Form` is composable! This section explains how you
+field. You might then be wondering: "How do I create a `Form` with multiple fields?!"
+Well, as the name of this package says: `Form` is composable! This section explains how you
 can combine different forms into bigger and more complex ones.
 
 @docs succeed, append, andThen, optional, meta
@@ -47,7 +47,7 @@ This section describes how to fill a `Form` with its `values` and obtain its
 different fields and its `output`. This is mostly used to build custom form renderers.
 
 If you just want to render a simple form as `Html`, check [`Form.View`](Form-View) first as it
-might suit your needs just well.
+might suit your needs.
 
 @docs Field, TextType, fill
 
@@ -65,11 +65,11 @@ import Form.Value exposing (Value)
 -- Definition
 
 
-{-| A `Form` helps to collect user input with fields. When a form is filled with `values`,
+{-| A `Form` collects and validates user input using fields. When a form is filled with `values`,
 it produces some `output` if validation succeeds.
 
 For example, a `Form String EmailAddress` is a form that is filled with a `String` and produces
-an `EmailAddress` when correct. This form could very well be an [`emailField`](#emailField)!
+an `EmailAddress` when valid. This form could very well be an [`emailField`](#emailField)!
 
 -}
 type alias Form values output =
@@ -85,7 +85,7 @@ type alias Form values output =
 It requires some configuration:
 
   - `parser` specifies how to validate the field. It needs a function that processes the value of
-    the field and produces either:
+    the field and produces a `Result` of either:
       - a `String` describing an error
       - a correct `output`
   - `value` describes how to obtain the field [`Value`](Form-Value) from the form `values`
@@ -94,7 +94,7 @@ It requires some configuration:
   - `attributes` let you define the specific attributes of the field (`label` and `placeholder`
     in this case, see [`TextField.Attributes`](Form-Field-TextField#Attributes))
 
-It might seem like a lot of configuration... But, don't be scared! In practice, it isn't!
+It might seem like a lot of configuration, but don't be scared! In practice, it isn't!
 For instance, you could use this function to build a `nameField` that only succeeds when the
 inputted name has at least 2 characters, like this:
 
@@ -188,7 +188,7 @@ textareaField =
 
 It has a very similar configuration to [`textField`](#textField), the only differences are:
 
-  - Its value is a `Bool` instead of `String`
+  - Its value is a `Bool` instead of `String`.
   - Its attributes are [`CheckboxField.Attributes`](Form-Field-CheckboxField#Attributes)
     instead of [`TextField.Attributes`](Form-Field-TextField#Attributes).
 

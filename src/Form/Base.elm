@@ -94,8 +94,10 @@ type Form values output field
 {-| Most form fields require configuration! `FieldConfig` allows you to specify how a
 concrete field is validated and updated, alongside its attributes:
 
-  - `parser` must be a function that validates the `input` of the field and produces a correct
-    `output` or a `String` describing a problem
+  - `parser` must be a function that validates the `input` of the field and produces a `Result`
+    of either:
+      - the correct `output`
+      - a `String` describing a problem
   - `value` defines how the [`Value`](Form.Value) of the field is obtained from the form `values`
   - `update` defines how the current form `values` should be updated with a new field
     [`Value`](Form.Value)
@@ -113,7 +115,7 @@ type alias FieldConfig attrs input values output =
 {-| Create functions that build forms that contain a single field with an API that is similar to
 [the basic `Form` module](Form).
 
-This function is meant to be used with currying, providing only the two first parameters to
+This function is meant to be partially applied, providing only the two first parameters to
 obtain a function that expects the configuration for a particular type of field. See
 [`FieldConfig`](#FieldConfig).
 
