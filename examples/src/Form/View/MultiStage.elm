@@ -14,6 +14,7 @@ module Form.View.MultiStage
 import Form
 import Form.Error as Error exposing (Error)
 import Form.Value as Value
+import Form.View as View
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -172,7 +173,7 @@ view { onChange, action, loading, next, back } (Form stages form) model =
         controls =
             [ case model.state of
                 Error error ->
-                    errorMessage (Just error)
+                    errorMessage error
 
                 _ ->
                     Html.text ""
@@ -223,248 +224,218 @@ type alias FieldConfig values msg =
 field : FieldConfig values msg -> ( Form.Field values, Maybe Error ) -> Html msg
 field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
     let
-        error label value =
-            if showError label then
-                Maybe.map errorToString maybeError
-            else
-                Nothing
-
-        whenDirty value x =
+        blurWhenNotBlank value label =
             if Value.raw value == Nothing then
                 Nothing
             else
-                x
+                Maybe.map (\onBlur -> onBlur label) onBlur
     in
     case field of
         Form.Text type_ { attributes, value, update } ->
             let
                 config =
                     { onChange = update >> onChange
-                    , onBlur = whenDirty value (Maybe.map (\onBlur -> onBlur attributes.label) onBlur)
+                    , onBlur = blurWhenNotBlank value attributes.label
                     , disabled = disabled
-                    , label = attributes.label
-                    , placeholder = attributes.placeholder
                     , value = Value.raw value |> Maybe.withDefault ""
-                    , error = error attributes.label value
+                    , error = maybeError
+                    , showError = showError attributes.label
+                    , attributes = attributes
                     }
             in
             case type_ of
                 Form.TextRaw ->
-                    textField config
+                    inputField "text" config
 
                 Form.TextArea ->
-                    textArea config
+                    textareaField config
 
                 Form.TextPassword ->
-                    passwordField config
+                    inputField "password" config
 
                 Form.TextEmail ->
-                    emailField config
+                    inputField "email" config
+
+                Form.TextSearch ->
+                    inputField "search" config
+
+        Form.Number { attributes, value, update } ->
+            numberField
+                { onChange = update >> onChange
+                , onBlur = blurWhenNotBlank value attributes.label
+                , disabled = disabled
+                , value = Value.raw value
+                , error = maybeError
+                , showError = showError attributes.label
+                , attributes = attributes
+                }
+
+        Form.Range { attributes, value, update } ->
+            rangeField
+                { onChange = update >> onChange
+                , onBlur = blurWhenNotBlank value attributes.label
+                , disabled = disabled
+                , value = Value.raw value
+                , error = maybeError
+                , showError = showError attributes.label
+                , attributes = attributes
+                }
 
         Form.Checkbox { attributes, value, update } ->
             checkboxField
-                { checked = Value.raw value |> Maybe.withDefault False
+                { onChange = update >> onChange
+                , onBlur = blurWhenNotBlank value attributes.label
                 , disabled = disabled
-                , onCheck = update >> onChange
-                , label = attributes.label
-                , error = error attributes.label value
+                , value = Value.raw value |> Maybe.withDefault False
+                , error = maybeError
+                , showError = showError attributes.label
+                , attributes = attributes
                 }
 
         Form.Radio { attributes, value, update } ->
-            radioField attributes.options
+            radioField
                 { onChange = update >> onChange
-                , onBlur = whenDirty value (Maybe.map (\onBlur -> onBlur attributes.label) onBlur)
+                , onBlur = blurWhenNotBlank value attributes.label
                 , disabled = disabled
-                , label = attributes.label
                 , value = Value.raw value |> Maybe.withDefault ""
-                , error = error attributes.label value
+                , error = maybeError
+                , showError = showError attributes.label
+                , attributes = attributes
                 }
 
         Form.Select { attributes, value, update } ->
-            selectField attributes.options
+            selectField
                 { onChange = update >> onChange
-                , onBlur = whenDirty value (Maybe.map (\onBlur -> onBlur attributes.label) onBlur)
+                , onBlur = blurWhenNotBlank value attributes.label
                 , disabled = disabled
-                , label = attributes.label
-                , placeholder = attributes.placeholder
                 , value = Value.raw value |> Maybe.withDefault ""
-                , error = error attributes.label value
+                , error = maybeError
+                , showError = showError attributes.label
+                , attributes = attributes
                 }
 
 
-errorToString : Error -> String
-errorToString error =
-    case error of
-        Error.RequiredFieldIsEmpty ->
-            "This field is required"
-
-        Error.ValidationFailed validationError ->
-            validationError
-
-
-
--- TEXT FIELD
-
-
-type alias TextFieldConfig msg =
-    { onChange : String -> msg
-    , onBlur : Maybe msg
-    , disabled : Bool
-    , value : String
-    , error : Maybe String
-    , label : String
-    , placeholder : String
-    }
+inputField : String -> View.TextFieldConfig msg -> Html msg
+inputField type_ { onChange, onBlur, disabled, value, error, showError, attributes } =
+    Html.input
+        ([ Events.onInput onChange
+         , Attributes.disabled disabled
+         , Attributes.value value
+         , Attributes.placeholder attributes.placeholder
+         , Attributes.type_ type_
+         ]
+            |> withMaybeAttribute Events.onBlur onBlur
+        )
+        []
+        |> withLabelAndError attributes.label showError error
 
 
-textField : TextFieldConfig msg -> Html msg
-textField =
-    inputField "text"
+textareaField : View.TextFieldConfig msg -> Html msg
+textareaField { onChange, onBlur, disabled, value, error, showError, attributes } =
+    Html.textarea
+        ([ Events.onInput onChange
+         , Attributes.disabled disabled
+         , Attributes.placeholder attributes.placeholder
+         ]
+            |> withMaybeAttribute Events.onBlur onBlur
+        )
+        [ Html.text value ]
+        |> withLabelAndError attributes.label showError error
 
 
-
--- PASSWORD FIELD
-
-
-type alias PasswordFieldConfig msg =
-    TextFieldConfig msg
-
-
-passwordField : PasswordFieldConfig msg -> Html msg
-passwordField =
-    inputField "password"
-
-
-
--- EMAIL FIELD
-
-
-type alias EmailFieldConfig msg =
-    TextFieldConfig msg
-
-
-emailField : EmailFieldConfig msg -> Html msg
-emailField =
-    inputField "email"
-
-
-
--- TEXT AREA
-
-
-type alias TextAreaConfig msg =
-    TextFieldConfig msg
-
-
-textArea : TextAreaConfig msg -> Html msg
-textArea { onChange, disabled, value, error, label, placeholder } =
-    Html.div [ Attributes.class "elm-form-field" ]
-        [ fieldLabel label
-        , Html.textarea
-            [ Events.onInput onChange
-            , Attributes.disabled disabled
-            , Attributes.placeholder placeholder
-            ]
-            [ Html.text value ]
-        , errorMessage error
-        ]
-
-
-
--- CHECKBOX FIELD
-
-
-type alias CheckboxFieldConfig msg =
-    { checked : Bool
-    , disabled : Bool
-    , onCheck : Bool -> msg
-    , label : String
-    , error : Maybe String
-    }
-
-
-checkboxField : CheckboxFieldConfig msg -> Html msg
-checkboxField { checked, disabled, onCheck, label, error } =
-    Html.div
-        [ Attributes.classList
-            [ ( "elm-form-field", True )
-            , ( "elm-form-field-error", error /= Nothing )
-            ]
-        ]
-        [ Html.label []
-            [ Html.input
-                [ Events.onCheck onCheck
-                , Attributes.checked checked
-                , Attributes.disabled disabled
-                , Attributes.type_ "checkbox"
-                ]
-                []
-            , Html.text label
-            ]
-        , errorMessage error
-        ]
-
-
-
--- RADIO FIELD
-
-
-type alias RadioFieldConfig msg =
-    { onChange : String -> msg
-    , onBlur : Maybe msg
-    , disabled : Bool
-    , value : String
-    , error : Maybe String
-    , label : String
-    }
-
-
-radioField : List ( String, String ) -> RadioFieldConfig msg -> Html msg
-radioField options { onChange, onBlur, disabled, value, error, label } =
+numberField : View.NumberFieldConfig msg -> Html msg
+numberField { onChange, onBlur, disabled, value, error, showError, attributes } =
     let
-        blurEvent onBlur attrs =
-            Maybe.map (Events.onBlur >> flip (::) attrs) onBlur
-                |> Maybe.withDefault attrs
+        safeOnChange =
+            String.toFloat
+                >> Result.toMaybe
+                >> Maybe.map onChange
+                >> Maybe.withDefault (onChange (Maybe.withDefault 0 value))
+    in
+    Html.input
+        ([ Events.onInput safeOnChange
+         , Attributes.disabled disabled
+         , Attributes.value (value |> Maybe.map toString |> Maybe.withDefault "")
+         , Attributes.placeholder attributes.placeholder
+         , Attributes.type_ "number"
+         , Attributes.step (toString attributes.step)
+         ]
+            |> withMaybeAttribute (toString >> Attributes.max) attributes.max
+            |> withMaybeAttribute (toString >> Attributes.min) attributes.min
+            |> withMaybeAttribute Events.onBlur onBlur
+        )
+        []
+        |> withLabelAndError attributes.label showError error
 
+
+rangeField : View.RangeFieldConfig msg -> Html msg
+rangeField { onChange, onBlur, disabled, value, error, showError, attributes } =
+    let
+        safeOnChange =
+            String.toFloat
+                >> Result.toMaybe
+                >> Maybe.map onChange
+                >> Maybe.withDefault (onChange (Maybe.withDefault 0 value))
+    in
+    Html.input
+        ([ Events.onInput safeOnChange
+         , Attributes.disabled disabled
+         , Attributes.value (value |> Maybe.map toString |> Maybe.withDefault "")
+         , Attributes.type_ "range"
+         , Attributes.step (toString attributes.step)
+         ]
+            |> withMaybeAttribute (toString >> Attributes.max) attributes.max
+            |> withMaybeAttribute (toString >> Attributes.min) attributes.min
+            |> withMaybeAttribute Events.onBlur onBlur
+        )
+        []
+        |> withLabelAndError attributes.label showError error
+
+
+checkboxField : View.CheckboxFieldConfig msg -> Html msg
+checkboxField { onChange, onBlur, value, disabled, error, showError, attributes } =
+    [ Html.label []
+        [ Html.input
+            ([ Events.onCheck onChange
+             , Attributes.checked value
+             , Attributes.disabled disabled
+             , Attributes.type_ "checkbox"
+             ]
+                |> withMaybeAttribute Events.onBlur onBlur
+            )
+            []
+        , Html.text attributes.label
+        ]
+    , maybeErrorMessage showError error
+    ]
+        |> wrapInFieldContainer showError error
+
+
+radioField : View.RadioFieldConfig msg -> Html msg
+radioField { onChange, onBlur, disabled, value, error, showError, attributes } =
+    let
         radio ( key, label ) =
             Html.label []
                 [ Html.input
-                    ([ Attributes.name label
+                    ([ Attributes.name attributes.label
                      , Attributes.value key
                      , Attributes.checked (value == key)
                      , Attributes.disabled disabled
                      , Attributes.type_ "radio"
                      , Events.onClick (onChange key)
                      ]
-                        |> blurEvent onBlur
+                        |> withMaybeAttribute Events.onBlur onBlur
                     )
                     []
                 , Html.text label
                 ]
     in
-    Html.div
-        [ Attributes.classList
-            [ ( "elm-form-field", True )
-            , ( "elm-form-field-error", error /= Nothing )
-            ]
-        ]
-        [ fieldLabel label
-        , Html.fieldset []
-            (List.map radio options)
-        , errorMessage error
-        ]
+    Html.fieldset [] (List.map radio attributes.options)
+        |> withLabelAndError attributes.label showError error
 
 
-
--- SELECT FIELD
-
-
-type alias SelectFieldConfig msg =
-    TextFieldConfig msg
-
-
-selectField : List ( String, String ) -> TextFieldConfig msg -> Html msg
-selectField options { onChange, onBlur, disabled, value, error, label, placeholder } =
+selectField : View.SelectFieldConfig msg -> Html msg
+selectField { onChange, onBlur, disabled, value, error, showError, attributes } =
     let
         toOption ( key, label ) =
             Html.option
@@ -478,32 +449,35 @@ selectField options { onChange, onBlur, disabled, value, error, label, placehold
                 [ Attributes.disabled True
                 , Attributes.selected (value == "")
                 ]
-                [ Html.text ("-- " ++ placeholder ++ " --") ]
-
-        fixedAttributes =
-            [ Events.onInput onChange
-            , Attributes.disabled disabled
-            ]
-
-        attributes =
-            Maybe.map (Events.onBlur >> flip (::) fixedAttributes) onBlur
-                |> Maybe.withDefault fixedAttributes
+                [ Html.text ("-- " ++ attributes.placeholder ++ " --") ]
     in
+    Html.select
+        ([ Events.onInput onChange
+         , Attributes.disabled disabled
+         ]
+            |> withMaybeAttribute Events.onBlur onBlur
+        )
+        (placeholderOption :: List.map toOption attributes.options)
+        |> withLabelAndError attributes.label showError error
+
+
+wrapInFieldContainer : Bool -> Maybe Error -> List (Html msg) -> Html msg
+wrapInFieldContainer showError error =
     Html.div
         [ Attributes.classList
             [ ( "elm-form-field", True )
-            , ( "elm-form-field-error", error /= Nothing )
+            , ( "elm-form-field-error", showError && error /= Nothing )
             ]
         ]
-        [ fieldLabel label
-        , Html.select attributes
-            (placeholderOption :: List.map toOption options)
-        , errorMessage error
-        ]
 
 
-
--- PRIVATE HELPERS
+withLabelAndError : String -> Bool -> Maybe Error -> Html msg -> Html msg
+withLabelAndError label showError error fieldAsHtml =
+    [ fieldLabel label
+    , fieldAsHtml
+    , maybeErrorMessage showError error
+    ]
+        |> wrapInFieldContainer showError error
 
 
 fieldLabel : String -> Html msg
@@ -511,35 +485,33 @@ fieldLabel label =
     Html.label [] [ Html.text label ]
 
 
-errorMessage : Maybe String -> Html msg
+maybeErrorMessage : Bool -> Maybe Error -> Html msg
+maybeErrorMessage showError maybeError =
+    if showError then
+        maybeError
+            |> Maybe.map errorToString
+            |> Maybe.map errorMessage
+            |> Maybe.withDefault (Html.text "")
+    else
+        Html.text ""
+
+
+errorMessage : String -> Html msg
 errorMessage =
-    Maybe.map (Html.text >> List.singleton >> Html.div [ Attributes.class "elm-form-error" ])
-        >> Maybe.withDefault (Html.text "")
+    Html.text >> List.singleton >> Html.div [ Attributes.class "elm-form-error" ]
 
 
-inputField : String -> TextFieldConfig msg -> Html msg
-inputField type_ { onChange, onBlur, disabled, value, error, label, placeholder } =
-    let
-        fixedAttributes =
-            [ Events.onInput onChange
-            , Attributes.disabled disabled
-            , Attributes.value value
-            , Attributes.placeholder placeholder
-            , Attributes.type_ type_
-            ]
+errorToString : Error -> String
+errorToString error =
+    case error of
+        Error.RequiredFieldIsEmpty ->
+            "This field is required"
 
-        attributes =
-            Maybe.map (Events.onBlur >> flip (::) fixedAttributes) onBlur
-                |> Maybe.withDefault fixedAttributes
-    in
-    Html.div
-        [ Attributes.classList
-            [ ( "elm-form-field", True )
-            , ( "elm-form-field-error", error /= Nothing )
-            ]
-        ]
-        [ fieldLabel label
-        , Html.input attributes
-            []
-        , errorMessage error
-        ]
+        Error.ValidationFailed validationError ->
+            validationError
+
+
+withMaybeAttribute : (a -> Html.Attribute msg) -> Maybe a -> List (Html.Attribute msg) -> List (Html.Attribute msg)
+withMaybeAttribute toAttribute maybeValue attrs =
+    Maybe.map (toAttribute >> flip (::) attrs) maybeValue
+        |> Maybe.withDefault attrs

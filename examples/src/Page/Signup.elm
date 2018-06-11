@@ -20,13 +20,14 @@ type alias Values =
     , name : Value String
     , password : Value String
     , favoriteLanguage : Value String
+    , languageRating : Value Float
     , acceptTerms : Value Bool
     }
 
 
 type Msg
     = FormChanged (Form.View.Model Values)
-    | SignUp EmailAddress User.Name User.Password User.FavoriteLanguage
+    | SignUp EmailAddress User.Name User.Password User.FavoriteLanguage Float
     | SignupAttempted (Result String User)
 
 
@@ -36,6 +37,7 @@ init =
     , name = Value.blank
     , password = Value.blank
     , favoriteLanguage = Value.blank
+    , languageRating = Value.blank
     , acceptTerms = Value.blank
     }
         |> Form.View.idle
@@ -53,7 +55,7 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        SignUp email name password favoriteLanguage ->
+        SignUp email name password favoriteLanguage rating ->
             case model of
                 FillingForm form ->
                     ( FillingForm { form | state = Form.View.Loading }
@@ -187,15 +189,30 @@ form =
 
                 User.Other ->
                     "Other"
+
+        rateTheLanguageField =
+            Form.numberField
+                { parser = Ok
+                , value = .languageRating
+                , update = \value values -> { values | languageRating = value }
+                , attributes =
+                    { label = "Rate the selected language"
+                    , placeholder = "Rating"
+                    , min = Just 0
+                    , max = Just 10
+                    , step = 1
+                    }
+                }
     in
     Form.succeed
-        (\email name password favoriteLanguage _ ->
-            SignUp email name password favoriteLanguage
+        (\email name password favoriteLanguage rating _ ->
+            SignUp email name password favoriteLanguage rating
         )
         |> Form.append emailField
         |> Form.append nameField
         |> Form.append passwordField
         |> Form.append favoriteLanguageField
+        |> Form.append rateTheLanguageField
         |> Form.append acceptTermsCheckbox
 
 

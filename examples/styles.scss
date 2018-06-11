@@ -105,7 +105,7 @@ form.elm-form, form.elm-form-multistage {
     }
   }
 
-  input[type="text"], input[type="password"], input[type="email"], select, textarea {
+  input[type="text"], input[type="password"], input[type="email"], input[type="number"], select, textarea {
     padding: 0.8em;
     border: 1px solid #CCC;
     border-radius: 3px;
@@ -118,6 +118,19 @@ form.elm-form, form.elm-form-multistage {
 
   textarea {
     resize: vertical;
+  }
+
+  .elm-form-range-field {
+    display: flex;
+    flex-direction: row;
+
+    > input {
+      flex-grow: 1;
+    }
+
+    > span {
+      margin-left: 1em;
+    }
   }
 
   .elm-form-error {

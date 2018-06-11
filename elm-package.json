@@ -14,6 +14,8 @@
         "Form.Field",
         "Form.Base",
         "Form.Base.TextField",
+        "Form.Base.NumberField",
+        "Form.Base.RangeField",
         "Form.Base.CheckboxField",
         "Form.Base.RadioField",
         "Form.Base.SelectField"

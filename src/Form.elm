@@ -9,9 +9,11 @@ module Form
         , emailField
         , fill
         , meta
+        , numberField
         , optional
         , passwordField
         , radioField
+        , rangeField
         , selectField
         , succeed
         , textField
@@ -28,7 +30,8 @@ module Form
 
 # Fields
 
-@docs textField, emailField, passwordField, textareaField, checkboxField, radioField, selectField
+@docs textField, emailField, passwordField, textareaField, numberField, rangeField, checkboxField
+@docs radioField, selectField
 
 
 # Composition
@@ -55,7 +58,9 @@ might suit your needs.
 
 import Form.Base as Base
 import Form.Base.CheckboxField as CheckboxField exposing (CheckboxField)
+import Form.Base.NumberField as NumberField exposing (NumberField)
 import Form.Base.RadioField as RadioField exposing (RadioField)
+import Form.Base.RangeField as RangeField exposing (RangeField)
 import Form.Base.SelectField as SelectField exposing (SelectField)
 import Form.Base.TextField as TextField exposing (TextField)
 import Form.Error exposing (Error)
@@ -182,6 +187,60 @@ textareaField :
     -> Form values output
 textareaField =
     TextField.form (Text TextArea)
+
+
+{-| Create a form that contains a single search field.
+
+It has the same configuration options as [`textField`](#textField).
+
+-}
+searchField :
+    { parser : String -> Result String output
+    , value : values -> Value String
+    , update : Value String -> values -> values
+    , attributes : TextField.Attributes
+    }
+    -> Form values output
+searchField =
+    TextField.form (Text TextSearch)
+
+
+{-| Create a form that contains a single number field.
+
+It has a very similar configuration to [`textField`](#textField), the only difference is:
+
+  - Its attributes are [`NumberField.Attributes`](Form-Field-NumberField#Attributes)
+    instead of [`TextField.Attributes`](Form-Field-TextField#Attributes).
+
+-}
+numberField :
+    { parser : Float -> Result String output
+    , value : values -> Value Float
+    , update : Value Float -> values -> values
+    , attributes : NumberField.Attributes
+    }
+    -> Form values output
+numberField =
+    NumberField.form Number
+
+
+{-| Create a form that contains a single range field.
+
+It has a very similar configuration to [`textField`](#textField), the only difference is:
+
+  - Its attributes are [`RangeField.Attributes`](Form-Field-RangeField#Attributes)
+    instead of [`TextField.Attributes`](Form-Field-TextField#Attributes).
+
+-}
+rangeField :
+    { parser : Float -> Result String output
+    , value : values -> Value Float
+    , update : Value Float -> values -> values
+    , attributes : RangeField.Attributes
+    }
+    -> Form values output
+rangeField =
+    RangeField.form Range
 
 
 {-| Create a form that contains a single checkbox field.
@@ -459,6 +518,8 @@ using the result of [`fill`](#fill).
 -}
 type Field values
     = Text TextType (TextField values)
+    | Number (NumberField values)
+    | Range (RangeField values)
     | Checkbox (CheckboxField values)
     | Radio (RadioField values)
     | Select (SelectField values)
@@ -471,6 +532,7 @@ type TextType
     | TextEmail
     | TextPassword
     | TextArea
+    | TextSearch
 
 
 {-| Fill a form with some `values`.
