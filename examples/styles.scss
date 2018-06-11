@@ -49,7 +49,7 @@ footer {
 }
 
 .wrapper {
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 2em;
 }
@@ -67,10 +67,13 @@ form.elm-form, form.elm-form-multistage {
   display: flex;
   flex-direction: column;
 
-  > div:not(:last-child) {
+  > .elm-form-field:not(:last-child), > .elm-form-group:not(:last-child) {
+    margin-bottom: 1em;
+  }
+
+  .elm-form-field {
     display: flex;
     flex-direction: column;
-    margin-bottom: 1em;
 
     &.elm-form-field-error {
       color: red;
@@ -106,6 +109,8 @@ form.elm-form, form.elm-form-multistage {
   }
 
   input[type="text"], input[type="password"], input[type="email"], input[type="number"], select, textarea {
+    width: 100%;
+    box-sizing: border-box;
     padding: 0.8em;
     border: 1px solid #CCC;
     border-radius: 3px;
@@ -130,6 +135,19 @@ form.elm-form, form.elm-form-multistage {
 
     > span {
       margin-left: 1em;
+    }
+  }
+
+  > div.elm-form-group {
+    display: flex;
+    flex-direction: row;
+
+    > * {
+      flex-grow: 1;
+
+      &:not(:last-child) {
+        margin-right: 1em;
+      }
     }
   }
 

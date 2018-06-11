@@ -19,15 +19,15 @@ type alias Values =
     { email : Value String
     , name : Value String
     , password : Value String
+    , repeatPassword : Value String
     , favoriteLanguage : Value String
-    , languageRating : Value Float
     , acceptTerms : Value Bool
     }
 
 
 type Msg
     = FormChanged (Form.View.Model Values)
-    | SignUp EmailAddress User.Name User.Password User.FavoriteLanguage Float
+    | SignUp EmailAddress User.Name User.Password User.FavoriteLanguage
     | SignupAttempted (Result String User)
 
 
@@ -36,8 +36,8 @@ init =
     { email = Value.blank
     , name = Value.blank
     , password = Value.blank
+    , repeatPassword = Value.blank
     , favoriteLanguage = Value.blank
-    , languageRating = Value.blank
     , acceptTerms = Value.blank
     }
         |> Form.View.idle
@@ -55,7 +55,7 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        SignUp email name password favoriteLanguage rating ->
+        SignUp email name password favoriteLanguage ->
             case model of
                 FillingForm form ->
                     ( FillingForm { form | state = Form.View.Loading }
@@ -138,6 +138,27 @@ form =
                     }
                 }
 
+        repeatPasswordField =
+            Form.meta
+                (\values ->
+                    Form.passwordField
+                        { parser =
+                            \value ->
+                                if Just value == Value.raw values.password then
+                                    Ok ()
+                                else
+                                    Err "The passwords do not match"
+                        , value = .repeatPassword
+                        , update =
+                            \newValue values ->
+                                { values | repeatPassword = newValue }
+                        , attributes =
+                            { label = "Repeat password"
+                            , placeholder = "Your password again..."
+                            }
+                        }
+                )
+
         favoriteLanguageField =
             Form.selectField
                 { parser =
@@ -189,30 +210,20 @@ form =
 
                 User.Other ->
                     "Other"
-
-        rateTheLanguageField =
-            Form.numberField
-                { parser = Ok
-                , value = .languageRating
-                , update = \value values -> { values | languageRating = value }
-                , attributes =
-                    { label = "Rate the selected language"
-                    , placeholder = "Rating"
-                    , min = Just 0
-                    , max = Just 10
-                    , step = 1
-                    }
-                }
     in
     Form.succeed
-        (\email name password favoriteLanguage rating _ ->
-            SignUp email name password favoriteLanguage rating
+        (\email name password favoriteLanguage _ ->
+            SignUp email name password favoriteLanguage
         )
         |> Form.append emailField
         |> Form.append nameField
-        |> Form.append passwordField
+        |> Form.append
+            (Form.succeed (\password _ -> password)
+                |> Form.append passwordField
+                |> Form.append repeatPasswordField
+                |> Form.group
+            )
         |> Form.append favoriteLanguageField
-        |> Form.append rateTheLanguageField
         |> Form.append acceptTermsCheckbox
 
 
@@ -227,7 +238,12 @@ code =
     )
     |> Form.append emailField
     |> Form.append nameField
-    |> Form.append passwordField
+    |> Form.append
+        (Form.succeed (\\password _ -> password)
+            |> Form.append passwordField
+            |> Form.append repeatPasswordField
+            |> Form.group
+        )
     |> Form.append favoriteLanguageField
     |> Form.append acceptTermsCheckbox"""
           }

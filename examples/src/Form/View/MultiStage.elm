@@ -159,7 +159,7 @@ view { onChange, action, loading, next, back } (Form stages form) model =
                 Just (Stage builder _) ->
                     builder model.values
                         |> List.map
-                            (field
+                            (renderField
                                 { onChange = \values -> onChange { model | values = values }
                                 , onBlur = Nothing
                                 , disabled = model.state == Loading
@@ -221,8 +221,8 @@ type alias FieldConfig values msg =
     }
 
 
-field : FieldConfig values msg -> ( Form.Field values, Maybe Error ) -> Html msg
-field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
+renderField : FieldConfig values msg -> ( Form.Field values, Maybe Error ) -> Html msg
+renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, maybeError ) =
     let
         blurWhenNotBlank value label =
             if Value.raw value == Nothing then
@@ -313,6 +313,9 @@ field { onChange, onBlur, disabled, showError } ( field, maybeError ) =
                 , showError = showError attributes.label
                 , attributes = attributes
                 }
+
+        Form.Group fields ->
+            group (List.map (renderField fieldConfig) fields)
 
 
 inputField : String -> View.TextFieldConfig msg -> Html msg
@@ -459,6 +462,11 @@ selectField { onChange, onBlur, disabled, value, error, showError, attributes } 
         )
         (placeholderOption :: List.map toOption attributes.options)
         |> withLabelAndError attributes.label showError error
+
+
+group : List (Html msg) -> Html msg
+group =
+    Html.div [ Attributes.class "elm-form-group" ]
 
 
 wrapInFieldContainer : Bool -> Maybe Error -> List (Html msg) -> Html msg

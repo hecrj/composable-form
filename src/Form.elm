@@ -8,6 +8,7 @@ module Form
         , checkboxField
         , emailField
         , fill
+        , group
         , meta
         , numberField
         , optional
@@ -41,7 +42,7 @@ field. You might then be wondering: "How do I create a `Form` with multiple fiel
 Well, as the name of this package says: `Form` is composable! This section explains how you
 can combine different forms into bigger and more complex ones.
 
-@docs succeed, append, andThen, optional, meta
+@docs succeed, append, optional, group, andThen, meta
 
 
 # Output
@@ -367,6 +368,51 @@ append =
     Base.append
 
 
+{-| Make a form optional. An optional form succeeds when:
+
+  - All of its fields are **empty**, producing `Nothing`
+  - All of its fields are **correct**, producing `Just` the `output`
+
+Let's say we want to optionally ask for a website name and address:
+
+    websiteForm =
+        Form.optional
+            (Form.succeed InvoiceAddress
+                |> Form.append websiteNameField
+                |> Form.append websiteAddressField
+            )
+
+This `websiteForm` will only be valid if **both** fields are blank, or **both** fields
+are filled correctly.
+
+-}
+optional : Form values output -> Form values (Maybe output)
+optional =
+    Base.optional
+
+
+{-| Wraps a form in a group.
+
+Using this function does not affect the behavior of the form in any way. However, groups of fields
+might be rendered differently. For instance, [`Form.View`](Form-View) renders groups of
+fields horizontally.
+
+-}
+group : Form values output -> Form values output
+group form =
+    Base.custom
+        (\values ->
+            let
+                { fields, result, isEmpty } =
+                    Base.fill form values
+            in
+            { field = Group fields
+            , result = result
+            , isEmpty = isEmpty
+            }
+        )
+
+
 {-| Fill a form `andThen` fill another one.
 
 This is useful to build dynamic forms. For instance, you could use the output of a `selectField`
@@ -444,29 +490,6 @@ andThen =
     Base.andThen
 
 
-{-| Make a form optional. An optional form succeeds when:
-
-  - All of its fields are **empty**, producing `Nothing`
-  - All of its fields are **correct**, producing `Just` the `output`
-
-Let's say we want to optionally ask for a website name and address:
-
-    websiteForm =
-        Form.optional
-            (Form.succeed InvoiceAddress
-                |> Form.append websiteNameField
-                |> Form.append websiteAddressField
-            )
-
-This `websiteForm` will only be valid if **both** fields are blank, or **both** fields
-are filled correctly.
-
--}
-optional : Form values output -> Form values (Maybe output)
-optional =
-    Base.optional
-
-
 {-| Build a form that depends on its own `values`.
 
 This is useful when you need some fields to perform validation based on
@@ -523,6 +546,7 @@ type Field values
     | Checkbox (CheckboxField values)
     | Radio (RadioField values)
     | Select (SelectField values)
+    | Group (List ( Field values, Maybe Error ))
 
 
 {-| Represents a type of text field

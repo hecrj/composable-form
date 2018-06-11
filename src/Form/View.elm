@@ -165,8 +165,8 @@ type Validation
 
 {-| The configuration needed to create a custom renderer.
 
-It needs functions to render each of [the supported `Form` fields](Form#fields), and a function
-`form` to wrap the fields together in a form.
+It needs functions to render each of [the supported `Form` fields](Form#fields), a function to
+render a [`group`](Form#group) of fields, and a function to wrap the fields together in a `form`.
 
 -}
 type alias CustomConfig msg element =
@@ -181,6 +181,7 @@ type alias CustomConfig msg element =
     , checkboxField : CheckboxFieldConfig msg -> element
     , radioField : RadioFieldConfig msg -> element
     , selectField : SelectFieldConfig msg -> element
+    , group : List element -> element
     }
 
 
@@ -375,7 +376,7 @@ custom config { onChange, action, loading, validation } form model =
                             )
 
         fieldToElement =
-            field
+            renderField
                 config
                 { onChange = \values -> onChange { model | values = values }
                 , onBlur = onBlur
@@ -422,8 +423,8 @@ type alias FieldConfig values msg =
     }
 
 
-field : CustomConfig msg element -> FieldConfig values msg -> ( Form.Field values, Maybe Error ) -> element
-field customConfig { onChange, onBlur, disabled, showError } ( field, maybeError ) =
+renderField : CustomConfig msg element -> FieldConfig values msg -> ( Form.Field values, Maybe Error ) -> element
+renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, maybeError ) =
     let
         blurWhenNotBlank value label =
             if Value.raw value == Nothing then
@@ -515,6 +516,9 @@ field customConfig { onChange, onBlur, disabled, showError } ( field, maybeError
                 , attributes = attributes
                 }
 
+        Form.Group fields ->
+            customConfig.group (List.map (renderField customConfig fieldConfig) fields)
+
 
 
 -- Built-in HTML renderer
@@ -569,6 +573,7 @@ asHtml =
         , checkboxField = checkboxField
         , radioField = radioField
         , selectField = selectField
+        , group = group
         }
 
 
@@ -751,6 +756,11 @@ selectField { onChange, onBlur, disabled, value, error, showError, attributes } 
         )
         (placeholderOption :: List.map toOption attributes.options)
         |> withLabelAndError attributes.label showError error
+
+
+group : List (Html msg) -> Html msg
+group =
+    Html.div [ Attributes.class "elm-form-group" ]
 
 
 wrapInFieldContainer : Bool -> Maybe Error -> List (Html msg) -> Html msg
