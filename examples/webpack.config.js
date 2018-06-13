@@ -1,90 +1,43 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-module.exports = {
-  entry: {
-    app: [
-      './index.js'
-    ]
-  },
-
+module.exports = (env, argv) => ({
+  entry: path.resolve(__dirname, 'index.js'),
   output: {
-    path: path.resolve(__dirname, '../docs'),
-    publicPath: '/composable-form/',
-    filename: '[name].[hash].js'
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist')
   },
-
   resolve: {
     modules: [
-      "node_modules",
-      path.resolve(__dirname, 'src')
+      path.resolve(__dirname, 'src'),
+      path.resolve(__dirname, 'node_modules')
     ]
   },
-
-  plugins: [
-    new MiniCssExtractPlugin({
-      filename: "[name].[hash].css",
-      chunkFilename: "[id].css"
-    }),
-    new HtmlWebpackPlugin({
-      template: './index.html'
-    })
-  ],
-
   module: {
     rules: [
       {
-        test:    /\.elm$/,
+        test: /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
         use: [
           {
             loader: 'elm-webpack-loader',
             options: {
-              warn: true
+              warn: true,
+              debug: argv.mode === 'development' ? true : false
             }
           }
         ]
       },
       {
-        test: /\.css$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader'
-        ]
-      },
-      {
-        test: /\.scss$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader',
-          'sass-loader'
-        ]
-      },
+        test: /\.(s)?css$/,
+        use: ['style-loader', 'css-loader', 'sass-loader']
+      }
     ]
   },
-
-  devServer: {
-    inline: true,
-    stats: { colors: true },
-    historyApiFallback: false,
-    host: '0.0.0.0',
-    disableHostCheck: true,
-    stats: {
-      hash: false,
-      version: false,
-      timings: false,
-      assets: false,
-      chunks: false,
-      modules: false,
-      reasons: false,
-      children: false,
-      source: false,
-      errors: true,
-      errorDetails: true,
-      warnings: true,
-      publicPath: false
-    }
-  },
-
-};
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: 'composable-form - Build type-safe composable forms in Elm',
+      meta: { viewport: 'width=device-width, initial-scale=1' }
+    })
+  ]
+});
