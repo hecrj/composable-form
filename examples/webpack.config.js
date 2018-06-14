@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = (env, argv) => ({
   entry: path.resolve(__dirname, 'index.js'),
   output: {
-    filename: 'bundle.js',
+    filename: '[name].[hash].js',
     path: path.resolve(__dirname, 'dist')
   },
   resolve: {
@@ -23,7 +23,7 @@ module.exports = (env, argv) => ({
             loader: 'elm-webpack-loader',
             options: {
               warn: true,
-              debug: argv.mode === 'development' ? true : false
+              debug: true
             }
           }
         ]
