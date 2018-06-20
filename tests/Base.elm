@@ -1,10 +1,10 @@
 module Base exposing (..)
 
 import Expect exposing (Expectation)
-import Form
+import Form exposing (Form)
 import Form.Base
 import Form.Error as Error
-import Form.Value as Value
+import Form.Value as Value exposing (Value)
 import Test exposing (..)
 
 
@@ -54,7 +54,7 @@ field =
             withFieldAndError (Tuple.second >> fn)
     in
     describe "Form.Base.field"
-        [ describe "fields"
+        [ describe "when filled"
             [ test "contains a single field" <|
                 \_ ->
                     fill Value.blank
@@ -88,63 +88,61 @@ field =
                 \_ ->
                     fill Value.blank
                         |> withField (.attributes >> Expect.equal attributes)
-            , describe "field error"
-                [ test "is RequiredFieldIsEmpty when value is blank" <|
-                    \_ ->
-                        fill Value.blank
-                            |> withFieldError (Expect.equal (Just Error.RequiredFieldIsEmpty))
-                , test "is RequiredFieldIsEmpty when value is filled but empty" <|
-                    \_ ->
-                        fill (Value.filled "")
-                            |> withFieldError (Expect.equal (Just Error.RequiredFieldIsEmpty))
-                , test "is nothing when value is valid" <|
-                    \_ ->
-                        fill (Value.filled "hello")
-                            |> withFieldError (Expect.equal Nothing)
-                , test "is ValidationFailed when value is filled and invalid" <|
-                    \_ ->
-                        fill (Value.filled invalidString)
-                            |> withFieldError (Expect.equal (Just (Error.ValidationFailed "invalid input")))
-                ]
             ]
-        , describe "result"
-            [ describe "error"
-                [ test "RequiredFieldIsEmpty when value is blank" <|
-                    \_ ->
-                        fill Value.blank
-                            |> .result
-                            |> Expect.equal (Err ( Error.RequiredFieldIsEmpty, [] ))
-                , test "RequiredFieldIsEmpty when value is filled but empty" <|
-                    \_ ->
-                        fill (Value.filled "")
-                            |> .result
-                            |> Expect.equal (Err ( Error.RequiredFieldIsEmpty, [] ))
-                , test "ValidationFailed when value is filled and invalid" <|
-                    \_ ->
-                        fill (Value.filled invalidString)
-                            |> .result
-                            |> Expect.equal (Err ( Error.ValidationFailed "invalid input", [] ))
-                ]
-            , describe "correct"
-                [ test "field output when value is valid" <|
-                    \_ ->
-                        fill (Value.filled "hello")
-                            |> .result
-                            |> Expect.equal (Ok "hello")
-                ]
+        , describe "when filled with a valid value"
+            [ test "there is not field error" <|
+                \_ ->
+                    fill (Value.filled "hello")
+                        |> withFieldError (Expect.equal Nothing)
+            , test "result is the correct output" <|
+                \_ ->
+                    fill (Value.filled "hello")
+                        |> .result
+                        |> Expect.equal (Ok "hello")
             ]
-        , describe "isEmpty"
-            [ test "True when value is blank" <|
+        , describe "when filled with a blank value"
+            [ test "field error is RequiredFieldIsEmpty" <|
+                \_ ->
+                    fill Value.blank
+                        |> withFieldError (Expect.equal (Just Error.RequiredFieldIsEmpty))
+            , test "result is a RequiredFieldIsEmpty error" <|
+                \_ ->
+                    fill Value.blank
+                        |> .result
+                        |> Expect.equal (Err ( Error.RequiredFieldIsEmpty, [] ))
+            , test "form is empty" <|
                 \_ ->
                     fill Value.blank
                         |> .isEmpty
                         |> Expect.equal True
-            , test "True when value is filled but empty" <|
+            ]
+        , describe "when filled with an empty value"
+            [ test "field error is RequiredFieldIsEmpty" <|
+                \_ ->
+                    fill (Value.filled "")
+                        |> withFieldError (Expect.equal (Just Error.RequiredFieldIsEmpty))
+            , test "result is a RequiredFieldIsEmpty error" <|
+                \_ ->
+                    fill (Value.filled "")
+                        |> .result
+                        |> Expect.equal (Err ( Error.RequiredFieldIsEmpty, [] ))
+            , test "form is empty" <|
                 \_ ->
                     fill (Value.filled "")
                         |> .isEmpty
                         |> Expect.equal True
-            , test "False when value is filled and not empty" <|
+            ]
+        , describe "when filled with an invalid value" <|
+            [ test "field error is ValidationFailed" <|
+                \_ ->
+                    fill (Value.filled invalidString)
+                        |> withFieldError (Expect.equal (Just (Error.ValidationFailed "invalid input")))
+            , test "result is a ValidationFailed error" <|
+                \_ ->
+                    fill (Value.filled invalidString)
+                        |> .result
+                        |> Expect.equal (Err ( Error.ValidationFailed "invalid input", [] ))
+            , test "form is not empty" <|
                 \_ ->
                     fill (Value.filled "hello")
                         |> .isEmpty
@@ -244,104 +242,281 @@ append =
                 |> Form.Base.append emailField
                 |> Form.Base.append passwordField
 
-        emailField =
-            Form.emailField
-                { parser =
-                    \value ->
-                        if String.contains "@" value then
-                            Ok value
-                        else
-                            Err "The e-mail should contain a '@'"
-                , value = .email
-                , update = \value values -> { values | email = value }
-                , attributes =
-                    { label = "E-Mail"
-                    , placeholder = "Type your e-mail..."
-                    }
-                }
-
-        passwordField =
-            Form.passwordField
-                { parser =
-                    \value ->
-                        if String.length value >= 8 then
-                            Ok value
-                        else
-                            Err "The password should have at least 8 characters"
-                , value = .password
-                , update = \value values -> { values | password = value }
-                , attributes =
-                    { label = "Password"
-                    , placeholder = "Type your password..."
-                    }
-                }
-
         fill =
             Form.Base.fill form
+
+        validValues =
+            { email = Value.filled "hello@world.com"
+            , password = Value.filled "12345678"
+            }
+
+        invalidValues =
+            { email = Value.filled "hello"
+            , password = Value.filled "123"
+            }
+
+        emptyValues =
+            { email = Value.blank
+            , password = Value.blank
+            }
     in
     describe "append"
-        [ describe "fields"
-            [ test "contains both fields" <|
+        [ describe "when filled"
+            [ test "contains the appended field" <|
                 \_ ->
                     fill { email = Value.blank, password = Value.blank }
                         |> .fields
                         |> List.length
                         |> Expect.equal 2
-            , test "contains the first error of each field" <|
+            ]
+        , describe "when filled with valid values"
+            [ test "contains no field errors" <|
                 \_ ->
-                    fill
-                        { email = Value.filled "hello"
-                        , password = Value.filled "123"
-                        }
-                        |> .fields
-                        |> List.map Tuple.second
-                        |> Expect.equal
-                            [ Just (Error.ValidationFailed "The e-mail should contain a '@'")
-                            , Just (Error.ValidationFailed "The password should have at least 8 characters")
-                            ]
-            , test "contains no errors when values are valid" <|
-                \_ ->
-                    fill
-                        { email = Value.filled "hello@world.com"
-                        , password = Value.filled "12345678"
-                        }
+                    fill validValues
                         |> .fields
                         |> List.map Tuple.second
                         |> Expect.equal [ Nothing, Nothing ]
-            ]
-        , describe "result"
-            [ test "contains the correct output when values are valid" <|
+            , test "results in the correct output" <|
                 \_ ->
-                    fill
-                        { email = Value.filled "hello@world.com"
-                        , password = Value.filled "12345678"
-                        }
+                    fill validValues
                         |> .result
                         |> Expect.equal (Ok ( "hello@world.com", "12345678" ))
-            , test "contains the errors of the fields when values are invalid" <|
+            ]
+        , describe "when filled with invalid values"
+            [ test "contains the first error of each field" <|
                 \_ ->
-                    fill
-                        { email = Value.filled "hello"
-                        , password = Value.filled "123"
-                        }
+                    fill invalidValues
+                        |> .fields
+                        |> List.map Tuple.second
+                        |> Expect.equal
+                            [ Just (Error.ValidationFailed emailError)
+                            , Just (Error.ValidationFailed passwordError)
+                            ]
+            , test "results in a non-empty list with the errors of the fields" <|
+                \_ ->
+                    fill invalidValues
                         |> .result
                         |> Expect.equal
                             (Err
-                                ( Error.ValidationFailed "The e-mail should contain a '@'"
-                                , [ Error.ValidationFailed "The password should have at least 8 characters" ]
+                                ( Error.ValidationFailed emailError
+                                , [ Error.ValidationFailed passwordError ]
                                 )
                             )
-            ]
-        , describe "isEmpty"
-            [ test "True when all fields are empty" <|
+            , test "is not empty" <|
                 \_ ->
-                    fill { email = Value.blank, password = Value.filled "" }
+                    fill invalidValues
+                        |> .isEmpty
+                        |> Expect.equal False
+            ]
+        , describe "when filled with empty values"
+            [ test "is empty" <|
+                \_ ->
+                    fill emptyValues
                         |> .isEmpty
                         |> Expect.equal True
-            , test "False when at least one field is not empty" <|
+            ]
+        ]
+
+
+type ContentAction
+    = CreatePost String
+    | CreateQuestion String String
+
+
+andThen : Test
+andThen =
+    let
+        titleField =
+            Form.textField
+                { parser = Ok
+                , value = .title
+                , update = \value values -> { values | title = value }
+                , attributes =
+                    { label = "Title"
+                    , placeholder = "Write a title..."
+                    }
+                }
+
+        bodyField =
+            Form.textareaField
+                { parser = Ok
+                , value = .body
+                , update = \value values -> { values | body = value }
+                , attributes =
+                    { label = "Body"
+                    , placeholder = "Write the body..."
+                    }
+                }
+
+        form =
+            contentTypeField
+                |> Form.Base.andThen
+                    (\contentType ->
+                        case contentType of
+                            Post ->
+                                Form.Base.succeed CreatePost
+                                    |> Form.Base.append bodyField
+
+                            Question ->
+                                Form.Base.succeed CreateQuestion
+                                    |> Form.Base.append titleField
+                                    |> Form.Base.append bodyField
+                    )
+
+        fill =
+            Form.Base.fill form
+    in
+    describe "andThen"
+        [ describe "when the parent fields are valid"
+            [ test "contains the parent and the child fields" <|
                 \_ ->
-                    fill { email = Value.blank, password = Value.filled "123" }
+                    fill { contentType = Value.filled "question", title = Value.blank, body = Value.blank }
+                        |> .fields
+                        |> List.length
+                        |> Expect.equal 3
+            , describe "when the child fields are valid" <|
+                [ test "results in the correct output" <|
+                    \_ ->
+                        fill
+                            { contentType = Value.filled "question"
+                            , title = Value.filled "Some title"
+                            , body = Value.filled "Some body"
+                            }
+                            |> .result
+                            |> Expect.equal (Ok (CreateQuestion "Some title" "Some body"))
+                ]
+            , describe "when the child fields are invalid" <|
+                [ test "results in the errors of the child fields" <|
+                    \_ ->
+                        fill
+                            { contentType = Value.filled "question"
+                            , title = Value.filled ""
+                            , body = Value.blank
+                            }
+                            |> .result
+                            |> Expect.equal (Err ( Error.RequiredFieldIsEmpty, [ Error.RequiredFieldIsEmpty ] ))
+                ]
+            , test "is not empty" <|
+                \_ ->
+                    fill { contentType = Value.filled "question", title = Value.blank, body = Value.blank }
+                        |> .isEmpty
+                        |> Expect.equal False
+            ]
+        , describe "when the parent fields are empty" <|
+            [ test "is empty" <|
+                \_ ->
+                    fill { contentType = Value.blank, title = Value.blank, body = Value.blank }
+                        |> .isEmpty
+                        |> Expect.equal True
+            ]
+        , describe "when some parent field is invalid"
+            [ test "contains only the parent fields" <|
+                \_ ->
+                    fill { contentType = Value.filled "invalid", title = Value.blank, body = Value.blank }
+                        |> .fields
+                        |> List.length
+                        |> Expect.equal 1
+            , test "contains only the parent errors" <|
+                \_ ->
+                    fill { contentType = Value.filled "invalid", title = Value.blank, body = Value.blank }
+                        |> .result
+                        |> Expect.equal (Err ( Error.ValidationFailed contentTypeError, [] ))
+            , test "is not empty" <|
+                \_ ->
+                    fill { contentType = Value.filled "invalid", title = Value.blank, body = Value.blank }
                         |> .isEmpty
                         |> Expect.equal False
             ]
         ]
+
+
+
+-- Email field
+
+
+emailField : Form { r | email : Value String } String
+emailField =
+    Form.emailField
+        { parser =
+            \value ->
+                if String.contains "@" value then
+                    Ok value
+                else
+                    Err emailError
+        , value = .email
+        , update = \value values -> { values | email = value }
+        , attributes =
+            { label = "E-Mail"
+            , placeholder = "Type your e-mail..."
+            }
+        }
+
+
+emailError : String
+emailError =
+    "The e-mail should contain a '@'"
+
+
+
+-- Password field
+
+
+passwordField : Form { r | password : Value String } String
+passwordField =
+    Form.passwordField
+        { parser =
+            \value ->
+                if String.length value >= 8 then
+                    Ok value
+                else
+                    Err passwordError
+        , value = .password
+        , update = \value values -> { values | password = value }
+        , attributes =
+            { label = "Password"
+            , placeholder = "Type your password..."
+            }
+        }
+
+
+passwordError : String
+passwordError =
+    "The password should have at least 8 characters"
+
+
+
+-- Content type field
+
+
+type ContentType
+    = Post
+    | Question
+
+
+contentTypeField : Form { r | contentType : Value String } ContentType
+contentTypeField =
+    Form.selectField
+        { parser =
+            \value ->
+                case value of
+                    "post" ->
+                        Ok Post
+
+                    "question" ->
+                        Ok Question
+
+                    _ ->
+                        Err contentTypeError
+        , value = .contentType
+        , update = \value values -> { values | contentType = value }
+        , attributes =
+            { label = "Content type"
+            , placeholder = "Select a type of content"
+            , options = [ ( "post", "Post" ), ( "question", "Question" ) ]
+            }
+        }
+
+
+contentTypeError : String
+contentTypeError =
+    "Invalid content type"
