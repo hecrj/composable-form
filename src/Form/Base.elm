@@ -291,7 +291,7 @@ append new current =
                     }
 
                 Err (( firstError, otherErrors ) as errors) ->
-                    case filledCurrent.result of
+                    case filledNew.result of
                         Ok _ ->
                             { fields = fields
                             , result = Err errors
