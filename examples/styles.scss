@@ -148,6 +148,7 @@ form.elm-form, form.elm-form-multistage {
 
     > * {
       flex-grow: 1;
+      flex-basis: 0;
 
       &:not(:last-child) {
         margin-right: 1em;
