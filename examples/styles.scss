@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+@import url('https://use.fontawesome.com/releases/v5.1.0/css/all.css');
+
 
 body {
   font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
@@ -155,6 +157,20 @@ form.elm-form, form.elm-form-multistage {
 
   .elm-form-error {
     color: red;
+  }
+
+  .custom-email-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    > *:not(:last-child) {
+      margin-right: 1em;
+    }
+
+    > .fa-check {
+      color: green;
+    }
   }
 
   button[type="submit"] {

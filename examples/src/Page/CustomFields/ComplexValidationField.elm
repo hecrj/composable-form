@@ -2,9 +2,11 @@ module Page.CustomFields.ComplexValidationField
     exposing
         ( Msg(..)
         , State
+        , ValidationState(..)
         , blank
         , result
         , update
+        , validationState
         , value
         )
 
@@ -21,12 +23,18 @@ type State input output
 
 type ValidationState input output
     = Loading
+    | NotValidated
     | Validated input (Result Error output)
 
 
 blank : State input output
 blank =
-    State Value.blank (Validated Value.blank (Err Error.RequiredFieldIsEmpty))
+    State Value.blank NotValidated
+
+
+validationState : State input output -> ValidationState (Value input) output
+validationState (State _ validationState) =
+    validationState
 
 
 type Msg input output
@@ -43,7 +51,7 @@ update :
 update validate msg ((State value validationState) as state) =
     case msg of
         InputChanged input ->
-            ( State (Value.update input value) validationState
+            ( State (Value.update input value) NotValidated
             , Process.sleep (1 * Time.second)
                 |> Task.perform (always (ValidateAfterChange input))
             )
@@ -105,6 +113,9 @@ result (State _ validationState) =
     case validationState of
         Loading ->
             Err (Error.ValidationFailed "Validating...")
+
+        NotValidated ->
+            Err (Error.ValidationFailed "Not validated yet...")
 
         Validated _ result ->
             result

@@ -25,7 +25,8 @@ code : List CodeSnippet -> Html msg
 code =
     let
         snippetToHtml { filename, path, code } =
-            [ Html.text "-- "
+            [ Html.i [ Attributes.class "far fa-file-code" ] []
+            , Html.text " "
             , Html.a [ Attributes.href (examplesUrl ++ path) ] [ Html.text filename ]
             , Html.text "\n\n"
             , Html.text code

@@ -1,6 +1,7 @@
 module Page.CustomFields.Form
     exposing
-        ( Field(..)
+        ( EmailState(..)
+        , Field(..)
         , Form
         , andThen
         , append
@@ -30,12 +31,12 @@ type alias Form values output msg =
 
 
 customEmailField :
-    { toMsg : ComplexValidationField.Msg String output -> msg
+    { onChange : ComplexValidationField.Msg String output -> msg
     , state : values -> ComplexValidationField.State String output
     , attributes : TextField.Attributes
     }
     -> Form values output msg
-customEmailField { toMsg, state, attributes } =
+customEmailField { onChange, state, attributes } =
     let
         filledField values =
             let
@@ -45,7 +46,17 @@ customEmailField { toMsg, state, attributes } =
             in
             { field =
                 Email
-                    { onChange = ComplexValidationField.InputChanged >> toMsg
+                    { onChange = ComplexValidationField.InputChanged >> onChange
+                    , state =
+                        case ComplexValidationField.validationState (state values) of
+                            ComplexValidationField.Loading ->
+                                EmailLoading
+
+                            ComplexValidationField.NotValidated ->
+                                EmailNotValidated
+
+                            ComplexValidationField.Validated _ _ ->
+                                EmailValidated
                     , value = value
                     , attributes = attributes
                     }
@@ -98,9 +109,16 @@ meta =
 type Field values msg
     = Email
         { onChange : String -> msg
+        , state : EmailState
         , value : Value String
         , attributes : TextField.Attributes
         }
+
+
+type EmailState
+    = EmailLoading
+    | EmailNotValidated
+    | EmailValidated
 
 
 fill :

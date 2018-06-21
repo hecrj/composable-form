@@ -141,8 +141,6 @@ view model =
                     [ Html.text "Examples" ]
                 , Html.a [ Attributes.href View.repositoryUrl ]
                     [ Html.text "Repository" ]
-                , Html.a [ Attributes.href "https://discourse.elm-lang.org/t/a-form-api-idea-proposal/1121" ]
-                    [ Html.text "Discussion" ]
                 ]
             ]
         , Html.div [ Attributes.class "wrapper" ]

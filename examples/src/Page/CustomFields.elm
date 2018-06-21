@@ -69,7 +69,7 @@ form =
     let
         emailField =
             Form.customEmailField
-                { toMsg = EmailMsg
+                { onChange = EmailMsg
                 , state = .email
                 , attributes =
                     { label = "Server-side validated e-mail"
@@ -89,7 +89,7 @@ code =
           , code = """let
     emailField =
         Form.customEmailField
-            { toMsg = EmailMsg
+            { onChange = EmailMsg
             , state = .email
             , attributes =
                 { label = "Server-side validated e-mail"

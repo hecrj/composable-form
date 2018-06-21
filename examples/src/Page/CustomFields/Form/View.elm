@@ -117,20 +117,21 @@ asHtml { onChange, action, loading } form model =
 field : { disabled : Bool, showError : Bool } -> ( Form.Field values msg, Maybe Error ) -> Html msg
 field { disabled, showError } ( field, maybeError ) =
     case field of
-        Form.Email { onChange, value, attributes } ->
-            inputField "email"
+        Form.Email { onChange, state, value, attributes } ->
+            emailField
                 { onChange = onChange
                 , onBlur = Nothing
                 , value = Value.raw value |> Maybe.withDefault ""
                 , disabled = disabled
                 , error = maybeError
-                , showError = showError
+                , showError = state == Form.EmailValidated
                 , attributes = attributes
                 }
+                state
 
 
-inputField : String -> Form.View.TextFieldConfig msg -> Html msg
-inputField type_ { onChange, disabled, value, error, showError, attributes } =
+emailField : Form.View.TextFieldConfig msg -> Form.EmailState -> Html msg
+emailField { onChange, disabled, value, error, showError, attributes } state =
     Html.div
         [ Attributes.classList
             [ ( "elm-form-field", True )
@@ -138,14 +139,28 @@ inputField type_ { onChange, disabled, value, error, showError, attributes } =
             ]
         ]
         [ fieldLabel attributes.label
-        , Html.input
-            [ Events.onInput onChange
-            , Attributes.disabled disabled
-            , Attributes.value value
-            , Attributes.placeholder attributes.placeholder
-            , Attributes.type_ type_
+        , Html.div [ Attributes.class "custom-email-input" ]
+            [ Html.input
+                [ Events.onInput onChange
+                , Attributes.disabled disabled
+                , Attributes.value value
+                , Attributes.placeholder attributes.placeholder
+                , Attributes.type_ "email"
+                ]
+                []
+            , case state of
+                Form.EmailLoading ->
+                    Html.i [ Attributes.class "fas fa-spinner fa-pulse" ] []
+
+                Form.EmailValidated ->
+                    if error == Nothing then
+                        Html.i [ Attributes.class "fas fa-check" ] []
+                    else
+                        Html.i [ Attributes.class "fas fa-times" ] []
+
+                Form.EmailNotValidated ->
+                    Html.text ""
             ]
-            []
         , maybeErrorMessage showError error
         ]
 
