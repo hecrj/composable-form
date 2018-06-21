@@ -416,7 +416,7 @@ andThen =
                         |> .fields
                         |> List.length
                         |> Expect.equal 1
-            , test "contains only the parent errors" <|
+            , test "results in only the parent errors" <|
                 \_ ->
                     fill { contentType = Value.filled "invalid", title = Value.blank, body = Value.blank }
                         |> .result
@@ -426,6 +426,35 @@ andThen =
                     fill { contentType = Value.filled "invalid", title = Value.blank, body = Value.blank }
                         |> .isEmpty
                         |> Expect.equal False
+            ]
+        ]
+
+
+meta : Test
+meta =
+    let
+        fill =
+            Form.Base.fill repeatPasswordField
+    in
+    describe "meta"
+        [ describe "when filled"
+            [ test "contains the correct fields" <|
+                \_ ->
+                    fill { password = Value.blank, repeatPassword = Value.blank }
+                        |> .fields
+                        |> List.length
+                        |> Expect.equal 1
+            , test "provides access to the values of the form" <|
+                \_ ->
+                    let
+                        correct =
+                            fill { password = Value.filled "123", repeatPassword = Value.filled "123" }
+
+                        incorrect =
+                            fill { password = Value.filled "123", repeatPassword = Value.filled "456" }
+                    in
+                    ( correct.result, incorrect.result )
+                        |> Expect.equal ( Ok (), Err ( Error.ValidationFailed repeatPasswordError, [] ) )
             ]
         ]
 
@@ -482,6 +511,38 @@ passwordField =
 passwordError : String
 passwordError =
     "The password should have at least 8 characters"
+
+
+
+-- Repeat password field
+
+
+repeatPasswordField : Form { r | password : Value String, repeatPassword : Value String } ()
+repeatPasswordField =
+    Form.Base.meta
+        (\values ->
+            Form.passwordField
+                { parser =
+                    \value ->
+                        if Just value == Value.raw values.password then
+                            Ok ()
+                        else
+                            Err repeatPasswordError
+                , value = .repeatPassword
+                , update =
+                    \newValue values ->
+                        { values | repeatPassword = newValue }
+                , attributes =
+                    { label = "Repeat password"
+                    , placeholder = "Type your password again..."
+                    }
+                }
+        )
+
+
+repeatPasswordError : String
+repeatPasswordError =
+    "the passwords do not match"
 
 
 
