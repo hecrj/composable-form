@@ -453,7 +453,7 @@ optional =
     in
     describe "optional"
         [ describe "when filled with empty values"
-            [ test "fields do not have errors" <|
+            [ test "contains no field errors" <|
                 \_ ->
                     fill emptyValues
                         |> .fields
