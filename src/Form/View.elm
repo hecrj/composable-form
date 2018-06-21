@@ -334,9 +334,14 @@ a [`ViewConfig`](#ViewConfig). In fact, [`asHtml`](#asHtml) is implemented using
             , textField = inputField "text"
             , emailField = inputField "email"
             , passwordField = inputField "password"
+            , searchField = inputField "search"
             , textareaField = textareaField
+            , numberField = numberField
+            , rangeField = rangeField
             , checkboxField = checkboxField
+            , radioField = radioField
             , selectField = selectField
+            , group = group
             }
 
 -}
