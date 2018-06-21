@@ -430,6 +430,85 @@ andThen =
         ]
 
 
+optional : Test
+optional =
+    let
+        form =
+            Form.Base.succeed (,)
+                |> Form.Base.append emailField
+                |> Form.Base.append passwordField
+                |> Form.optional
+
+        fill =
+            Form.Base.fill form
+
+        emptyValues =
+            { email = Value.blank, password = Value.blank }
+
+        validValues =
+            { email = Value.filled "hello@world.com", password = Value.filled "12345678" }
+
+        invalidValues =
+            { email = Value.filled "hello", password = Value.filled "123" }
+    in
+    describe "optional"
+        [ describe "when filled with empty values"
+            [ test "fields do not have errors" <|
+                \_ ->
+                    fill emptyValues
+                        |> .fields
+                        |> List.map Tuple.second
+                        |> Expect.equal [ Nothing, Nothing ]
+            , test "produces Nothing" <|
+                \_ ->
+                    fill emptyValues
+                        |> .result
+                        |> Expect.equal (Ok Nothing)
+            ]
+        , describe "when filled with valid values"
+            [ test "contains no field errors" <|
+                \_ ->
+                    fill validValues
+                        |> .fields
+                        |> List.map Tuple.second
+                        |> Expect.equal [ Nothing, Nothing ]
+            , test "results in the correct output" <|
+                \_ ->
+                    fill validValues
+                        |> .result
+                        |> Expect.equal (Ok (Just ( "hello@world.com", "12345678" )))
+            ]
+        , describe "when partially filled"
+            [ test "results in required field errors" <|
+                \_ ->
+                    fill { email = Value.filled "hello@world.com", password = Value.blank }
+                        |> .result
+                        |> Expect.equal (Err ( Error.RequiredFieldIsEmpty, [] ))
+            ]
+        , describe "when filled with invalid values"
+            [ test "contains the first error of each field" <|
+                \_ ->
+                    fill invalidValues
+                        |> .fields
+                        |> List.map Tuple.second
+                        |> Expect.equal
+                            [ Just (Error.ValidationFailed emailError)
+                            , Just (Error.ValidationFailed passwordError)
+                            ]
+            , test "results in a non-empty list with the errors of the fields" <|
+                \_ ->
+                    fill invalidValues
+                        |> .result
+                        |> Expect.equal
+                            (Err
+                                ( Error.ValidationFailed emailError
+                                , [ Error.ValidationFailed passwordError ]
+                                )
+                            )
+            ]
+        ]
+
+
 meta : Test
 meta =
     let
