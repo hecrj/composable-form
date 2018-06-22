@@ -6,7 +6,7 @@ The relevant form examples can be found in [src/Page](src/Page).
 
 # Running locally
 
-To start a web server to run the examples:
+To start a local web server to run the examples:
 
 > yarn && yarn run start
 
