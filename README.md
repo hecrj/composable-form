@@ -75,7 +75,7 @@ form =
 
 Read [the `Form` module documentation][form-docs] to understand how this code works.
 
-[form-docs]: http://package.elm-lang.org/packages/hecrj/elm-slug/latest/Form
+[form-docs]: http://package.elm-lang.org/packages/hecrj/composable-form/latest/Form
 
 ## Demo/Examples
 
