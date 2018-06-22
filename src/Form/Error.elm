@@ -20,8 +20,8 @@ It can either be:
   - `ValidationFailed`, meaning the field validation has failed. This type of error contains a
     `String` describing the validation error.
 
-These type of errors are returned alongside each field in the [`Form.fields`](Form#fields) and
-[`Form.Base.fields`](Form-Base#fields) functions.
+These type of errors are returned alongside each field in the [`Form.fill`](Form#fill) and
+[`Form.Base.fill`](Form-Base#fill) functions.
 
 You can easily write a simple function that turns this type into a `String`:
 

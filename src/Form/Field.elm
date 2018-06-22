@@ -27,15 +27,18 @@ attributes. For example, you could render a `TextField` like this:
     view : (values -> msg) -> Form values output -> values -> Html output
     view onChange form values =
         let
-            fields =
-                List.map (viewField onChange) (Form.fields form values)
+            { fields, result } =
+                Form.fields form values
+
+            fieldsHtml =
+                List.map (viewField onChange) fields
 
             -- ...
         in
         Html.form
             [-- ...
             ]
-            [ Html.div [] fields
+            [ Html.div [] fieldsHtml
             , submitButton
             ]
 
@@ -55,7 +58,6 @@ attributes. For example, you could render a `TextField` like this:
                     []
 
             _ ->
-                -- ...
 
 -}
 type alias Field attributes value values =
