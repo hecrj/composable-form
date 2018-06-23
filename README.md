@@ -6,7 +6,7 @@ This package allows you to build forms that are:
   * **Composable**, they can be extended and embeded in other forms.
   * **Maintainable**, you do not need `view` code nor a `msg` for each form field.
   * **Concise**, field validation and update logic are defined in a single place.
-  * **Consistent**, validation errors are always up-to-date with their current values.
+  * **Consistent**, validation errors are always up-to-date with the current field values.
   * **Extensible**, you can create your own custom fields and custom form renderers.
 
 Here is an example that defines a login form:
@@ -73,18 +73,18 @@ form =
         |> Form.append rememberMeCheckbox
 ```
 
-Read [the `Form` module documentation][form-docs] to understand how this code works.
+Read the [`Form` module documentation][form-docs] to understand how this code works.
 
 [form-docs]: http://package.elm-lang.org/packages/hecrj/composable-form/latest/Form
 
-## Demo/Examples
+## Demo / Examples
 
 Try out the [live demo](https://hecrj.github.io/composable-form) and/or
 [check out the examples](examples/src/Page).
 
 ## Contributing / Feedback
 
-Feel free to fork and open issues or pull requests. You can also contact me (@hecrj) in the
+Feel free to fork and open issues or pull requests. You can also contact me (@hecrj) on the
 [Elm Slack][elm-slack].
 
 [elm-slack]: https://elmlang.herokuapp.com
