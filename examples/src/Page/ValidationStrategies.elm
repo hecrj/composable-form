@@ -6,6 +6,7 @@ import Form exposing (Form)
 import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
+import View
 
 
 type alias Model =
@@ -27,7 +28,7 @@ type Msg
 
 init : Model
 init =
-    { validationStrategy = Value.clean "onSubmit"
+    { validationStrategy = Value.filled "onSubmit"
     , email = Value.blank
     , name = Value.blank
     , password = Value.blank
@@ -49,12 +50,13 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.h1 [] [ Html.text "Validation strategies" ]
-        , Form.View.basic
+        , code
+        , Form.View.asHtml
             { onChange = FormChanged
             , action = "Submit"
-            , loadingMessage = "Loading..."
+            , loading = "Loading..."
             , validation =
-                if Value.raw model.values.validationStrategy == Just "onBlur" then
+                if onBlurSelected model.values then
                     Form.View.ValidateOnBlur
                 else
                     Form.View.ValidateOnSubmit
@@ -62,6 +64,11 @@ view model =
             form
             model
         ]
+
+
+onBlurSelected : Values -> Bool
+onBlurSelected { validationStrategy } =
+    Value.raw validationStrategy == Just "onBlur"
 
 
 form : Form Values Msg
@@ -122,8 +129,29 @@ form =
                     }
                 }
     in
-    Form.empty Submit
-        |> Form.appendMeta validationStrategyField
+    Form.succeed (always Submit)
+        |> Form.append validationStrategyField
         |> Form.append emailField
         |> Form.append nameField
         |> Form.append passwordField
+
+
+code : Html msg
+code =
+    View.code
+        [ { filename = "ValidationStrategies.elm"
+          , path = "ValidationStrategies.elm"
+          , code = """Form.View.asHtml
+    { onChange = FormChanged
+    , action = "Submit"
+    , loading = "Loading..."
+    , validation =
+        if onBlurSelected model.values then
+            Form.View.ValidateOnBlur
+        else
+            Form.View.ValidateOnSubmit
+    }
+    form
+    model"""
+          }
+        ]

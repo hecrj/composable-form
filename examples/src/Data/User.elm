@@ -4,6 +4,7 @@ module Data.User
         , Name
         , Password
         , User
+        , ValidEmail
         , favoriteLanguageToString
         , favoriteLanguages
         , nameToString
@@ -12,6 +13,7 @@ module Data.User
         , parsePassword
         , passwordLength
         , signUp
+        , validateEmailAddress
         )
 
 import Data.EmailAddress as EmailAddress exposing (EmailAddress)
@@ -22,10 +24,28 @@ import Time
 
 
 type alias User =
-    { email : EmailAddress
+    { email : ValidEmail
     , name : Name
     , favoriteLanguage : FavoriteLanguage
     }
+
+
+
+-- VALID EMAIL
+
+
+type ValidEmail
+    = ValidEmail EmailAddress
+
+
+validateEmailAddress : String -> Task String ValidEmail
+validateEmailAddress email =
+    case EmailAddress.parse email of
+        Ok address ->
+            checkEmailAddress address
+
+        Err error ->
+            Task.fail error
 
 
 
@@ -114,10 +134,16 @@ favoriteLanguageToString language =
 
 signUp : EmailAddress -> Name -> Password -> FavoriteLanguage -> Task String User
 signUp email name password favoriteLanguage =
+    checkEmailAddress email
+        |> Task.map (\validEmail -> User validEmail name favoriteLanguage)
+
+
+checkEmailAddress : EmailAddress -> Task String ValidEmail
+checkEmailAddress email =
     let
         response =
             if EmailAddress.toString email == "free@email.com" then
-                Task.succeed (User email name favoriteLanguage)
+                Task.succeed (ValidEmail email)
             else
                 Task.fail "The e-mail address is taken. Try this one: free@email.com"
     in

@@ -2,88 +2,147 @@ module Form.Value
     exposing
         ( Value
         , blank
-        , change
-        , clean
-        , dirty
-        , isDirty
+        , filled
         , newest
         , raw
-        , withDefault
+        , update
         )
 
+{-| This module contains a value type for your form fields.
 
+
+# Definition
+
+@docs Value
+
+
+# Constructors
+
+@docs blank, filled
+
+
+# Queries
+
+@docs raw
+
+
+# Updates
+
+@docs update
+
+
+# Comparisons
+
+@docs newest
+
+-}
+
+
+{-| Represents a form field value.
+-}
 type Value a
     = Blank Int
-    | Clean Int a
-    | Dirty Int a
+    | Filled Int a
 
 
 
--- CONSTRUCTORS
+-- Constructors
 
 
+{-| A blank value.
+
+Use this to initialize the values of your empty fields:
+
+    values : SignupValues
+    values =
+        { email = Value.blank
+        , password = Value.blank
+        , rememberMe = Value.blank
+        }
+
+-}
 blank : Value a
 blank =
     Blank 0
 
 
-clean : a -> Value a
-clean v =
-    Clean 0 v
+{-| Build an already filled value.
+
+Use this when you are using forms to edit existing values:
+
+    values : Profile -> ProfileValues
+    values profile =
+        { firstName = Value.filled profile.firstName
+        , lastName = Value.filled profile.lastName
+        }
+
+-}
+filled : a -> Value a
+filled =
+    Filled 0
 
 
-dirty : a -> Value a
-dirty v =
-    Dirty 0 v
+
+-- Queries
 
 
+{-| Obtain the data inside a [`Value`](#Value).
 
--- GET
+If the value is blank, it returns `Nothing`, else it returns `Just` the value.
 
+**Note:** You should only be using this in [`meta` forms](Form#meta) or your own custom renderer.
 
-isDirty : Value a -> Bool
-isDirty value =
-    case value of
-        Dirty _ v ->
-            True
-
-        _ ->
-            False
-
-
+-}
 raw : Value a -> Maybe a
 raw value =
     case value of
         Blank _ ->
             Nothing
 
-        Clean _ v ->
-            Just v
-
-        Dirty _ v ->
+        Filled _ v ->
             Just v
 
 
-withDefault : a -> Value a -> Value a
-withDefault default value =
-    raw value
-        |> Maybe.map (always value)
-        |> Maybe.withDefault (clean default)
+
+-- Update
+
+
+{-| Update a value with new data.
+
+**Note:** You should not need to care about this unless you are creating your own
+custom fields.
+
+-}
+update : a -> Value a -> Value a
+update v value =
+    Filled (version value + 1) v
 
 
 
--- UPDATE
+-- Comparisons
 
 
-change : a -> Value a -> Value a
-change v value =
-    Dirty (version value + 1) v
+{-| Select the newest value out of two sets of values.
 
+This is necessary to fix an issue with autocompletion. When a form is autocompleted, many events
+can get triggered before the view can be rerendered, causing the first autocompleted values to be
+lost.
 
+`newest` allows to fix this:
 
--- CHOOSE
+    update : Msg -> Model -> Model
+    update msg values =
+        FormChanged newForm ->
+            { form |
+                values =
+                    { email = Value.newest .email form.values newForm.values
+                    , password = Value.newest .password form.values newForm.values
+                    }
+            }
 
+**Note:** This issue _seems_ fixed in Elm 0.19, thus this function will be removed soon.
 
+-}
 newest : (values -> Value a) -> values -> values -> Value a
 newest getter values1 values2 =
     let
@@ -109,8 +168,5 @@ version value =
         Blank version ->
             version
 
-        Clean version _ ->
-            version
-
-        Dirty version _ ->
+        Filled version _ ->
             version

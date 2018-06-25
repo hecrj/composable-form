@@ -1,3 +1,4 @@
 elm-stuff/
 node_modules/
-
+dist/
+documentation.json

@@ -3,12 +3,14 @@ module Main exposing (main)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Page.Composability.WithExtensibleRecords as Composability
+import Page.CustomFields as CustomFields
+import Page.DynamicForm as DynamicForm
 import Page.Login as Login
 import Page.MultiStage as MultiStage
 import Page.Signup as Signup
 import Page.ValidationStrategies as ValidationStrategies
-import Page.ValueReusability as ValueReusability
 import Route exposing (Route)
+import View
 
 
 type alias Model =
@@ -19,10 +21,11 @@ type Page
     = Home
     | Login Login.Model
     | Signup Signup.Model
-    | ValueReusability ValueReusability.Model
+    | DynamicForm DynamicForm.Model
     | ValidationStrategies ValidationStrategies.Model
     | Composability Composability.Model
     | MultiStage MultiStage.Model
+    | CustomFields CustomFields.Model
     | NotFound
 
 
@@ -31,10 +34,11 @@ type Msg
     | Navigate Route
     | LoginMsg Login.Msg
     | SignupMsg Signup.Msg
-    | ValueReusabilityMsg ValueReusability.Msg
+    | DynamicFormMsg DynamicForm.Msg
     | ValidationStrategiesMsg ValidationStrategies.Msg
     | ComposabilityMsg Composability.Msg
     | MultiStageMsg MultiStage.Msg
+    | CustomFieldsMsg CustomFields.Msg
 
 
 main : Program Never Model Msg
@@ -79,10 +83,10 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        ValueReusabilityMsg subMsg ->
+        DynamicFormMsg subMsg ->
             case model of
-                ValueReusability subModel ->
-                    ( ValueReusability (ValueReusability.update subMsg subModel), Cmd.none )
+                DynamicForm subModel ->
+                    ( DynamicForm (DynamicForm.update subMsg subModel), Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -115,20 +119,28 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        CustomFieldsMsg subMsg ->
+            case model of
+                CustomFields signupModel ->
+                    CustomFields.update subMsg signupModel
+                        |> Tuple.mapFirst CustomFields
+                        |> Tuple.mapSecond (Cmd.map CustomFieldsMsg)
+
+                _ ->
+                    ( model, Cmd.none )
+
 
 view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.header []
-            [ Html.h1 [] [ Html.text "elm-wip-form" ]
-            , Html.h2 [] [ Html.text "A WIP form API for Elm" ]
+            [ Html.h1 [] [ Html.text "composable-form" ]
+            , Html.h2 [] [ Html.text "Build type-safe composable forms in Elm" ]
             , Html.div []
                 [ Html.a (Route.href Navigate Route.Top)
                     [ Html.text "Examples" ]
-                , Html.a [ Attributes.href repositoryUrl ]
+                , Html.a [ Attributes.href View.repositoryUrl ]
                     [ Html.text "Repository" ]
-                , Html.a [ Attributes.href "https://discourse.elm-lang.org/t/a-form-api-idea-proposal/1121" ]
-                    [ Html.text "Discussion" ]
                 ]
             ]
         , Html.div [ Attributes.class "wrapper" ]
@@ -144,9 +156,9 @@ view model =
                     Signup.view signupModel
                         |> Html.map SignupMsg
 
-                ValueReusability subModel ->
-                    ValueReusability.view subModel
-                        |> Html.map ValueReusabilityMsg
+                DynamicForm subModel ->
+                    DynamicForm.view subModel
+                        |> Html.map DynamicFormMsg
 
                 ValidationStrategies subModel ->
                     ValidationStrategies.view subModel
@@ -160,20 +172,12 @@ view model =
                     MultiStage.view subModel
                         |> Html.map MultiStageMsg
 
+                CustomFields subModel ->
+                    CustomFields.view subModel
+                        |> Html.map CustomFieldsMsg
+
                 NotFound ->
                     Html.text "Not found"
-            ]
-        , Html.footer []
-            [ case pageCodeUri model of
-                Just uri ->
-                    Html.a
-                        [ Attributes.href (repositoryUrl ++ "/blob/master/examples/src/Page" ++ uri)
-                        , Attributes.target "_blank"
-                        ]
-                        [ Html.text "Code" ]
-
-                Nothing ->
-                    Html.text ""
             ]
         ]
 
@@ -194,8 +198,8 @@ fromRoute route =
         Route.Signup ->
             Signup Signup.init
 
-        Route.ValueReusability ->
-            ValueReusability ValueReusability.init
+        Route.DynamicForm ->
+            DynamicForm DynamicForm.init
 
         Route.ValidationStrategies ->
             ValidationStrategies ValidationStrategies.init
@@ -206,6 +210,9 @@ fromRoute route =
         Route.MultiStage ->
             MultiStage MultiStage.init
 
+        Route.CustomFields ->
+            CustomFields CustomFields.init
+
         Route.NotFound ->
             NotFound
 
@@ -214,26 +221,33 @@ viewHome : Html Msg
 viewHome =
     let
         examples =
-            [ ( "Login", Route.Login, "Shows a simple login form with 3 fields." )
+            [ ( "Login"
+              , Route.Login
+              , "A simple login form with 3 fields."
+              )
             , ( "Signup"
               , Route.Signup
-              , "Showcases a select field, a meta field and external form errors."
+              , "A select field and external form errors."
               )
-            , ( "Value reusability"
-              , Route.ValueReusability
-              , "Shows how field values are decoupled from any form, and how they can be reused with a single source of truth. It also showcases an optional field."
+            , ( "Dynamic form"
+              , Route.DynamicForm
+              , "A form that changes dynamically based on its own values."
               )
             , ( "Validation strategies"
               , Route.ValidationStrategies
-              , "Showcases two different validation strategies: validation on submit and validation on blur."
+              , "Two different validation strategies: validation on submit and validation on blur."
               )
             , ( "Composability"
               , Route.Composability
-              , "Shows an address form embedded in a bigger form."
+              , "An address form embedded in a bigger form."
               )
             , ( "Multiple stages"
               , Route.MultiStage
-              , "Showcases a form that is filled in multiple stages."
+              , "A custom renderer that allows the user to fill a form in multiple stages."
+              )
+            , ( "Custom fields"
+              , Route.CustomFields
+              , "An example that showcases how custom fields can be implemented to suit your needs."
               )
             ]
 
@@ -248,36 +262,3 @@ viewHome =
         , Html.ul []
             (List.map toItem examples)
         ]
-
-
-repositoryUrl : String
-repositoryUrl =
-    "https://github.com/hecrj/elm-wip-form"
-
-
-pageCodeUri : Page -> Maybe String
-pageCodeUri page =
-    case page of
-        Home ->
-            Nothing
-
-        Login _ ->
-            Just "/Login.elm"
-
-        Signup _ ->
-            Just "/Signup.elm"
-
-        ValueReusability _ ->
-            Just "/ValueReusability.elm"
-
-        ValidationStrategies _ ->
-            Just "/ValidationStrategies.elm"
-
-        Composability _ ->
-            Just "/Composability/"
-
-        MultiStage _ ->
-            Just "/MultiStage.elm"
-
-        NotFound ->
-            Nothing

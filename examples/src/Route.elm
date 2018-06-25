@@ -19,10 +19,11 @@ type Route
     = Top
     | Login
     | Signup
-    | ValueReusability
+    | DynamicForm
     | ValidationStrategies
     | Composability
     | MultiStage
+    | CustomFields
     | NotFound
 
 
@@ -32,10 +33,11 @@ parser =
         [ map Top UrlParser.top
         , map Login (s "login")
         , map Signup (s "signup")
-        , map ValueReusability (s "value-reusability")
+        , map DynamicForm (s "dynamic-form")
         , map ValidationStrategies (s "validation-strategies")
         , map Composability (s "composability")
         , map MultiStage (s "multi-stage")
+        , map CustomFields (s "custom-fields")
         ]
 
 
@@ -103,8 +105,8 @@ toString route =
                 Signup ->
                     [ "signup" ]
 
-                ValueReusability ->
-                    [ "value-reusability" ]
+                DynamicForm ->
+                    [ "dynamic-form" ]
 
                 ValidationStrategies ->
                     [ "validation-strategies" ]
@@ -114,6 +116,9 @@ toString route =
 
                 MultiStage ->
                     [ "multi-stage" ]
+
+                CustomFields ->
+                    [ "custom-fields" ]
 
                 NotFound ->
                     [ "404" ]
