@@ -1,13 +1,13 @@
 # composable-form [![Build Status](https://travis-ci.org/hecrj/composable-form.svg?branch=master)](https://travis-ci.org/hecrj/composable-form)
 
-This package allows you to build forms that are:
+This package allows you to build forms that are
 
-  * **Type-safe**, they can produce any kind of type when submitted.
-  * **Composable**, they can be extended and embeded in other forms.
-  * **Maintainable**, you do not need `view` code nor a `msg` for each form field.
-  * **Concise**, field validation and update logic are defined in a single place.
-  * **Consistent**, validation errors are always up-to-date with the current field values.
-  * **Extensible**, you can create your own custom fields and custom form renderers.
+  * **Composable**: they can be extended and embedded in other forms.
+  * **Type-safe**: they can produce any kind of type when submitted.
+  * **Maintainable**: you do not need `view` code nor a `msg` for each form field.
+  * **Concise**: field validation and update logic are defined in a single place.
+  * **Consistent**: validation errors are always up-to-date with the current field values.
+  * **Extensible**: you can create your own custom fields and custom form renderers.
 
 Here is an example that defines a login form:
 
