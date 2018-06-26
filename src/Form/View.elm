@@ -86,7 +86,7 @@ such action fails.
     update msg model =
         case msg of
             FormChanged newModel ->
-                ( Form.Idle, Cmd.none )
+                ( { newModel | state = FormView.Idle }, Cmd.none )
 
             SignUp email password ->
                 ( { model | state = FormView.Loading }
