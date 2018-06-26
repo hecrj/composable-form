@@ -26,7 +26,7 @@ type alias Values =
     }
 
 
-type alias Output
+type alias Output =
     { email : EmailAddress
     , password : String
     , rememberMe : Bool
