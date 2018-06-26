@@ -1,6 +1,6 @@
 module Form.Field exposing (Field)
 
-{-| This module contains a type that represents the state of a form field.
+{-| This module contains a type that represents a generic form field.
 
 **Note:** You should not need to care about this unless you are creating your own
 custom fields or writing your own form renderer.
@@ -28,7 +28,7 @@ attributes. For example, you could render a `TextField` like this:
     view onChange form values =
         let
             { fields, result } =
-                Form.fields form values
+                Form.fill form values
 
             fieldsHtml =
                 List.map (viewField onChange) fields
@@ -58,6 +58,7 @@ attributes. For example, you could render a `TextField` like this:
                     []
 
             _ ->
+                -- ...
 
 -}
 type alias Field attributes value values =

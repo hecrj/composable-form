@@ -47,7 +47,7 @@ type alias Attributes =
     { label : String }
 
 
-{-| Builds a [`Base.Form`](Form-Base#Form) with a single `CheckboxField`.
+{-| Builds a [`Form`](Form-Base#Form) with a single `CheckboxField`.
 
 **Note:** You should not need to care about this unless you are creating your own
 custom fields.

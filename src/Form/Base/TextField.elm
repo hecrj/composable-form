@@ -54,7 +54,7 @@ type alias Attributes =
     }
 
 
-{-| Builds a [`Base.Form`](Form-Base#Form) with a single `TextField`.
+{-| Builds a [`Form`](Form-Base#Form) with a single `TextField`.
 
 **Note:** You should not need to care about this unless you are creating your own
 custom fields.

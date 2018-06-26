@@ -134,7 +134,7 @@ idle values =
 
 {-| This allows you to configure the renderer behavior.
 
-  - `onChange` specifies the message that should be thrown when the `Model` changes.
+  - `onChange` specifies the message that should be produced when the `Model` changes.
   - `action` is the text of the submit button when the form is not loading.
   - `loading` is the text of the submit button when the form is loading.
   - `validation` lets you choose the validation strategy.

@@ -48,7 +48,7 @@ type alias Attributes =
     }
 
 
-{-| Builds a [`Base.Form`](Form-Base#Form) with a single `RadioField`.
+{-| Builds a [`Form`](Form-Base#Form) with a single `RadioField`.
 
 **Note:** You should not need to care about this unless you are creating your own
 custom fields.

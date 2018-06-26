@@ -98,7 +98,7 @@ It requires some configuration:
   - `update` describes how the current form `values` should be updated with a new field
     [`Value`](Form-Value)
   - `attributes` let you define the specific attributes of the field (`label` and `placeholder`
-    in this case, see [`TextField.Attributes`](Form-Field-TextField#Attributes))
+    in this case, see [`TextField.Attributes`](Form-Base-TextField#Attributes))
 
 It might seem like a lot of configuration, but don't be scared! In practice, it isn't!
 For instance, you could use this function to build a `nameField` that only succeeds when the
@@ -210,8 +210,8 @@ searchField =
 
 It has a very similar configuration to [`textField`](#textField), the only difference is:
 
-  - Its attributes are [`NumberField.Attributes`](Form-Field-NumberField#Attributes)
-    instead of [`TextField.Attributes`](Form-Field-TextField#Attributes).
+  - Its attributes are [`NumberField.Attributes`](Form-Base-NumberField#Attributes)
+    instead of [`TextField.Attributes`](Form-Base-TextField#Attributes).
 
 -}
 numberField :
@@ -229,8 +229,8 @@ numberField =
 
 It has a very similar configuration to [`textField`](#textField), the only difference is:
 
-  - Its attributes are [`RangeField.Attributes`](Form-Field-RangeField#Attributes)
-    instead of [`TextField.Attributes`](Form-Field-TextField#Attributes).
+  - Its attributes are [`RangeField.Attributes`](Form-Base-RangeField#Attributes)
+    instead of [`TextField.Attributes`](Form-Base-TextField#Attributes).
 
 -}
 rangeField :
@@ -249,8 +249,8 @@ rangeField =
 It has a very similar configuration to [`textField`](#textField), the only differences are:
 
   - Its value is a `Bool` instead of `String`.
-  - Its attributes are [`CheckboxField.Attributes`](Form-Field-CheckboxField#Attributes)
-    instead of [`TextField.Attributes`](Form-Field-TextField#Attributes).
+  - Its attributes are [`CheckboxField.Attributes`](Form-Base-CheckboxField#Attributes)
+    instead of [`TextField.Attributes`](Form-Base-TextField#Attributes).
 
 -}
 checkboxField :
@@ -268,8 +268,8 @@ checkboxField =
 
 It has a very similar configuration to [`textField`](#textField), the only difference is:
 
-  - Its attributes are [`RadioField.Attributes`](Form-Field-RadioField#Attributes)
-    instead of [`TextField.Attributes`](Form-Field-TextField#Attributes).
+  - Its attributes are [`RadioField.Attributes`](Form-Base-RadioField#Attributes)
+    instead of [`TextField.Attributes`](Form-Base-TextField#Attributes).
 
 -}
 radioField :
@@ -287,8 +287,8 @@ radioField =
 
 It has a very similar configuration to [`textField`](#textField), the only difference is:
 
-  - Its attributes are [`SelectField.Attributes`](Form-Field-SelectField#Attributes)
-    instead of [`TextField.Attributes`](Form-Field-TextField#Attributes).
+  - Its attributes are [`SelectField.Attributes`](Form-Base-SelectField#Attributes)
+    instead of [`TextField.Attributes`](Form-Base-TextField#Attributes).
 
 -}
 selectField :
