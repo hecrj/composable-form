@@ -84,7 +84,7 @@ import Form.Value as Value exposing (Value)
 {-| A [`Form`](Form#Form) that can contain any type of `field`.
 -}
 type Form values output field
-    = Form (values -> FilledForm field output)
+    = Form (values -> FilledForm output field)
 
 
 
@@ -386,7 +386,7 @@ meta fn =
 You can obtain this by using [`fill`](#fill).
 
 -}
-type alias FilledForm field output =
+type alias FilledForm output field =
     { fields : List ( field, Maybe Error )
     , result : Result ( Error, List Error ) output
     , isEmpty : Bool
@@ -395,6 +395,6 @@ type alias FilledForm field output =
 
 {-| Like [`Form.fill`](Form#fill) but not tied to a particular type of `field`.
 -}
-fill : Form values output field -> values -> FilledForm field output
+fill : Form values output field -> values -> FilledForm output field
 fill (Form fill_) =
     fill_
