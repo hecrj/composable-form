@@ -45,15 +45,16 @@ attributes. For example, you could render a `TextField` like this:
     viewField : (values -> msg) -> ( Form.Field values, Maybe Error ) -> Html msg
     viewField onChange ( field, maybeError ) =
         case field of
-            Form.Text TextField.Raw { attributes, state } ->
+            Form.Text TextField.Raw { value, update, attributes } ->
                 Html.input
                     [ Attributes.type_ "text"
                     , Attributes.value
-                        (state.value
+                        (value
                             |> Value.raw
                             |> Maybe.withDefault ""
                         )
-                    , Attributes.onInput (state.update >> onChange)
+                    , Attributes.onInput (update >> onChange)
+                    , Attributes.placeholder attributes.placeholder
                     ]
                     []
 

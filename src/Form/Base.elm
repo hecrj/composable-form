@@ -48,7 +48,7 @@ If that still does not convince you, you could start your own `MyProject.Form` m
     type alias Form values output =
         Base.Form values output (Field values)
 
-    type Field
+    type Field values
         = None
 
     succeed : output -> Form values output
@@ -227,7 +227,7 @@ You can check the [custom fields example][custom-fields] for some inspiration.
 [custom-fields]: https://hecrj.github.io/composable-form/#/custom-fields
 
 -}
-custom : (values -> FilledField output custom) -> Form values output custom
+custom : (values -> FilledField output field) -> Form values output field
 custom fillField =
     Form
         (\values ->
@@ -257,14 +257,14 @@ custom fillField =
 
 {-| Like [`Form.succeed`](Form#succeed) but not tied to a particular type of `field`.
 -}
-succeed : output -> Form values output custom
+succeed : output -> Form values output field
 succeed output =
     Form (always { fields = [], result = Ok output, isEmpty = True })
 
 
 {-| Like [`Form.append`](Form#append) but not tied to a particular type of `field`.
 -}
-append : Form values a custom -> Form values (a -> b) custom -> Form values b custom
+append : Form values a field -> Form values (a -> b) field -> Form values b field
 append new current =
     Form
         (\values ->
@@ -341,7 +341,7 @@ andThen child parent =
 
 {-| Like [`Form.optional`](Form#optional) but not tied to a particular type of `field`.
 -}
-optional : Form values output custom -> Form values (Maybe output) custom
+optional : Form values output field -> Form values (Maybe output) field
 optional form =
     Form
         (\values ->
