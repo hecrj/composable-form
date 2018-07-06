@@ -80,7 +80,7 @@ Read the [`Form` module documentation][form-docs] to understand how this code wo
 ## Demo / Examples
 
 Try out the [live demo](https://hecrj.github.io/composable-form) and/or
-[check out the examples](examples/src/Page).
+[check out the examples](https://github.com/hecrj/composable-form/tree/master/examples/src/Page).
 
 ## Contributing / Feedback
 
