@@ -9,6 +9,7 @@ module Form.Base
         , custom
         , field
         , fill
+        , map
         , meta
         , optional
         , succeed
@@ -67,7 +68,7 @@ import `Form.Base` every time we needed to use those operations with our brand n
 
 # Composition
 
-@docs succeed, append, andThen, optional, meta
+@docs succeed, map, append, andThen, optional, meta
 
 
 # Output
@@ -262,6 +263,20 @@ succeed output =
     Form (always { fields = [], result = Ok output, isEmpty = True })
 
 
+{-| Like [`Form.map`](Form#map) but not tied to a particular type of `field`.
+-}
+map : (a -> b) -> Form values a field -> Form values b field
+map fn form =
+    Form
+        (\values ->
+            let
+                filled =
+                    fill form values
+            in
+            { filled | result = Result.map fn filled.result }
+        )
+
+
 {-| Like [`Form.append`](Form#append) but not tied to a particular type of `field`.
 -}
 append : Form values a field -> Form values (a -> b) field -> Form values b field
@@ -284,9 +299,7 @@ append new current =
             case filledCurrent.result of
                 Ok fn ->
                     { fields = fields
-                    , result =
-                        filledNew.result
-                            |> Result.map fn
+                    , result = Result.map fn filledNew.result
                     , isEmpty = isEmpty
                     }
 

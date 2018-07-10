@@ -9,6 +9,7 @@ module Form
         , emailField
         , fill
         , group
+        , map
         , meta
         , numberField
         , optional
@@ -42,7 +43,7 @@ field. You might then be wondering: "How do I create a `Form` with multiple fiel
 Well, as the name of this package says: `Form` is composable! This section explains how you
 can combine different forms into bigger and more complex ones.
 
-@docs succeed, append, optional, group, andThen, meta
+@docs succeed, map, append, optional, group, andThen, meta
 
 
 # Output
@@ -315,6 +316,18 @@ functions. The docs for [`append`](#append) have some great examples.
 succeed : output -> Form values output
 succeed =
     Base.succeed
+
+
+{-| Transform the output of a form.
+
+This function can help you to keep forms decoupled from specific view messages:
+
+    Form.map SignUp signupForm
+
+-}
+map : (a -> b) -> Form values a -> Form values b
+map =
+    Base.map
 
 
 {-| Append a form to another one while **capturing** the `output` of the first one.

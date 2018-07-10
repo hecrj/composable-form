@@ -234,6 +234,22 @@ succeed =
         ]
 
 
+map : Test
+map =
+    let
+        form =
+            Form.Base.map String.length passwordField
+    in
+    describe "map"
+        [ test "applies the given function to the form output" <|
+            \_ ->
+                { password = Value.filled "12345678" }
+                    |> Form.Base.fill form
+                    |> .result
+                    |> Expect.equal (Ok 8)
+        ]
+
+
 append : Test
 append =
     let
