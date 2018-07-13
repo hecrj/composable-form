@@ -10,6 +10,8 @@ module Form.Base
         , field
         , fill
         , map
+        , mapField
+        , mapValues
         , meta
         , optional
         , succeed
@@ -68,7 +70,12 @@ import `Form.Base` every time we needed to use those operations with our brand n
 
 # Composition
 
-@docs succeed, map, append, andThen, optional, meta
+@docs succeed, append, andThen, optional, meta
+
+
+# Mapping
+
+@docs map, mapValues, mapField
 
 
 # Output
@@ -263,20 +270,6 @@ succeed output =
     Form (always { fields = [], result = Ok output, isEmpty = True })
 
 
-{-| Like [`Form.map`](Form#map) but not tied to a particular type of `field`.
--}
-map : (a -> b) -> Form values a field -> Form values b field
-map fn form =
-    Form
-        (\values ->
-            let
-                filled =
-                    fill form values
-            in
-            { filled | result = Result.map fn filled.result }
-        )
-
-
 {-| Like [`Form.append`](Form#append) but not tied to a particular type of `field`.
 -}
 append : Form values a field -> Form values (a -> b) field -> Form values b field
@@ -388,6 +381,45 @@ optional form =
 meta : (values -> Form values output field) -> Form values output field
 meta fn =
     Form (\values -> fill (fn values) values)
+
+
+
+-- Mapping
+
+
+{-| Like [`Form.map`](Form#map) but not tied to a particular type of `field`.
+-}
+map : (a -> b) -> Form values a field -> Form values b field
+map fn form =
+    Form
+        (\values ->
+            let
+                filled =
+                    fill form values
+            in
+            { filled | result = Result.map fn filled.result }
+        )
+
+
+{-| Apply a function to the input `values` of the form.
+-}
+mapValues : (a -> b) -> Form b output field -> Form a output field
+mapValues fn form =
+    Form (fn >> fill form)
+
+
+{-| Apply a function to each form `field`.
+-}
+mapField : (a -> b) -> Form values output a -> Form values output b
+mapField fn form =
+    Form
+        (\values ->
+            let
+                filled =
+                    fill form values
+            in
+            { filled | fields = List.map (\( field, error ) -> ( fn field, error )) filled.fields }
+        )
 
 
 

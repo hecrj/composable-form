@@ -10,6 +10,7 @@ module Form
         , fill
         , group
         , map
+        , mapValues
         , meta
         , numberField
         , optional
@@ -43,7 +44,12 @@ field. You might then be wondering: "How do I create a `Form` with multiple fiel
 Well, as the name of this package says: `Form` is composable! This section explains how you
 can combine different forms into bigger and more complex ones.
 
-@docs succeed, map, append, optional, group, andThen, meta
+@docs succeed, append, optional, group, andThen, meta
+
+
+# Mapping
+
+@docs map, mapValues
 
 
 # Output
@@ -318,18 +324,6 @@ succeed =
     Base.succeed
 
 
-{-| Transform the output of a form.
-
-This function can help you to keep forms decoupled from specific view messages:
-
-    Form.map SignUp signupForm
-
--}
-map : (a -> b) -> Form values a -> Form values b
-map =
-    Base.map
-
-
 {-| Append a form to another one while **capturing** the `output` of the first one.
 
 For instance, we could build a signup form:
@@ -540,6 +534,85 @@ the values of other fields. An example of this is a "repeat password" field:
 meta : (values -> Form values output) -> Form values output
 meta =
     Base.meta
+
+
+
+-- Mapping
+
+
+{-| Transform the `output` of a form.
+
+This function can help you to keep forms decoupled from specific view messages:
+
+    Form.map SignUp signupForm
+
+-}
+map : (a -> b) -> Form values a -> Form values b
+map =
+    Base.map
+
+
+{-| Transform the `values` of a form.
+
+This can be useful when you need to nest forms:
+
+    type alias SignupValues =
+        { email : Value String
+        , password : Value String
+        , address : AddressValues
+        }
+
+    addressForm : Form AddressValues Address
+
+    signupForm : Form SignupValues Msg
+    signupForm =
+        Form.succeed SignUp
+            |> Form.append emailField
+            |> Form.append passwordField
+            |> Form.append
+                (Form.mapValues
+                    { value = .address
+                    , update = \newAddress values -> { values | address = newAddress }
+                    }
+                    addressForm
+                )
+
+-}
+mapValues : { value : a -> b, update : b -> a -> a } -> Form b output -> Form a output
+mapValues { value, update } form =
+    Base.meta
+        (\values ->
+            let
+                mapField field =
+                    case field of
+                        Text textType field ->
+                            Text textType { field | update = mapUpdate field.update }
+
+                        Number field ->
+                            Number { field | update = mapUpdate field.update }
+
+                        Range field ->
+                            Range { field | update = mapUpdate field.update }
+
+                        Checkbox field ->
+                            Checkbox { field | update = mapUpdate field.update }
+
+                        Radio field ->
+                            Radio { field | update = mapUpdate field.update }
+
+                        Select field ->
+                            Select { field | update = mapUpdate field.update }
+
+                        Group fields ->
+                            Group (List.map (\( field, error ) -> ( mapField field, error )) fields)
+
+                mapUpdate fn value =
+                    update (fn value) values
+            in
+            form
+                |> Base.mapValues value
+                |> Base.mapField mapField
+        )
 
 
 
