@@ -323,6 +323,10 @@ put them all together in a form, see [`CustomConfig`](#CustomConfig).
 
 This function can be used to create form renderers that are compatible with `style-elements`,
 `elm-mdl`, `elm-css`, etc. You could even use it to transform forms into a `String` or `Json.Value`!
+Take a look at [the different renderers in the examples directory][renderer-examples]
+as you might find an implementation that works for you.
+
+[renderer-examples]: https://github.com/hecrj/composable-form/tree/master/examples/src/Form/View
 
 Once you provide a [`CustomConfig`](#CustomConfig) this function returns a renderer that supports
 a [`ViewConfig`](#ViewConfig). In fact, [`asHtml`](#asHtml) is implemented using this function!
