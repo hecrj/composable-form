@@ -114,6 +114,12 @@ code =
           , code = """Form.succeed Submit
     |> Form.append emailField
     |> Form.append nameField
-    |> Form.append AddressForm.form"""
+    |> Form.append
+        (Form.mapValues
+            { value = .address
+            , update = \\value values -> { values | address = value }
+            }
+            AddressForm.form
+        )"""
           }
         ]
