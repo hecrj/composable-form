@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Html exposing (Html)
 import Html.Attributes as Attributes
-import Page.Composability.WithExtensibleRecords as Composability
+import Page.Composability.Simple as Composability
 import Page.CustomFields as CustomFields
 import Page.DynamicForm as DynamicForm
 import Page.Login as Login
