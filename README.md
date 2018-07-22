@@ -3,7 +3,7 @@
 This package allows you to build forms that are
 
   * **Composable**: they can be extended and embedded in other forms.
-  * **Type-safe**: they can produce any kind of type when submitted.
+  * **Type-safe**: fields, validation and form output are all safely tied together.
   * **Maintainable**: you do not need `view` code nor a `msg` for each form field.
   * **Concise**: field validation and update logic are defined in a single place.
   * **Consistent**: validation errors are always up-to-date with the current field values.
