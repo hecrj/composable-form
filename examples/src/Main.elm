@@ -243,7 +243,7 @@ viewHome =
               )
             , ( "Multiple stages"
               , Route.MultiStage
-              , "A custom renderer that allows the user to fill a form in multiple stages."
+              , "Custom form view that allows the user to fill a form in multiple stages."
               )
             , ( "Custom fields"
               , Route.CustomFields

@@ -5,7 +5,8 @@ module Form.Error
 
 {-| This module contains a form [`Error`](#Error) type.
 
-**Note:** You should not need to care about this unless you are writing your own form renderer.
+**Note:** You should not need to care about this unless you are writing
+custom view code.
 
 @docs Error
 

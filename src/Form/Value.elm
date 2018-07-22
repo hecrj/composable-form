@@ -90,7 +90,8 @@ filled =
 
 If the value is blank, it returns `Nothing`, else it returns `Just` the value.
 
-**Note:** You should only be using this in [`meta` forms](Form#meta) or your own custom renderer.
+**Note:** You should only be using this in [`meta` forms](Form#meta) or
+custom view code.
 
 -}
 raw : Value a -> Maybe a

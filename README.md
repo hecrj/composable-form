@@ -7,7 +7,7 @@ This package allows you to build forms that are
   * **Maintainable**: you do not need `view` code nor a `msg` for each form field.
   * **Concise**: field validation and update logic are defined in a single place.
   * **Consistent**: validation errors are always up-to-date with the current field values.
-  * **Extensible**: you can create your own custom fields and custom form renderers.
+  * **Extensible**: you can create your own custom fields and write custom view code.
 
 Here is an example that defines a login form:
 

@@ -55,7 +55,7 @@ can combine different forms into bigger and more complex ones.
 # Output
 
 This section describes how to fill a `Form` with its `values` and obtain its
-different fields and its `output`. This is mostly used to build custom form renderers.
+different fields and its `output`. This is mostly used to write custom view code.
 
 If you just want to render a simple form as `Html`, check [`Form.View`](Form-View) first as it
 might suit your needs.
@@ -621,7 +621,7 @@ mapValues { value, update } form =
 
 {-| Represents a form field.
 
-If you are building your own form renderer you will probably need to pattern match this type,
+If you are writing custom view code you will probably need to pattern match this type,
 using the result of [`fill`](#fill).
 
 -}

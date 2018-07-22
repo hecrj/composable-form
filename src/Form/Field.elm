@@ -3,7 +3,7 @@ module Form.Field exposing (Field)
 {-| This module contains a type that represents a generic form field.
 
 **Note:** You should not need to care about this unless you are creating your own
-custom fields or writing your own form renderer.
+custom fields or writing custom view code.
 
 @docs Field
 
@@ -21,7 +21,7 @@ It contains:
     **form** values
   - the `attributes` of the field
 
-These record fields are normally used in renderers to set up the `value` and `onInput`
+These record fields are normally used in view code to set up the `value` and `onInput`
 attributes. For example, you could render a `TextField` like this:
 
     view : (values -> msg) -> Form values output -> values -> Html output

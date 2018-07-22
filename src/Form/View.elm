@@ -23,8 +23,8 @@ If you just want to quickly render a [`Form`](Form#Form) as HTML, take a look at
 [`asHtml`](#asHtml). If you need more control, use [`custom`](#custom).
 
 **Note:** If you are implementing your own custom fields using [`Form.Base`](Form-Base) then
-you cannot use this module. You should use [`Form.Base.fill`](Form-Base#fill) to write your
-own renderer. Take a look at [the source code of this module][source] for inspiration.
+you cannot use this module. You should use [`Form.Base.fill`](Form-Base#fill) to write
+custom view code. Take a look at [the source code of this module][source] for inspiration.
 
 [source]: https://github.com/hecrj/composable-form/blob/1.0.0/src/Form/View.elm
 
@@ -39,12 +39,12 @@ own renderer. Take a look at [the source code of this module][source] for inspir
 @docs ViewConfig, Validation
 
 
-# Built-in HTML renderer
+# Basic HTML
 
 @docs asHtml
 
 
-# Custom renderer
+# Custom
 
 @docs custom, CustomConfig, FormConfig, TextFieldConfig, NumberFieldConfig, RangeFieldConfig
 @docs CheckboxFieldConfig, RadioFieldConfig, SelectFieldConfig
@@ -132,7 +132,7 @@ idle values =
 -- Configuration
 
 
-{-| This allows you to configure the renderer behavior.
+{-| This allows you to configure the view output.
 
   - `onChange` specifies the message that should be produced when the `Model` changes.
   - `action` is the text of the submit button when the form is not loading.
@@ -160,10 +160,10 @@ type Validation
 
 
 
--- Custom renderer
+-- Custom
 
 
-{-| The configuration needed to create a custom renderer.
+{-| The configuration needed to create a custom view function.
 
 It needs functions to render each of [the supported `Form` fields](Form#fields), a function to
 render a [`group`](Form#group) of fields, and a function to wrap the fields together in a `form`.
@@ -316,19 +316,19 @@ type alias SelectFieldConfig msg =
     }
 
 
-{-| Create a custom renderer.
+{-| Create a custom view function.
 
 You need to provide a set of functions to render each field, and a function to
 put them all together in a form, see [`CustomConfig`](#CustomConfig).
 
-This function can be used to create form renderers that are compatible with `style-elements`,
+This can be used to create view functions that are compatible with `style-elements`,
 `elm-mdl`, `elm-css`, etc. You could even use it to transform forms into a `String` or `Json.Value`!
-Take a look at [the different renderers in the examples directory][renderer-examples]
+Take a look at [the different view modules in the examples directory][view-examples]
 as you might find an implementation that works for you.
 
-[renderer-examples]: https://github.com/hecrj/composable-form/tree/master/examples/src/Form/View
+[view-examples]: https://github.com/hecrj/composable-form/tree/master/examples/src/Form/View
 
-Once you provide a [`CustomConfig`](#CustomConfig) this function returns a renderer that supports
+Once you provide a [`CustomConfig`](#CustomConfig), you get a view function that supports
 a [`ViewConfig`](#ViewConfig). In fact, [`asHtml`](#asHtml) is implemented using this function!
 
     asHtml : ViewConfig values msg -> Form values msg -> Model values -> Html msg
@@ -530,7 +530,7 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
 
 
 
--- Built-in HTML renderer
+-- Basic HTML
 
 
 {-| Render a form as HTML!
