@@ -384,7 +384,7 @@ Let's say we want to optionally ask for a website name and address:
 
     websiteForm =
         Form.optional
-            (Form.succeed InvoiceAddress
+            (Form.succeed Website
                 |> Form.append websiteNameField
                 |> Form.append websiteAddressField
             )
