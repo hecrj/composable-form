@@ -1,4 +1,4 @@
-module Page.Composability.WithExtensibleRecords exposing (Model, Msg, init, update, view)
+module Page.Composability.Simple exposing (Model, Msg, init, update, view)
 
 import Data.Address exposing (Address)
 import Data.EmailAddress as EmailAddress exposing (EmailAddress)
@@ -7,7 +7,7 @@ import Form exposing (Form)
 import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
-import Page.Composability.WithExtensibleRecords.AddressForm as AddressForm exposing (AddressForm)
+import Page.Composability.Simple.AddressForm as AddressForm
 import View
 
 
@@ -90,24 +90,36 @@ form =
     Form.succeed Submit
         |> Form.append emailField
         |> Form.append nameField
-        |> Form.append AddressForm.form
+        |> Form.append
+            (Form.mapValues
+                { value = .address
+                , update = \value values -> { values | address = value }
+                }
+                AddressForm.form
+            )
 
 
 code : Html msg
 code =
     View.code
         [ { filename = "AddressForm.elm"
-          , path = "Composability/WithExtensibleRecords/AddressForm.elm"
+          , path = "Composability/Simple/AddressForm.elm"
           , code = """Form.succeed Address
     |> Form.append countryField
     |> Form.append cityField
     |> Form.append postalCodeField"""
           }
         , { filename = "Composability.elm"
-          , path = "Composability/WithExtensibleRecords.elm"
+          , path = "Composability/Simple.elm"
           , code = """Form.succeed Submit
     |> Form.append emailField
     |> Form.append nameField
-    |> Form.append AddressForm.form"""
+    |> Form.append
+        (Form.mapValues
+            { value = .address
+            , update = \\value values -> { values | address = value }
+            }
+            AddressForm.form
+        )"""
           }
         ]

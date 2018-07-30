@@ -1,63 +1,36 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-module.exports = {
-  entry: {
-    app: [
-      './index.js'
-    ]
-  },
-
+module.exports = (env, argv) => ({
+  entry: path.resolve(__dirname, 'index.js'),
   output: {
-    path: path.resolve(__dirname, '../docs'),
-    publicPath: '/',
-    filename: '[name].[hash].js'
+    filename: '[name].[hash].js',
+    path: path.resolve(__dirname, 'dist')
   },
-
   resolve: {
     modules: [
-      "node_modules",
-      path.resolve(__dirname, 'src')
+      path.resolve(__dirname, 'src'),
+      path.resolve(__dirname, 'node_modules')
     ]
   },
-
-  plugins: [
-    new ExtractTextPlugin('styles.[hash].css'),
-    new HtmlWebpackPlugin({
-      template: './index.html'
-    })
-  ],
-
   module: {
     rules: [
       {
-        test:    /\.elm$/,
+        test: /\.elm$/,
         exclude: [/elm-stuff/, /node_modules/],
         use: [
           {
             loader: 'elm-webpack-loader',
             options: {
-              pathToMake: './elm-make',
               yes: false
             }
           }
         ]
       },
       {
-        test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          use: ['css-loader']
-        })
-      },
-      {
-        test: /\.scss$/,
-        use: ExtractTextPlugin.extract({
-          use: [
-          'css-loader',
-          'sass-loader'
-        ]})
-      },
+        test: /\.(s)?css$/,
+        use: ['style-loader', 'css-loader', 'sass-loader']
+      }
     ]
   },
 
@@ -84,4 +57,10 @@ module.exports = {
     }
   },
 
-};
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: 'composable-form - Build type-safe composable forms in Elm',
+      meta: { viewport: 'width=device-width, initial-scale=1' }
+    })
+  ]
+});

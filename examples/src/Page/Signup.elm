@@ -7,6 +7,7 @@ import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
 import Task
+import View
 
 
 type Model
@@ -18,6 +19,7 @@ type alias Values =
     { email : Value String
     , name : Value String
     , password : Value String
+    , repeatPassword : Value String
     , favoriteLanguage : Value String
     , acceptTerms : Value Bool
     }
@@ -34,6 +36,7 @@ init =
     { email = Value.blank
     , name = Value.blank
     , password = Value.blank
+    , repeatPassword = Value.blank
     , favoriteLanguage = Value.blank
     , acceptTerms = Value.blank
     }
@@ -81,10 +84,11 @@ view model =
         FillingForm formModel ->
             Html.div []
                 [ Html.h1 [] [ Html.text "Signup" ]
-                , Form.View.basic
+                , code
+                , Form.View.asHtml
                     { onChange = FormChanged
                     , action = "Sign up"
-                    , loadingMessage = "Loading..."
+                    , loading = "Loading..."
                     , validation = Form.View.ValidateOnSubmit
                     }
                     form
@@ -133,6 +137,27 @@ form =
                     , placeholder = "Your password"
                     }
                 }
+
+        repeatPasswordField =
+            Form.meta
+                (\values ->
+                    Form.passwordField
+                        { parser =
+                            \value ->
+                                if Just value == Value.raw values.password then
+                                    Ok ()
+                                else
+                                    Err "The passwords do not match"
+                        , value = .repeatPassword
+                        , update =
+                            \newValue values_ ->
+                                { values_ | repeatPassword = newValue }
+                        , attributes =
+                            { label = "Repeat password"
+                            , placeholder = "Your password again..."
+                            }
+                        }
+                )
 
         favoriteLanguageField =
             Form.selectField
@@ -186,9 +211,40 @@ form =
                 User.Other ->
                     "Other"
     in
-    Form.empty SignUp
+    Form.succeed
+        (\email name password favoriteLanguage _ ->
+            SignUp email name password favoriteLanguage
+        )
         |> Form.append emailField
         |> Form.append nameField
-        |> Form.append passwordField
+        |> Form.append
+            (Form.succeed (\password _ -> password)
+                |> Form.append passwordField
+                |> Form.append repeatPasswordField
+                |> Form.group
+            )
         |> Form.append favoriteLanguageField
-        |> Form.appendMeta acceptTermsCheckbox
+        |> Form.append acceptTermsCheckbox
+
+
+code : Html msg
+code =
+    View.code
+        [ { filename = "Signup.elm"
+          , path = "Signup.elm"
+          , code = """Form.succeed
+    (\\email name password favoriteLanguage _ ->
+        SignUp email name password favoriteLanguage
+    )
+    |> Form.append emailField
+    |> Form.append nameField
+    |> Form.append
+        (Form.succeed (\\password _ -> password)
+            |> Form.append passwordField
+            |> Form.append repeatPasswordField
+            |> Form.group
+        )
+    |> Form.append favoriteLanguageField
+    |> Form.append acceptTermsCheckbox"""
+          }
+        ]

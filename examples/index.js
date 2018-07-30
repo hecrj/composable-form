@@ -5,5 +5,5 @@ import './styles.scss'
 
 // Elm
 var Elm = require('Main.elm');
-var app = Elm.Elm.Main.fullscreen();
+var app = Elm.Elm.Main.init();
 

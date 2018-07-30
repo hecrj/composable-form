@@ -1,7 +1,12 @@
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+@import url('https://use.fontawesome.com/releases/v5.1.0/css/all.css');
+
+
 body {
   font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
   font-size: 16px;
   padding: 0;
+  padding-bottom: 1em;
 }
 
 header {
@@ -48,13 +53,13 @@ footer {
 }
 
 .wrapper {
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 2em;
 }
 
 h1 {
-  margin-bottom: 1em;
+  margin-bottom: 0.5em;
   font-weight: normal;
 }
 
@@ -66,10 +71,13 @@ form.elm-form, form.elm-form-multistage {
   display: flex;
   flex-direction: column;
 
-  > div:not(:last-child) {
+  > .elm-form-field:not(:last-child), > .elm-form-group:not(:last-child) {
+    margin-bottom: 1em;
+  }
+
+  .elm-form-field {
     display: flex;
     flex-direction: column;
-    margin-bottom: 1em;
 
     &.elm-form-field-error {
       color: red;
@@ -104,7 +112,9 @@ form.elm-form, form.elm-form-multistage {
     }
   }
 
-  input[type="text"], input[type="password"], input[type="email"], select, textarea {
+  input[type="text"], input[type="password"], input[type="email"], input[type="number"], select, textarea {
+    width: 100%;
+    box-sizing: border-box;
     padding: 0.8em;
     border: 1px solid #CCC;
     border-radius: 3px;
@@ -119,8 +129,49 @@ form.elm-form, form.elm-form-multistage {
     resize: vertical;
   }
 
+  .elm-form-range-field {
+    display: flex;
+    flex-direction: row;
+
+    > input {
+      flex-grow: 1;
+    }
+
+    > span {
+      margin-left: 1em;
+    }
+  }
+
+  > div.elm-form-group {
+    display: flex;
+    flex-direction: row;
+
+    > * {
+      flex-grow: 1;
+      flex-basis: 0;
+
+      &:not(:last-child) {
+        margin-right: 1em;
+      }
+    }
+  }
+
   .elm-form-error {
     color: red;
+  }
+
+  .custom-email-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    > *:not(:last-child) {
+      margin-right: 1em;
+    }
+
+    > .fa-check {
+      color: green;
+    }
   }
 
   button[type="submit"] {
@@ -168,4 +219,11 @@ ul {
   }
 
   margin-bottom: 1em;
+}
+
+pre {
+  font-size: 0.8em;
+  background-color: #FAFAFA;
+  padding: 1em;
+  overflow-x: auto;
 }

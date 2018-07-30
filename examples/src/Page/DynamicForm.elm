@@ -1,4 +1,4 @@
-module Page.ValueReusability exposing (Model, Msg, init, update, view)
+module Page.DynamicForm exposing (Model, Msg, init, update, view)
 
 import Data.Post as Post
 import Data.Question as Question
@@ -6,6 +6,7 @@ import Form exposing (Form)
 import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
+import View
 
 
 type alias Model =
@@ -13,7 +14,8 @@ type alias Model =
 
 
 type alias Values =
-    { title : Value String
+    { publicationType : Value String
+    , title : Value String
     , body : Value String
     }
 
@@ -26,7 +28,8 @@ type Msg
 
 init : Model
 init =
-    { title = Value.blank
+    { publicationType = Value.blank
+    , title = Value.blank
     , body = Value.blank
     }
         |> Form.View.idle
@@ -48,34 +51,67 @@ update msg model =
 view : Model -> Html Msg
 view model =
     Html.div []
-        [ Html.h1 [] [ Html.text "Value reusability" ]
-        , Html.p [] [ Html.text "The value for the body fields is reused in both forms with a single source of truth" ]
-        , Html.h2 [] [ Html.text "New Post" ]
-        , Form.View.basic
+        [ Html.h1 [] [ Html.text "Dynamic form" ]
+        , Html.p [] [ Html.text "A form that changes based on a field value." ]
+        , code
+        , Form.View.asHtml
             { onChange = FormChanged
-            , action = "New Post"
-            , loadingMessage = "Loading..."
+            , action = "New Publication"
+            , loading = "Loading..."
             , validation = Form.View.ValidateOnSubmit
             }
-            postForm
-            model
-        , Html.h2 [] [ Html.text "New Question" ]
-        , Form.View.basic
-            { onChange = FormChanged
-            , action = "New Question"
-            , loadingMessage = "Loading..."
-            , validation = Form.View.ValidateOnSubmit
-            }
-            questionForm
+            publicationForm
             model
         ]
+
+
+type PublicationType
+    = Post
+    | Question
+
+
+publicationForm : Form Values Msg
+publicationForm =
+    let
+        publicationTypeField =
+            Form.selectField
+                { parser =
+                    \value ->
+                        case value of
+                            "post" ->
+                                Ok Post
+
+                            "question" ->
+                                Ok Question
+
+                            _ ->
+                                Err "Invalid publication type"
+                , value = .publicationType
+                , update = \value values -> { values | publicationType = value }
+                , attributes =
+                    { label = "Type of publication"
+                    , placeholder = "Choose a type"
+                    , options = [ ( "post", "Post" ), ( "question", "Question" ) ]
+                    }
+                }
+    in
+    publicationTypeField
+        |> Form.andThen
+            (\publicationType ->
+                case publicationType of
+                    Post ->
+                        postForm
+
+                    Question ->
+                        questionForm
+            )
 
 
 postForm : Form Values Msg
 postForm =
     let
         bodyField =
-            Form.textAreaField
+            Form.textareaField
                 { parser = Post.parseBody
                 , value = .body
                 , update = \value values -> { values | body = value }
@@ -85,7 +121,7 @@ postForm =
                     }
                 }
     in
-    Form.empty NewPost
+    Form.succeed NewPost
         |> Form.append bodyField
 
 
@@ -104,7 +140,7 @@ questionForm =
                 }
 
         bodyField =
-            Form.textAreaField
+            Form.textareaField
                 { parser = Question.parseBody
                 , value = .body
                 , update = \value values -> { values | body = value }
@@ -114,6 +150,25 @@ questionForm =
                     }
                 }
     in
-    Form.empty NewQuestion
+    Form.succeed NewQuestion
         |> Form.append titleField
         |> Form.append (Form.optional bodyField)
+
+
+code : Html msg
+code =
+    View.code
+        [ { filename = "DynamicForm.elm"
+          , path = "DynamicForm.elm"
+          , code = """publicationTypeField
+    |> Form.andThen
+        (\\publicationType ->
+            case publicationType of
+                Post ->
+                    postForm
+
+                Question ->
+                    questionForm
+        )"""
+          }
+        ]

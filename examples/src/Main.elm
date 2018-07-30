@@ -1,96 +1,116 @@
 module Main exposing (main)
 
+import Browser.Navigation as Navigation
 import Html exposing (Html)
 import Html.Attributes as Attributes
-import Page.Composability.WithExtensibleRecords as Composability
+import Page.Composability.Simple as Composability
+import Page.CustomFields as CustomFields
+import Page.DynamicForm as DynamicForm
 import Page.Login as Login
 import Page.MultiStage as MultiStage
 import Page.Signup as Signup
 import Page.ValidationStrategies as ValidationStrategies
-import Page.ValueReusability as ValueReusability
 import Route exposing (Route)
+import View
 
 
 type alias Model =
-    Page
+    { page : Page
+    , key : Route.Key
+    }
 
 
 type Page
     = Home
     | Login Login.Model
     | Signup Signup.Model
-    | ValueReusability ValueReusability.Model
+    | DynamicForm DynamicForm.Model
     | ValidationStrategies ValidationStrategies.Model
     | Composability Composability.Model
     | MultiStage MultiStage.Model
+    | CustomFields CustomFields.Model
     | NotFound
 
 
 type Msg
     = RouteAccessed Route
     | Navigate Route
+    | LoadExternalUrl String
     | LoginMsg Login.Msg
     | SignupMsg Signup.Msg
-    | ValueReusabilityMsg ValueReusability.Msg
+    | DynamicFormMsg DynamicForm.Msg
     | ValidationStrategiesMsg ValidationStrategies.Msg
     | ComposabilityMsg Composability.Msg
     | MultiStageMsg MultiStage.Msg
+    | CustomFieldsMsg CustomFields.Msg
 
 
 main : Program () Model Msg
 main =
     Route.program
-        RouteAccessed
         { init = init
         , update = update
         , view = view
+        , onExternalUrlRequest = LoadExternalUrl
+        , onInternalUrlRequest = Navigate
+        , onUrlChange = RouteAccessed
         }
 
 
-init : Route -> ( Model, Cmd Msg )
-init route =
-    ( fromRoute route, Cmd.none )
+init : Route -> Route.Key -> ( Model, Cmd Msg )
+init route key =
+    ( { page = fromRoute route
+      , key = key
+      }
+    , Cmd.none
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         RouteAccessed route ->
-            ( fromRoute route, Cmd.none )
+            ( { model | page = fromRoute route }, Cmd.none )
 
         Navigate route ->
-            ( model, Route.navigate route )
+            ( model, Route.navigate model.key route )
+
+        LoadExternalUrl string ->
+            ( model, Navigation.load string )
 
         LoginMsg loginMsg ->
-            case model of
+            case model.page of
                 Login loginModel ->
-                    ( Login (Login.update loginMsg loginModel), Cmd.none )
+                    ( { model | page = Login (Login.update loginMsg loginModel) }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
 
         SignupMsg signupMsg ->
-            case model of
+            case model.page of
                 Signup signupModel ->
                     Signup.update signupMsg signupModel
                         |> Tuple.mapFirst Signup
+                        |> Tuple.mapFirst (\page -> { model | page = page })
                         |> Tuple.mapSecond (Cmd.map SignupMsg)
 
                 _ ->
                     ( model, Cmd.none )
 
-        ValueReusabilityMsg subMsg ->
-            case model of
-                ValueReusability subModel ->
-                    ( ValueReusability (ValueReusability.update subMsg subModel), Cmd.none )
+        DynamicFormMsg subMsg ->
+            case model.page of
+                DynamicForm subModel ->
+                    ( { model | page = DynamicForm (DynamicForm.update subMsg subModel) }
+                    , Cmd.none
+                    )
 
                 _ ->
                     ( model, Cmd.none )
 
         ValidationStrategiesMsg subMsg ->
-            case model of
+            case model.page of
                 ValidationStrategies subModel ->
-                    ( ValidationStrategies (ValidationStrategies.update subMsg subModel)
+                    ( { model | page = ValidationStrategies (ValidationStrategies.update subMsg subModel) }
                     , Cmd.none
                     )
 
@@ -98,19 +118,31 @@ update msg model =
                     ( model, Cmd.none )
 
         ComposabilityMsg subMsg ->
-            case model of
+            case model.page of
                 Composability subModel ->
-                    ( Composability (Composability.update subMsg subModel), Cmd.none )
+                    ( { model | page = Composability (Composability.update subMsg subModel) }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
 
         MultiStageMsg subMsg ->
-            case model of
+            case model.page of
                 MultiStage subModel ->
                     MultiStage.update subMsg subModel
                         |> Tuple.mapFirst MultiStage
+                        |> Tuple.mapFirst (\page -> { model | page = page })
                         |> Tuple.mapSecond (Cmd.map MultiStageMsg)
+
+                _ ->
+                    ( model, Cmd.none )
+
+        CustomFieldsMsg subMsg ->
+            case model.page of
+                CustomFields signupModel ->
+                    CustomFields.update subMsg signupModel
+                        |> Tuple.mapFirst CustomFields
+                        |> Tuple.mapFirst (\page -> { model | page = page })
+                        |> Tuple.mapSecond (Cmd.map CustomFieldsMsg)
 
                 _ ->
                     ( model, Cmd.none )
@@ -120,19 +152,17 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.header []
-            [ Html.h1 [] [ Html.text "elm-wip-form" ]
-            , Html.h2 [] [ Html.text "A WIP form API for Elm" ]
+            [ Html.h1 [] [ Html.text "composable-form" ]
+            , Html.h2 [] [ Html.text "Build type-safe composable forms in Elm" ]
             , Html.div []
                 [ Html.a (Route.href Navigate Route.Top)
                     [ Html.text "Examples" ]
-                , Html.a [ Attributes.href repositoryUrl ]
+                , Html.a [ Attributes.href View.repositoryUrl ]
                     [ Html.text "Repository" ]
-                , Html.a [ Attributes.href "https://discourse.elm-lang.org/t/a-form-api-idea-proposal/1121" ]
-                    [ Html.text "Discussion" ]
                 ]
             ]
         , Html.div [ Attributes.class "wrapper" ]
-            [ case model of
+            [ case model.page of
                 Home ->
                     viewHome
 
@@ -144,9 +174,9 @@ view model =
                     Signup.view signupModel
                         |> Html.map SignupMsg
 
-                ValueReusability subModel ->
-                    ValueReusability.view subModel
-                        |> Html.map ValueReusabilityMsg
+                DynamicForm subModel ->
+                    DynamicForm.view subModel
+                        |> Html.map DynamicFormMsg
 
                 ValidationStrategies subModel ->
                     ValidationStrategies.view subModel
@@ -160,20 +190,12 @@ view model =
                     MultiStage.view subModel
                         |> Html.map MultiStageMsg
 
+                CustomFields subModel ->
+                    CustomFields.view subModel
+                        |> Html.map CustomFieldsMsg
+
                 NotFound ->
                     Html.text "Not found"
-            ]
-        , Html.footer []
-            [ case pageCodeUri model of
-                Just uri ->
-                    Html.a
-                        [ Attributes.href (repositoryUrl ++ "/blob/master/examples/src/Page" ++ uri)
-                        , Attributes.target "_blank"
-                        ]
-                        [ Html.text "Code" ]
-
-                Nothing ->
-                    Html.text ""
             ]
         ]
 
@@ -194,8 +216,8 @@ fromRoute route =
         Route.Signup ->
             Signup Signup.init
 
-        Route.ValueReusability ->
-            ValueReusability ValueReusability.init
+        Route.DynamicForm ->
+            DynamicForm DynamicForm.init
 
         Route.ValidationStrategies ->
             ValidationStrategies ValidationStrategies.init
@@ -206,6 +228,9 @@ fromRoute route =
         Route.MultiStage ->
             MultiStage MultiStage.init
 
+        Route.CustomFields ->
+            CustomFields CustomFields.init
+
         Route.NotFound ->
             NotFound
 
@@ -214,26 +239,33 @@ viewHome : Html Msg
 viewHome =
     let
         examples =
-            [ ( "Login", Route.Login, "Shows a simple login form with 3 fields." )
+            [ ( "Login"
+              , Route.Login
+              , "A simple login form with 3 fields."
+              )
             , ( "Signup"
               , Route.Signup
-              , "Showcases a select field, a meta field and external form errors."
+              , "A select field and external form errors."
               )
-            , ( "Value reusability"
-              , Route.ValueReusability
-              , "Shows how field values are decoupled from any form, and how they can be reused with a single source of truth. It also showcases an optional field."
+            , ( "Dynamic form"
+              , Route.DynamicForm
+              , "A form that changes dynamically based on its own values."
               )
             , ( "Validation strategies"
               , Route.ValidationStrategies
-              , "Showcases two different validation strategies: validation on submit and validation on blur."
+              , "Two different validation strategies: validation on submit and validation on blur."
               )
             , ( "Composability"
               , Route.Composability
-              , "Shows an address form embedded in a bigger form."
+              , "An address form embedded in a bigger form."
               )
             , ( "Multiple stages"
               , Route.MultiStage
-              , "Showcases a form that is filled in multiple stages."
+              , "Custom form view that allows the user to fill a form in multiple stages."
+              )
+            , ( "Custom fields"
+              , Route.CustomFields
+              , "An example that showcases how custom fields can be implemented to suit your needs."
               )
             ]
 
@@ -248,36 +280,3 @@ viewHome =
         , Html.ul []
             (List.map toItem examples)
         ]
-
-
-repositoryUrl : String
-repositoryUrl =
-    "https://github.com/hecrj/elm-wip-form"
-
-
-pageCodeUri : Page -> Maybe String
-pageCodeUri page =
-    case page of
-        Home ->
-            Nothing
-
-        Login _ ->
-            Just "/Login.elm"
-
-        Signup _ ->
-            Just "/Signup.elm"
-
-        ValueReusability _ ->
-            Just "/ValueReusability.elm"
-
-        ValidationStrategies _ ->
-            Just "/ValidationStrategies.elm"
-
-        Composability _ ->
-            Just "/Composability/"
-
-        MultiStage _ ->
-            Just "/MultiStage.elm"
-
-        NotFound ->
-            Nothing
