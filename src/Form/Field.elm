@@ -9,7 +9,7 @@ module Form.Field
 **Note:** You should not need to care about this unless you are creating your own
 custom fields or writing custom view code.
 
-@docs Field
+@docs Field, mapValues
 
 -}
 
@@ -73,6 +73,11 @@ type alias Field attributes value values =
     }
 
 
+{-| Transform the `values` of a `Field`.
+
+It can be useful to build your own [`Form.mapValues`](Form#mapValues) function.
+
+-}
 mapValues : (a -> b) -> Field attributes value a -> Field attributes value b
 mapValues fn { value, update, attributes } =
     { value = value

@@ -4,7 +4,6 @@ module Form.Value
         , blank
         , filled
         , raw
-        , update
         )
 
 {-| This module contains a value type for your form fields.
@@ -23,16 +22,6 @@ module Form.Value
 # Queries
 
 @docs raw
-
-
-# Updates
-
-@docs update
-
-
-# Comparisons
-
-@docs newest
 
 -}
 
@@ -101,18 +90,3 @@ raw value =
 
         Filled v ->
             Just v
-
-
-
--- Update
-
-
-{-| Update a value with new data.
-
-**Note:** You should not need to care about this unless you are creating your own
-custom fields.
-
--}
-update : a -> Value a -> Value a
-update v value =
-    Filled v

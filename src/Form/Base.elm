@@ -179,9 +179,7 @@ field { isEmpty } build config =
                     config.value values
 
                 update newValue =
-                    value
-                        |> Value.update newValue
-                        |> (\value_ -> config.update value_ values)
+                    config.update (Value.filled newValue) values
             in
             build
                 { value = value
