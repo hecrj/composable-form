@@ -182,6 +182,20 @@ type alias CustomConfig msg element =
     , radioField : RadioFieldConfig msg -> element
     , selectField : SelectFieldConfig msg -> element
     , group : List element -> element
+    , variable : VariableFormConfig msg element -> element
+    , variableFormItem : VariableFormItemConfig msg element -> element
+    }
+
+
+type alias VariableFormConfig msg element =
+    { forms : List element
+    , add : { action : () -> msg, label : String }
+    }
+
+
+type alias VariableFormItemConfig msg element =
+    { fields : List element
+    , delete : { action : () -> msg, label : String }
     }
 
 
@@ -528,6 +542,20 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
         Form.Group fields ->
             customConfig.group (List.map (renderField customConfig fieldConfig) fields)
 
+        Form.Variable { forms, add, attributes } ->
+            customConfig.variable
+                { forms =
+                    List.map
+                        (\{ fields, delete } ->
+                            customConfig.variableFormItem
+                                { fields = List.map (renderField customConfig fieldConfig) fields
+                                , delete = { action = delete >> onChange, label = attributes.delete }
+                                }
+                        )
+                        forms
+                , add = { action = add >> onChange, label = attributes.add }
+                }
+
 
 
 -- Basic HTML
@@ -583,7 +611,41 @@ asHtml =
         , radioField = radioField
         , selectField = selectField
         , group = group
+        , variable = variable
+        , variableFormItem = variableFormItem
         }
+
+
+variable : VariableFormConfig msg (Html msg) -> Html msg
+variable { forms, add } =
+    Html.div [ Attributes.class "elm-form-variable" ]
+        (forms
+            ++ [ Html.button
+                    [ Events.onClick add.action
+                    , Attributes.type_ "button"
+                    ]
+                    [ Html.i [ Attributes.class "fas fa-plus" ] []
+                    , Html.text add.label
+                    ]
+                    |> Html.map (\f -> f ())
+               ]
+        )
+
+
+variableFormItem : VariableFormItemConfig msg (Html msg) -> Html msg
+variableFormItem { fields, delete } =
+    Html.div [ Attributes.class "elm-form-variable-item" ]
+        ((Html.button
+            [ Events.onClick delete.action
+            , Attributes.type_ "button"
+            ]
+            [ Html.text delete.label
+            , Html.i [ Attributes.class "fas fa-times" ] []
+            ]
+            |> Html.map (\f -> f ())
+         )
+            :: fields
+        )
 
 
 form : FormConfig msg (Html msg) -> Html msg

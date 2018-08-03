@@ -317,6 +317,9 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
         Form.Group fields ->
             group (List.map (renderField fieldConfig) fields)
 
+        Form.Variable _ ->
+            Html.text ""
+
 
 inputField : String -> View.TextFieldConfig msg -> Html msg
 inputField type_ { onChange, onBlur, disabled, value, error, showError, attributes } =

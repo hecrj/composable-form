@@ -9,6 +9,7 @@ import Page.Login as Login
 import Page.MultiStage as MultiStage
 import Page.Signup as Signup
 import Page.ValidationStrategies as ValidationStrategies
+import Page.VariableForm as VariableForm
 import Route exposing (Route)
 import View
 
@@ -22,6 +23,7 @@ type Page
     | Login Login.Model
     | Signup Signup.Model
     | DynamicForm DynamicForm.Model
+    | VariableForm VariableForm.Model
     | ValidationStrategies ValidationStrategies.Model
     | Composability Composability.Model
     | MultiStage MultiStage.Model
@@ -35,6 +37,7 @@ type Msg
     | LoginMsg Login.Msg
     | SignupMsg Signup.Msg
     | DynamicFormMsg DynamicForm.Msg
+    | VariableFormMsg VariableForm.Msg
     | ValidationStrategiesMsg ValidationStrategies.Msg
     | ComposabilityMsg Composability.Msg
     | MultiStageMsg MultiStage.Msg
@@ -87,6 +90,14 @@ update msg model =
             case model of
                 DynamicForm subModel ->
                     ( DynamicForm (DynamicForm.update subMsg subModel), Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        VariableFormMsg subMsg ->
+            case model of
+                VariableForm subModel ->
+                    ( VariableForm (VariableForm.update subMsg subModel), Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -160,6 +171,10 @@ view model =
                     DynamicForm.view subModel
                         |> Html.map DynamicFormMsg
 
+                VariableForm subModel ->
+                    VariableForm.view subModel
+                        |> Html.map VariableFormMsg
+
                 ValidationStrategies subModel ->
                     ValidationStrategies.view subModel
                         |> Html.map ValidationStrategiesMsg
@@ -201,6 +216,9 @@ fromRoute route =
         Route.DynamicForm ->
             DynamicForm DynamicForm.init
 
+        Route.VariableForm ->
+            VariableForm VariableForm.init
+
         Route.ValidationStrategies ->
             ValidationStrategies ValidationStrategies.init
 
@@ -232,6 +250,10 @@ viewHome =
             , ( "Dynamic form"
               , Route.DynamicForm
               , "A form that changes dynamically based on its own values."
+              )
+            , ( "Variable form"
+              , Route.VariableForm
+              , "A form with a variable number of fields that can be added and deleted."
               )
             , ( "Validation strategies"
               , Route.ValidationStrategies

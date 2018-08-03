@@ -21,6 +21,7 @@ module Form
         , succeed
         , textField
         , textareaField
+        , variable
         )
 
 {-| Build [composable forms](#Form) comprised of [fields](#fields).
@@ -44,7 +45,7 @@ field. You might then be wondering: "How do I create a `Form` with multiple fiel
 Well, as the name of this package says: `Form` is composable! This section explains how you
 can combine different forms into bigger and more complex ones.
 
-@docs succeed, append, optional, group, andThen, meta
+@docs succeed, append, optional, group, andThen, meta, variable
 
 
 # Mapping
@@ -71,6 +72,7 @@ import Form.Base.RadioField as RadioField exposing (RadioField)
 import Form.Base.RangeField as RangeField exposing (RangeField)
 import Form.Base.SelectField as SelectField exposing (SelectField)
 import Form.Base.TextField as TextField exposing (TextField)
+import Form.Base.VariableForm as VariableForm exposing (VariableForm)
 import Form.Error exposing (Error)
 import Form.Value exposing (Value)
 
@@ -536,6 +538,28 @@ meta =
     Base.meta
 
 
+{-| -}
+variable : VariableForm.Config values subValues -> Form subValues output -> Form values (List output)
+variable config subform =
+    let
+        subformForIndex update subValues values =
+            let
+                filledSubform =
+                    fill subform subValues
+            in
+            { fields =
+                List.map
+                    (\( field, error ) ->
+                        ( mapFieldValues update values field, error )
+                    )
+                    filledSubform.fields
+            , result = filledSubform.result
+            , isEmpty = filledSubform.isEmpty
+            }
+    in
+    VariableForm.form Variable config subformForIndex
+
+
 
 -- Mapping
 
@@ -582,37 +606,58 @@ mapValues : { value : a -> b, update : b -> a -> a } -> Form b output -> Form a 
 mapValues { value, update } form =
     Base.meta
         (\values ->
-            let
-                mapField field =
-                    case field of
-                        Text textType field ->
-                            Text textType { field | update = mapUpdate field.update }
-
-                        Number field ->
-                            Number { field | update = mapUpdate field.update }
-
-                        Range field ->
-                            Range { field | update = mapUpdate field.update }
-
-                        Checkbox field ->
-                            Checkbox { field | update = mapUpdate field.update }
-
-                        Radio field ->
-                            Radio { field | update = mapUpdate field.update }
-
-                        Select field ->
-                            Select { field | update = mapUpdate field.update }
-
-                        Group fields ->
-                            Group (List.map (\( field, error ) -> ( mapField field, error )) fields)
-
-                mapUpdate fn value =
-                    update (fn value) values
-            in
             form
                 |> Base.mapValues value
-                |> Base.mapField mapField
+                |> Base.mapField (mapFieldValues update values)
         )
+
+
+mapFieldValues : (a -> b -> b) -> b -> Field a -> Field b
+mapFieldValues update values field =
+    let
+        mapUpdate fn value =
+            update (fn value) values
+    in
+    case field of
+        Text textType field ->
+            Text textType { field | update = mapUpdate field.update }
+
+        Number field ->
+            Number { field | update = mapUpdate field.update }
+
+        Range field ->
+            Range { field | update = mapUpdate field.update }
+
+        Checkbox field ->
+            Checkbox { field | update = mapUpdate field.update }
+
+        Radio field ->
+            Radio { field | update = mapUpdate field.update }
+
+        Select field ->
+            Select { field | update = mapUpdate field.update }
+
+        Group fields ->
+            Group (List.map (\( field, error ) -> ( mapFieldValues update values field, error )) fields)
+
+        Variable { forms, add, attributes } ->
+            Variable
+                { forms =
+                    List.map
+                        (\{ fields, delete } ->
+                            { fields =
+                                List.map
+                                    (\( field, error ) ->
+                                        ( mapFieldValues update values field, error )
+                                    )
+                                    fields
+                            , delete = \_ -> update (delete ()) values
+                            }
+                        )
+                        forms
+                , add = \_ -> update (add ()) values
+                , attributes = attributes
+                }
 
 
 
@@ -633,6 +678,7 @@ type Field values
     | Radio (RadioField values)
     | Select (SelectField values)
     | Group (List ( Field values, Maybe Error ))
+    | Variable (VariableForm values (Field values))
 
 
 {-| Represents a type of text field

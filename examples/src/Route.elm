@@ -20,6 +20,7 @@ type Route
     | Login
     | Signup
     | DynamicForm
+    | VariableForm
     | ValidationStrategies
     | Composability
     | MultiStage
@@ -34,6 +35,7 @@ parser =
         , map Login (s "login")
         , map Signup (s "signup")
         , map DynamicForm (s "dynamic-form")
+        , map VariableForm (s "variable-form")
         , map ValidationStrategies (s "validation-strategies")
         , map Composability (s "composability")
         , map MultiStage (s "multi-stage")
@@ -107,6 +109,9 @@ toString route =
 
                 DynamicForm ->
                     [ "dynamic-form" ]
+
+                VariableForm ->
+                    [ "variable-form" ]
 
                 ValidationStrategies ->
                     [ "validation-strategies" ]
