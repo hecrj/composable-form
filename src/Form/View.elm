@@ -242,7 +242,7 @@ type alias NumberFieldConfig msg =
     , value : Maybe Float
     , error : Maybe Error
     , showError : Bool
-    , attributes : NumberField.Attributes
+    , attributes : NumberField.Attributes Float
     }
 
 
@@ -261,7 +261,7 @@ type alias RangeFieldConfig msg =
     , value : Maybe Float
     , error : Maybe Error
     , showError : Bool
-    , attributes : RangeField.Attributes
+    , attributes : RangeField.Attributes Float
     }
 
 

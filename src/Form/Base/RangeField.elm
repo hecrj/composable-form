@@ -30,8 +30,8 @@ import Form.Value as Value
 custom fields or writing custom view code.
 
 -}
-type alias RangeField values =
-    Field Attributes Float values
+type alias RangeField number values =
+    Field (Attributes number) number values
 
 
 {-| The attributes of a RangeField.
@@ -43,11 +43,11 @@ You need to provide these to:
 [rangeField]: Form#rangeField
 
 -}
-type alias Attributes =
+type alias Attributes number =
     { label : String
-    , step : Float
-    , min : Maybe Float
-    , max : Maybe Float
+    , step : number
+    , min : Maybe number
+    , max : Maybe number
     }
 
 
@@ -58,8 +58,8 @@ custom fields.
 
 -}
 form :
-    (RangeField values -> field)
-    -> Base.FieldConfig Attributes Float values output
+    (RangeField number values -> field)
+    -> Base.FieldConfig (Attributes number) number values output
     -> Base.Form values output field
 form build { parser, value, update, attributes } =
     let

@@ -29,8 +29,8 @@ import Form.Field exposing (Field)
 custom fields or writing custom view code.
 
 -}
-type alias NumberField values =
-    Field Attributes Float values
+type alias NumberField number values =
+    Field (Attributes number) number values
 
 
 {-| The attributes of a NumberField.
@@ -42,12 +42,12 @@ You need to provide these to:
 [numberField]: Form#numberField
 
 -}
-type alias Attributes =
+type alias Attributes number =
     { label : String
     , placeholder : String
-    , step : Float
-    , min : Maybe Float
-    , max : Maybe Float
+    , step : number
+    , min : Maybe number
+    , max : Maybe number
     }
 
 
@@ -58,8 +58,8 @@ custom fields.
 
 -}
 form :
-    (NumberField values -> field)
-    -> Base.FieldConfig Attributes Float values output
+    (NumberField number values -> field)
+    -> Base.FieldConfig (Attributes number) number values output
     -> Base.Form values output field
 form =
     Base.field { isEmpty = always False }

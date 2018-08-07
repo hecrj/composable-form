@@ -225,7 +225,7 @@ numberField :
     { parser : Float -> Result String output
     , value : values -> Value Float
     , update : Value Float -> values -> values
-    , attributes : NumberField.Attributes
+    , attributes : NumberField.Attributes Float
     }
     -> Form values output
 numberField =
@@ -244,7 +244,7 @@ rangeField :
     { parser : Float -> Result String output
     , value : values -> Value Float
     , update : Value Float -> values -> values
-    , attributes : RangeField.Attributes
+    , attributes : RangeField.Attributes Float
     }
     -> Form values output
 rangeField =
@@ -627,8 +627,8 @@ using the result of [`fill`](#fill).
 -}
 type Field values
     = Text TextType (TextField values)
-    | Number (NumberField values)
-    | Range (RangeField values)
+    | Number (NumberField Float values)
+    | Range (RangeField Float values)
     | Checkbox (CheckboxField values)
     | Radio (RadioField values)
     | Select (SelectField values)
