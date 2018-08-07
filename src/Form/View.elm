@@ -229,6 +229,7 @@ type alias TextFieldConfig msg =
 
 {-| Describes how a number field should be rendered.
 
+  - `onChange` accepts a `Maybe` so the field value can be cleared.
   - `value` will be `Nothing` if the field is blank or `Just` a `Float`.
   - `attributes` are [`NumberField.Attributes`](Form-Base-NumberField#Attributes).
 
@@ -248,6 +249,7 @@ type alias NumberFieldConfig msg =
 
 {-| Describes how a range field should be rendered.
 
+  - `onChange` accepts a `Maybe` so the field value can be cleared.
   - `value` will be `Nothing` if the field is blank or `Just` a `Float`.
   - `attributes` are [`RangeField.Attributes`](Form-Base-RangeField#Attributes).
 
