@@ -51,7 +51,7 @@ update :
 update validate msg ((State value validationState) as state) =
     case msg of
         InputChanged input ->
-            ( State (Value.update input value) NotValidated
+            ( State (Value.update (Just input) value) NotValidated
             , Process.sleep (1 * Time.second)
                 |> Task.perform (always (ValidateAfterChange input))
             )

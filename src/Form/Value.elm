@@ -114,9 +114,15 @@ raw value =
 custom fields.
 
 -}
-update : a -> Value a -> Value a
-update v value =
-    Filled (version value + 1) v
+update : Maybe a -> Value a -> Value a
+update maybeRawValue value =
+    let
+        nextVersion =
+            version value + 1
+    in
+    maybeRawValue
+        |> Maybe.map (Filled nextVersion)
+        |> Maybe.withDefault (Blank nextVersion)
 
 
 

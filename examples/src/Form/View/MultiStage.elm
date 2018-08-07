@@ -234,7 +234,7 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
         Form.Text type_ { attributes, value, update } ->
             let
                 config =
-                    { onChange = update >> onChange
+                    { onChange = Just >> update >> onChange
                     , onBlur = blurWhenNotBlank value attributes.label
                     , disabled = disabled
                     , value = Value.raw value |> Maybe.withDefault ""
@@ -283,7 +283,7 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
 
         Form.Checkbox { attributes, value, update } ->
             checkboxField
-                { onChange = update >> onChange
+                { onChange = Just >> update >> onChange
                 , onBlur = blurWhenNotBlank value attributes.label
                 , disabled = disabled
                 , value = Value.raw value |> Maybe.withDefault False
@@ -294,7 +294,7 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
 
         Form.Radio { attributes, value, update } ->
             radioField
-                { onChange = update >> onChange
+                { onChange = Just >> update >> onChange
                 , onBlur = blurWhenNotBlank value attributes.label
                 , disabled = disabled
                 , value = Value.raw value |> Maybe.withDefault ""
@@ -305,7 +305,7 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
 
         Form.Select { attributes, value, update } ->
             selectField
-                { onChange = update >> onChange
+                { onChange = Just >> update >> onChange
                 , onBlur = blurWhenNotBlank value attributes.label
                 , disabled = disabled
                 , value = Value.raw value |> Maybe.withDefault ""
@@ -348,15 +348,8 @@ textareaField { onChange, onBlur, disabled, value, error, showError, attributes 
 
 numberField : View.NumberFieldConfig msg -> Html msg
 numberField { onChange, onBlur, disabled, value, error, showError, attributes } =
-    let
-        safeOnChange =
-            String.toFloat
-                >> Result.toMaybe
-                >> Maybe.map onChange
-                >> Maybe.withDefault (onChange (Maybe.withDefault 0 value))
-    in
     Html.input
-        ([ Events.onInput safeOnChange
+        ([ Events.onInput (fromString String.toFloat value >> onChange)
          , Attributes.disabled disabled
          , Attributes.value (value |> Maybe.map toString |> Maybe.withDefault "")
          , Attributes.placeholder attributes.placeholder
@@ -373,15 +366,8 @@ numberField { onChange, onBlur, disabled, value, error, showError, attributes } 
 
 rangeField : View.RangeFieldConfig msg -> Html msg
 rangeField { onChange, onBlur, disabled, value, error, showError, attributes } =
-    let
-        safeOnChange =
-            String.toFloat
-                >> Result.toMaybe
-                >> Maybe.map onChange
-                >> Maybe.withDefault (onChange (Maybe.withDefault 0 value))
-    in
     Html.input
-        ([ Events.onInput safeOnChange
+        ([ Events.onInput (fromString String.toFloat value >> onChange)
          , Attributes.disabled disabled
          , Attributes.value (value |> Maybe.map toString |> Maybe.withDefault "")
          , Attributes.type_ "range"
@@ -523,3 +509,14 @@ withMaybeAttribute : (a -> Html.Attribute msg) -> Maybe a -> List (Html.Attribut
 withMaybeAttribute toAttribute maybeValue attrs =
     Maybe.map (toAttribute >> flip (::) attrs) maybeValue
         |> Maybe.withDefault attrs
+
+
+fromString : (String -> Result err a) -> Maybe a -> String -> Maybe a
+fromString parse currentValue input =
+    if String.isEmpty input then
+        Nothing
+    else
+        parse input
+            |> Result.toMaybe
+            |> Maybe.map Just
+            |> Maybe.withDefault currentValue

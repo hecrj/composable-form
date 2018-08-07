@@ -64,6 +64,6 @@ attributes. For example, you could render a `TextField` like this:
 -}
 type alias Field attributes value values =
     { value : Value value
-    , update : value -> values
+    , update : Maybe value -> values
     , attributes : attributes
     }
