@@ -3,6 +3,7 @@ module Form.Value
         ( Value
         , blank
         , filled
+        , map
         , newest
         , raw
         , update
@@ -29,6 +30,11 @@ module Form.Value
 # Updates
 
 @docs update
+
+
+# Mappings
+
+@docs map
 
 
 # Comparisons
@@ -123,6 +129,42 @@ update maybeRawValue value =
     maybeRawValue
         |> Maybe.map (Filled nextVersion)
         |> Maybe.withDefault (Blank nextVersion)
+
+
+
+-- Mapping
+
+
+{-| Transform a value.
+
+For instance, this can be useful if you want to use a
+[`Form.numberField`](Form#numberField) with a `Value Int` instead
+of `Value Float`:
+
+    numberOfApples : Form { r | number : Value Int } Int
+    numberOfApples : Form { r | number : Value Int } Int
+    numberOfApples =
+        Form.numberField
+            { parser = round >> Ok
+            , value = .number >> Value.map toFloat
+            , update =
+                \value values ->
+                    { values | number = Value.map round value }
+            , attributes =
+                { label = "How many apples do you have?"
+                , placeholder = "Type a number"
+                , step = 1
+                , min = Just 0
+                , max = Nothing
+                }
+            }
+
+-}
+map : (a -> b) -> Value a -> Value b
+map fn value =
+    raw value
+        |> Maybe.map (fn >> Filled (version value))
+        |> Maybe.withDefault (Blank (version value))
 
 
 
