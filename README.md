@@ -84,7 +84,7 @@ Try out the [live demo](https://hecrj.github.io/composable-form) and/or
 
 ## Contributing / Feedback
 
-Feel free to fork and open issues or pull requests. You can also contact me (@hecrj) on the
-[Elm Slack][elm-slack].
+Feel free to fork and open issues or pull requests. You can also come to chat in
+the #forms channel on the [Elm Slack][elm-slack], feel free to contact me (@hecrj) there!
 
 [elm-slack]: https://elmlang.herokuapp.com
