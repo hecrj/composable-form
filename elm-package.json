@@ -1,5 +1,5 @@
 {
-    "version": "3.0.0",
+    "version": "3.0.1",
     "summary": "Build type-safe composable forms in Elm",
     "repository": "https://github.com/hecrj/composable-form.git",
     "license": "BSD3",

@@ -142,7 +142,6 @@ For instance, this can be useful if you want to use a
 of `Value Float`:
 
     numberOfApples : Form { r | number : Value Int } Int
-    numberOfApples : Form { r | number : Value Int } Int
     numberOfApples =
         Form.numberField
             { parser = round >> Ok

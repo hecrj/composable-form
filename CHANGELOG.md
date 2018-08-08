@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.0.1] - 2018-08-08
+### Changed
+- Fix CHANGELOG release links
+- Fix `Value.map` documentation example
+- Fix `stylish-elephants` custom renderer to work with `3.0.0`
+
 ## [3.0.0] - 2018-08-08
 ### Added
 - `Value.map` to transform value types.
@@ -67,7 +73,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/hecrj/composable-form/compare/3.0.0...HEAD
+[Unreleased]: https://github.com/hecrj/composable-form/compare/3.0.1...HEAD
+[3.0.1]: https://github.com/hecrj/composable-form/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/hecrj/composable-form/compare/2.2.3...3.0.0
 [2.2.3]: https://github.com/hecrj/composable-form/compare/2.2.2...2.2.3
 [2.2.2]: https://github.com/hecrj/composable-form/compare/2.2.1...2.2.2
