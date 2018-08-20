@@ -3,6 +3,7 @@ module Form.Value
         ( Value
         , blank
         , filled
+        , map
         , raw
         )
 
@@ -22,6 +23,11 @@ module Form.Value
 # Queries
 
 @docs raw
+
+
+# Mappings
+
+@docs map
 
 -}
 
@@ -90,3 +96,38 @@ raw value =
 
         Filled v ->
             Just v
+
+
+
+-- Mapping
+
+
+{-| Transform a value.
+
+For instance, this can be useful if you want to use a
+[`Form.numberField`](Form#numberField) with a `Value Int` instead
+of `Value Float`:
+
+    numberOfApples : Form { r | number : Value Int } Int
+    numberOfApples =
+        Form.numberField
+            { parser = round >> Ok
+            , value = .number >> Value.map toFloat
+            , update =
+                \value values ->
+                    { values | number = Value.map round value }
+            , attributes =
+                { label = "How many apples do you have?"
+                , placeholder = "Type a number"
+                , step = 1
+                , min = Just 0
+                , max = Nothing
+                }
+            }
+
+-}
+map : (a -> b) -> Value a -> Value b
+map fn value =
+    raw value
+        |> Maybe.map (fn >> Filled)
+        |> Maybe.withDefault Blank

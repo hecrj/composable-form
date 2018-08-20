@@ -81,8 +81,12 @@ field =
                     fill value
                         |> withField
                             (\field_ ->
-                                field_.update newValue
-                                    |> Expect.equal (Value.update newValue value)
+                                field_.update (Just newValue)
+                                    |> Expect.equal
+                                        (Value.update
+                                            (Just newValue)
+                                            value
+                                        )
                             )
             , test "builds the field with its attributes" <|
                 \_ ->

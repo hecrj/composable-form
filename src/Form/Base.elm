@@ -179,7 +179,12 @@ field { isEmpty } build config =
                     config.value values
 
                 update newValue =
-                    config.update (Value.filled newValue) values
+                    config.update
+                        (newValue
+                            |> Maybe.map Value.filled
+                            |> Maybe.withDefault Value.blank
+                        )
+                        values
             in
             build
                 { value = value
