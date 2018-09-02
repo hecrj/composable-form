@@ -53,7 +53,7 @@ attributes. For example, you could render a `TextField` like this:
                             |> Value.raw
                             |> Maybe.withDefault ""
                         )
-                    , Attributes.onInput (update >> onChange)
+                    , Attributes.onInput (Just >> update >> onChange)
                     , Attributes.placeholder attributes.placeholder
                     ]
                     []

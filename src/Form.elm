@@ -334,11 +334,11 @@ For instance, we could build a signup form:
             }
             ( EmailAddress, Password )
     signupForm =
-        Form.succeed (,)
+        Form.succeed Tuple.pair
             |> Form.append signupEmailField
             |> Form.append signupPasswordField
 
-In this pipeline, `append` is being used to feed the `(,)` function and combine two forms
+In this pipeline, `append` is being used to feed the `Tuple.pair` function and combine two forms
 into a bigger form that outputs `( EmailAddress, Password )` when submitted.
 
 **Note:** You can use [`succeed`](#succeed) smartly to **skip** some values.
