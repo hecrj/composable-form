@@ -1,9 +1,7 @@
-module Form.Base.CheckboxField
-    exposing
-        ( Attributes
-        , CheckboxField
-        , form
-        )
+module Form.Base.CheckboxField exposing
+    ( CheckboxField, Attributes
+    , form
+    )
 
 {-| This module contains a reusable `CheckboxField` type.
 

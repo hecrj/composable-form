@@ -169,6 +169,7 @@ favoriteLanguageField =
                     (\lang ->
                         if lang == User.Javascript then
                             Err "You didn't choose right :/"
+
                         else
                             Ok lang
                     )

@@ -1,9 +1,7 @@
-module Form.Base.RadioField
-    exposing
-        ( Attributes
-        , RadioField
-        , form
-        )
+module Form.Base.RadioField exposing
+    ( RadioField, Attributes
+    , form
+    )
 
 {-| This module contains a reusable `RadioField` type.
 

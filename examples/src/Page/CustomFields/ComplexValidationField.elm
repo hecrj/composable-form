@@ -1,14 +1,13 @@
-module Page.CustomFields.ComplexValidationField
-    exposing
-        ( Msg(..)
-        , State
-        , ValidationState(..)
-        , blank
-        , result
-        , update
-        , validationState
-        , value
-        )
+module Page.CustomFields.ComplexValidationField exposing
+    ( Msg(..)
+    , State
+    , ValidationState(..)
+    , blank
+    , result
+    , update
+    , validationState
+    , value
+    )
 
 import Form.Error as Error exposing (Error)
 import Form.Value as Value exposing (Value)
@@ -58,6 +57,7 @@ update validate msg ((State value_ validationState_) as state) =
         ValidateAfterChange old ->
             if Value.raw value_ == Just old then
                 performValidation validate state
+
             else
                 ( state, Cmd.none )
 
@@ -66,6 +66,7 @@ update validate msg ((State value_ validationState_) as state) =
                 ( State value_ (Validated value_ (Result.mapError Error.ValidationFailed result_))
                 , Cmd.none
                 )
+
             else
                 ( state, Cmd.none )
 
@@ -88,6 +89,7 @@ performValidation validate (State value_ validationState_) =
         ( State value_ validationState_
         , Cmd.none
         )
+
     else
         case Value.raw value_ of
             Just input ->

@@ -1,9 +1,7 @@
-module Form.Base.RangeField
-    exposing
-        ( Attributes
-        , RangeField
-        , form
-        )
+module Form.Base.RangeField exposing
+    ( RangeField, Attributes
+    , form
+    )
 
 {-| This module contains a reusable `RangeField` type.
 

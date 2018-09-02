@@ -1,11 +1,9 @@
-module Form.Value
-    exposing
-        ( Value
-        , blank
-        , filled
-        , map
-        , raw
-        )
+module Form.Value exposing
+    ( Value
+    , blank, filled
+    , raw
+    , map
+    )
 
 {-| This module contains a value type for your form fields.
 

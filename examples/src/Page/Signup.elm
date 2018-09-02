@@ -146,6 +146,7 @@ form =
                             \value ->
                                 if Just value == Value.raw values.password then
                                     Ok ()
+
                                 else
                                     Err "The passwords do not match"
                         , value = .repeatPassword
@@ -167,6 +168,7 @@ form =
                             (\lang ->
                                 if lang == User.Javascript then
                                     Err "You didn't choose right :/"
+
                                 else
                                     Ok lang
                             )
@@ -192,6 +194,7 @@ form =
                     \value ->
                         if value then
                             Ok ()
+
                         else
                             Err "You must accept the terms"
                 , value = .acceptTerms

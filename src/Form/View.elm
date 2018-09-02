@@ -1,21 +1,10 @@
-module Form.View
-    exposing
-        ( CheckboxFieldConfig
-        , CustomConfig
-        , FormConfig
-        , Model
-        , NumberFieldConfig
-        , RadioFieldConfig
-        , RangeFieldConfig
-        , SelectFieldConfig
-        , State(..)
-        , TextFieldConfig
-        , Validation(..)
-        , ViewConfig
-        , asHtml
-        , custom
-        , idle
-        )
+module Form.View exposing
+    ( Model, State(..), idle
+    , ViewConfig, Validation(..)
+    , asHtml
+    , custom, CustomConfig, FormConfig, TextFieldConfig, NumberFieldConfig, RangeFieldConfig
+    , CheckboxFieldConfig, RadioFieldConfig, SelectFieldConfig
+    )
 
 {-| This module provides helpers to render a [`Form`](Form#Form).
 
@@ -370,12 +359,14 @@ custom config { onChange, action, loading, validation } form_ model =
                 Ok msg ->
                     if model.state == Loading then
                         Nothing
+
                     else
                         Just msg
 
                 Err _ ->
                     if errorTracking.showAllErrors then
                         Nothing
+
                     else
                         Just
                             (onChange
@@ -440,6 +431,7 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
         blurWhenNotBlank value label =
             if Value.raw value == Nothing then
                 Nothing
+
             else
                 Maybe.map (\onBlurEvent -> onBlurEvent label) onBlur
     in
@@ -611,6 +603,7 @@ form { onSubmit, action, loading, state, fields } =
                     ]
                     [ if state == Loading then
                         Html.text loading
+
                       else
                         Html.text action
                     ]
@@ -791,6 +784,7 @@ maybeErrorMessage showError maybeError =
             |> Maybe.map errorToString
             |> Maybe.map errorMessage
             |> Maybe.withDefault (Html.text "")
+
     else
         Html.text ""
 
@@ -820,6 +814,7 @@ fromString : (String -> Maybe a) -> Maybe a -> String -> Maybe a
 fromString parse currentValue input =
     if String.isEmpty input then
         Nothing
+
     else
         parse input
             |> Maybe.map Just

@@ -81,6 +81,7 @@ form { onSubmit, action, loading, state, fields } =
                 (button.shape
                     ++ (if onSubmit == Nothing then
                             button.disabledColors
+
                         else
                             button.enabledColors
                        )
@@ -89,6 +90,7 @@ form { onSubmit, action, loading, state, fields } =
                 , label =
                     if state == Loading then
                         text loading
+
                     else
                         text action
                 }
@@ -314,6 +316,7 @@ maybeOnChange : Bool -> msg -> Maybe msg
 maybeOnChange disabled onChange =
     if disabled then
         Nothing
+
     else
         Just onChange
 
@@ -322,6 +325,7 @@ fromString : (String -> Result err a) -> Maybe a -> String -> Maybe a
 fromString parse currentValue input =
     if String.isEmpty input then
         Nothing
+
     else
         parse input
             |> Result.toMaybe
@@ -354,6 +358,7 @@ when : Bool -> Attribute msg -> List (Attribute msg) -> List (Attribute msg)
 when test attr attrs =
     if test then
         attr :: attrs
+
     else
         attrs
 

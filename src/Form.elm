@@ -1,27 +1,11 @@
-module Form
-    exposing
-        ( Field(..)
-        , Form
-        , TextType(..)
-        , andThen
-        , append
-        , checkboxField
-        , emailField
-        , fill
-        , group
-        , map
-        , mapValues
-        , meta
-        , numberField
-        , optional
-        , passwordField
-        , radioField
-        , rangeField
-        , selectField
-        , succeed
-        , textField
-        , textareaField
-        )
+module Form exposing
+    ( Form
+    , textField, emailField, passwordField, textareaField, numberField, rangeField, checkboxField
+    , radioField, selectField
+    , succeed, append, optional, group, andThen, meta
+    , map, mapValues
+    , Field(..), TextType(..), fill
+    )
 
 {-| Build [composable forms](#Form) comprised of [fields](#fields).
 
@@ -76,6 +60,7 @@ import Form.Field as Field
 import Form.Value exposing (Value)
 
 
+
 -- Definition
 
 
@@ -119,6 +104,7 @@ inputted name has at least 2 characters, like this:
                 \name ->
                     if String.length name < 2 then
                         Err "the name must have at least 2 characters"
+
                     else
                         Ok name
             , value = .name
@@ -518,6 +504,7 @@ the values of other fields. An example of this is a "repeat password" field:
                         \value ->
                             if Just value == Value.raw values.password then
                                 Ok ()
+
                             else
                                 Err "the passwords do not match"
                     , value = .repeatPassword

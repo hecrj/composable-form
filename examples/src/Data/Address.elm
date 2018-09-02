@@ -1,13 +1,12 @@
-module Data.Address
-    exposing
-        ( Address
-        , City
-        , Country
-        , PostalCode
-        , parseCity
-        , parseCountry
-        , parsePostalCode
-        )
+module Data.Address exposing
+    ( Address
+    , City
+    , Country
+    , PostalCode
+    , parseCity
+    , parseCountry
+    , parsePostalCode
+    )
 
 
 type alias Address =

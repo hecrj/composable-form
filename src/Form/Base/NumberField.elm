@@ -1,9 +1,7 @@
-module Form.Base.NumberField
-    exposing
-        ( Attributes
-        , NumberField
-        , form
-        )
+module Form.Base.NumberField exposing
+    ( NumberField, Attributes
+    , form
+    )
 
 {-| This module contains a reusable `NumberField` type.
 

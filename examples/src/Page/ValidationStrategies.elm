@@ -58,6 +58,7 @@ view model =
             , validation =
                 if onBlurSelected model.values then
                     Form.View.ValidateOnBlur
+
                 else
                     Form.View.ValidateOnSubmit
             }

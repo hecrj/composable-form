@@ -1,15 +1,14 @@
-module Form.View.MultiStage
-    exposing
-        ( Build
-        , Form
-        , Model
-        , State(..)
-        , add
-        , build
-        , end
-        , idle
-        , view
-        )
+module Form.View.MultiStage exposing
+    ( Build
+    , Form
+    , Model
+    , State(..)
+    , add
+    , build
+    , end
+    , idle
+    , view
+    )
 
 import Form
 import Form.Error as Error exposing (Error)
@@ -110,6 +109,7 @@ view { onChange, action, loading, next, back } (Form stages form) model =
         maybeShowErrors =
             if model.showErrors then
                 Nothing
+
             else
                 Just (onChange { model | showErrors = True })
 
@@ -122,11 +122,13 @@ view { onChange, action, loading, next, back } (Form stages form) model =
                     Ok msg ->
                         if model.state == Loading then
                             Nothing
+
                         else
                             Just msg
 
                     Err _ ->
                         maybeShowErrors
+
             else
                 case currentStage of
                     Just (Stage _ view_) ->
@@ -180,6 +182,7 @@ view { onChange, action, loading, next, back } (Form stages form) model =
             , Html.div [ Attributes.class "elm-form-multistage-controls" ]
                 [ if model.stage == 0 || model.state == Loading then
                     Html.div [] []
+
                   else
                     Html.a
                         [ Attributes.class "elm-form-multistage-back"
@@ -192,8 +195,10 @@ view { onChange, action, loading, next, back } (Form stages form) model =
                     ]
                     [ if model.state == Loading then
                         Html.text loading
+
                       else if isLastStage then
                         Html.text action
+
                       else
                         Html.text next
                     ]
@@ -227,6 +232,7 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
         blurWhenNotBlank value label =
             if Value.raw value == Nothing then
                 Nothing
+
             else
                 Maybe.map (\onBlur_ -> onBlur_ label) onBlur
     in
@@ -486,6 +492,7 @@ maybeErrorMessage showError maybeError =
             |> Maybe.map errorToString
             |> Maybe.map errorMessage
             |> Maybe.withDefault (Html.text "")
+
     else
         Html.text ""
 
@@ -515,6 +522,7 @@ fromString : (String -> Maybe a) -> Maybe a -> String -> Maybe a
 fromString parse currentValue input =
     if String.isEmpty input then
         Nothing
+
     else
         parse input
             |> Maybe.map Just

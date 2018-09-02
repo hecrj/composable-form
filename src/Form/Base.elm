@@ -1,21 +1,10 @@
-module Form.Base
-    exposing
-        ( FieldConfig
-        , FilledField
-        , FilledForm
-        , Form
-        , andThen
-        , append
-        , custom
-        , field
-        , fill
-        , map
-        , mapField
-        , mapValues
-        , meta
-        , optional
-        , succeed
-        )
+module Form.Base exposing
+    ( Form
+    , field, FieldConfig, custom, FilledField
+    , succeed, append, andThen, optional, meta
+    , map, mapValues, mapField
+    , FilledForm, fill
+    )
 
 {-| Build composable forms with your own custom fields.
 
@@ -166,6 +155,7 @@ field { isEmpty } build config =
                 Just value ->
                     if isEmpty value then
                         Err ( Error.RequiredFieldIsEmpty, [] )
+
                     else
                         config.parser value
                             |> Result.mapError (\error -> ( Error.ValidationFailed error, [] ))
@@ -371,6 +361,7 @@ optional form =
                         , result = Ok Nothing
                         , isEmpty = True
                         }
+
                     else
                         { fields = filled.fields
                         , result = Err ( firstError, otherErrors )

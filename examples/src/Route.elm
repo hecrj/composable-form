@@ -1,12 +1,11 @@
-module Route
-    exposing
-        ( Key
-        , Route(..)
-        , goBack
-        , href
-        , navigate
-        , program
-        )
+module Route exposing
+    ( Key
+    , Route(..)
+    , goBack
+    , href
+    , navigate
+    , program
+    )
 
 import Browser
 import Browser.Navigation as Navigation
