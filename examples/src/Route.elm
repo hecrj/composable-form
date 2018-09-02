@@ -47,14 +47,11 @@ parser =
         ]
 
 
-fromLocation : Url -> Route
-fromLocation location =
-    case UrlParser.parse parser location of
-        Just route ->
-            route
-
-        Nothing ->
-            NotFound
+fromUrl : Url -> Route
+fromUrl url =
+    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
+        |> UrlParser.parse parser
+        |> Maybe.withDefault NotFound
 
 
 program :
@@ -68,18 +65,18 @@ program :
     -> Program () model msg
 program { init, update, view, onInternalUrlRequest, onExternalUrlRequest, onUrlChange } =
     Browser.application
-        { init = \flags -> fromLocation >> init
+        { init = \flags -> fromUrl >> init
         , update = update
         , view = view >> List.singleton >> Browser.Document "composable-form - Build type-safe composable forms in Elm"
         , onUrlRequest =
             \request ->
                 case request of
                     Browser.Internal url ->
-                        onInternalUrlRequest (fromLocation url)
+                        onInternalUrlRequest (fromUrl url)
 
                     Browser.External url ->
                         onExternalUrlRequest url
-        , onUrlChange = fromLocation >> onUrlChange
+        , onUrlChange = fromUrl >> onUrlChange
         , subscriptions = always Sub.none
         }
 
@@ -132,4 +129,4 @@ toString route =
                 NotFound ->
                     [ "404" ]
     in
-    "/" ++ String.join "/" parts
+    "#/" ++ String.join "/" parts
