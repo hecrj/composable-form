@@ -22,7 +22,7 @@ module.exports = (env, argv) => ({
           {
             loader: 'elm-webpack-loader',
             options: {
-              yes: false
+              debug: true,
             }
           }
         ]

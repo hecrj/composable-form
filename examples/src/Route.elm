@@ -70,7 +70,7 @@ program { init, update, view, onInternalUrlRequest, onExternalUrlRequest, onUrlC
     Browser.application
         { init = \flags -> fromLocation >> init
         , update = update
-        , view = view >> List.singleton >> Browser.Document "elm-form"
+        , view = view >> List.singleton >> Browser.Document "composable-form - Build type-safe composable forms in Elm"
         , onUrlRequest =
             \request ->
                 case request of
@@ -97,9 +97,6 @@ goBack key =
 href : (Route -> msg) -> Route -> List (Attribute msg)
 href toMsg route =
     [ Attributes.attribute "href" (toString route)
-    , Events.preventDefaultOn
-        "click"
-        (maybePreventDefault <| toMsg route)
     ]
 
 
@@ -136,27 +133,3 @@ toString route =
                     [ "404" ]
     in
     "/" ++ String.join "/" parts
-
-
-
--- FIX Ctrl/Cmd Click in Windows and Mac
--- https://github.com/elm-lang/html/issues/110
--- TODO: Review in Elm 0.19
-
-
-preventDefault2 : Decoder Bool
-preventDefault2 =
-    Decode.map2
-        invertedOr
-        (Decode.field "ctrlKey" Decode.bool)
-        (Decode.field "metaKey" Decode.bool)
-
-
-maybePreventDefault : msg -> Decoder ( msg, Bool )
-maybePreventDefault msg =
-    Decode.map (Tuple.pair msg) preventDefault2
-
-
-invertedOr : Bool -> Bool -> Bool
-invertedOr x y =
-    not (x || y)
