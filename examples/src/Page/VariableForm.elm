@@ -15,7 +15,7 @@ type alias Model =
 
 type alias Values =
     { name : Value String
-    , websites : Array WebsiteValues
+    , websites : List WebsiteValues
     }
 
 
@@ -28,11 +28,10 @@ init : Model
 init =
     { name = Value.blank
     , websites =
-        Array.empty
-            |> Array.push
-                { name = Value.filled "Elm"
-                , address = Value.filled "http://elm-lang.org/"
-                }
+        [ { name = Value.filled "Elm"
+          , address = Value.filled "https://elm-lang.org/"
+          }
+        ]
     }
         |> Form.View.idle
 

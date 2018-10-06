@@ -24,6 +24,7 @@ It is useful to build forms that have variable fields based on a
 import Array exposing (Array)
 import Form.Base as Base
 import Form.Error exposing (Error)
+import List.Extra
 
 
 {-| Represents a set of variable forms.
@@ -48,8 +49,8 @@ type alias Form values field =
 
 
 type alias Config values subValues =
-    { value : values -> Array subValues
-    , update : Array subValues -> values -> values
+    { value : values -> List subValues
+    , update : List subValues -> values -> values
     , default : subValues
     , attributes : Attributes
     }
@@ -81,24 +82,25 @@ form tagger { value, update, default, attributes } buildSubform =
 
                 subformForIndex index subValues =
                     buildSubform
-                        (\newSubValues values_ -> update (Array.set index newSubValues listOfSubvalues) values_)
+                        (\newSubValues values_ -> update (List.Extra.setAt index newSubValues listOfSubvalues) values_)
                         subValues
                         values
 
                 filledSubForms =
-                    Array.indexedMap subformForIndex listOfSubvalues
-                        |> Array.toList
+                    List.indexedMap subformForIndex listOfSubvalues
 
                 toForm index { fields } =
                     { fields = fields
                     , delete =
                         \_ ->
                             let
-                                newList =
-                                    Array.slice (index + 1) (Array.length listOfSubvalues) listOfSubvalues
-                                        |> Array.append (Array.slice 0 index listOfSubvalues)
+                                previousForms =
+                                    List.take index listOfSubvalues
+
+                                nextForms =
+                                    List.drop (index + 1) listOfSubvalues
                             in
-                            update newList values
+                            update (previousForms ++ nextForms) values
                     }
 
                 result =
@@ -119,7 +121,7 @@ form tagger { value, update, default, attributes } buildSubform =
             { field =
                 tagger
                     { forms = List.indexedMap toForm filledSubForms
-                    , add = \_ -> update (Array.push default listOfSubvalues) values
+                    , add = \_ -> update (listOfSubvalues ++ [ default ]) values
                     , attributes = attributes
                     }
             , result = result
