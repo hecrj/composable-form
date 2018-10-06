@@ -48,10 +48,10 @@ type alias Form values field =
     }
 
 
-type alias Config values subValues =
-    { value : values -> List subValues
-    , update : List subValues -> values -> values
-    , default : subValues
+type alias Config values childValues =
+    { value : values -> List childValues
+    , update : List childValues -> values -> values
+    , default : childValues
     , attributes : Attributes
     }
 
@@ -70,24 +70,30 @@ custom fields.
 -}
 form :
     (VariableForm values field -> field)
-    -> Config values subValues
-    -> ((subValues -> values -> values) -> subValues -> values -> Base.FilledForm output field)
+    -> Config values childValues
+    -> ((childValues -> values -> values) -> childValues -> values -> Base.FilledForm output field)
     -> Base.Form values (List output) field
-form tagger { value, update, default, attributes } buildSubform =
+form tagger { value, update, default, attributes } buildChildForm =
     Base.custom
         (\values ->
             let
-                listOfSubvalues =
+                listOfChildValues =
                     value values
 
-                subformForIndex index subValues =
-                    buildSubform
-                        (\newSubValues values_ -> update (List.Extra.setAt index newSubValues listOfSubvalues) values_)
-                        subValues
+                childFormForIndex index childValues =
+                    buildChildForm
+                        (\newChildValues values_ ->
+                            let
+                                newList =
+                                    List.Extra.setAt index newChildValues listOfChildValues
+                            in
+                            update newList values_
+                        )
+                        childValues
                         values
 
-                filledSubForms =
-                    List.indexedMap subformForIndex listOfSubvalues
+                filledChildForms =
+                    List.indexedMap childFormForIndex listOfChildValues
 
                 toForm index { fields } =
                     { fields = fields
@@ -95,16 +101,16 @@ form tagger { value, update, default, attributes } buildSubform =
                         \_ ->
                             let
                                 previousForms =
-                                    List.take index listOfSubvalues
+                                    List.take index listOfChildValues
 
                                 nextForms =
-                                    List.drop (index + 1) listOfSubvalues
+                                    List.drop (index + 1) listOfChildValues
                             in
                             update (previousForms ++ nextForms) values
                     }
 
                 result =
-                    List.foldr gatherResults (Ok []) filledSubForms
+                    List.foldr gatherResults (Ok []) filledChildForms
 
                 gatherResults next current =
                     case next.result of
@@ -120,11 +126,11 @@ form tagger { value, update, default, attributes } buildSubform =
             in
             { field =
                 tagger
-                    { forms = List.indexedMap toForm filledSubForms
-                    , add = \_ -> update (listOfSubvalues ++ [ default ]) values
+                    { forms = List.indexedMap toForm filledChildForms
+                    , add = \_ -> update (listOfChildValues ++ [ default ]) values
                     , attributes = attributes
                     }
             , result = result
-            , isEmpty = List.all .isEmpty filledSubForms
+            , isEmpty = List.all .isEmpty filledChildForms
             }
         )
