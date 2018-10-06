@@ -10,4 +10,4 @@ script:
   - elm-format --validate src tests examples
   - elm-test
   - cd examples
-  - elm make --output=/dev/null --debug src/Main.elm
+  - elm make --output=/dev/null src/Main.elm
