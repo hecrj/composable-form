@@ -1,7 +1,4 @@
-module Form.Error
-    exposing
-        ( Error(..)
-        )
+module Form.Error exposing (Error(..))
 
 {-| This module contains a form [`Error`](#Error) type.
 

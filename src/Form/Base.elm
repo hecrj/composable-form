@@ -1,21 +1,10 @@
-module Form.Base
-    exposing
-        ( FieldConfig
-        , FilledField
-        , FilledForm
-        , Form
-        , andThen
-        , append
-        , custom
-        , field
-        , fill
-        , map
-        , mapField
-        , mapValues
-        , meta
-        , optional
-        , succeed
-        )
+module Form.Base exposing
+    ( Form
+    , field, FieldConfig, custom, FilledField
+    , succeed, append, andThen, optional, meta
+    , map, mapValues, mapField
+    , FilledForm, fill
+    )
 
 {-| Build composable forms with your own custom fields.
 
@@ -166,6 +155,7 @@ field { isEmpty } build config =
                 Just value ->
                     if isEmpty value then
                         Err ( Error.RequiredFieldIsEmpty, [] )
+
                     else
                         config.parser value
                             |> Result.mapError (\error -> ( Error.ValidationFailed error, [] ))
@@ -173,15 +163,18 @@ field { isEmpty } build config =
         parse =
             config.value >> Value.raw >> requiredParser
 
-        field values =
+        field_ values =
             let
                 value =
                     config.value values
 
                 update newValue =
-                    value
-                        |> Value.update newValue
-                        |> flip config.update values
+                    config.update
+                        (newValue
+                            |> Maybe.map Value.filled
+                            |> Maybe.withDefault Value.blank
+                        )
+                        values
             in
             build
                 { value = value
@@ -195,7 +188,7 @@ field { isEmpty } build config =
                 result =
                     parse values
 
-                ( error, isEmpty ) =
+                ( error, isEmpty_ ) =
                     case result of
                         Ok _ ->
                             ( Nothing, False )
@@ -203,9 +196,9 @@ field { isEmpty } build config =
                         Err ( firstError, _ ) ->
                             ( Just firstError, firstError == Error.RequiredFieldIsEmpty )
             in
-            { fields = [ ( field values, error ) ]
+            { fields = [ ( field_ values, error ) ]
             , result = result
-            , isEmpty = isEmpty
+            , isEmpty = isEmpty_
             }
         )
 
@@ -240,12 +233,12 @@ custom fillField =
     Form
         (\values ->
             let
-                { field, result, isEmpty } =
+                filled =
                     fillField values
             in
             { fields =
-                [ ( field
-                  , case result of
+                [ ( filled.field
+                  , case filled.result of
                         Ok _ ->
                             Nothing
 
@@ -253,8 +246,8 @@ custom fillField =
                             Just firstError
                   )
                 ]
-            , result = result
-            , isEmpty = isEmpty
+            , result = filled.result
+            , isEmpty = filled.isEmpty
             }
         )
 
@@ -364,10 +357,11 @@ optional form =
 
                 Err ( firstError, otherErrors ) ->
                     if filled.isEmpty then
-                        { fields = List.map (\( field, _ ) -> ( field, Nothing )) filled.fields
+                        { fields = List.map (\( field_, _ ) -> ( field_, Nothing )) filled.fields
                         , result = Ok Nothing
                         , isEmpty = True
                         }
+
                     else
                         { fields = filled.fields
                         , result = Err ( firstError, otherErrors )
@@ -397,7 +391,10 @@ map fn form =
                 filled =
                     fill form values
             in
-            { filled | result = Result.map fn filled.result }
+            { fields = filled.fields
+            , result = Result.map fn filled.result
+            , isEmpty = filled.isEmpty
+            }
         )
 
 
@@ -418,7 +415,10 @@ mapField fn form =
                 filled =
                     fill form values
             in
-            { filled | fields = List.map (\( field, error ) -> ( fn field, error )) filled.fields }
+            { fields = List.map (\( field_, error ) -> ( fn field_, error )) filled.fields
+            , result = filled.result
+            , isEmpty = filled.isEmpty
+            }
         )
 
 

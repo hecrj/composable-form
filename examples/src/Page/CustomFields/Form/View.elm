@@ -1,11 +1,10 @@
-module Page.CustomFields.Form.View
-    exposing
-        ( Model
-        , State(..)
-        , ViewConfig
-        , asHtml
-        , idle
-        )
+module Page.CustomFields.Form.View exposing
+    ( Model
+    , State(..)
+    , ViewConfig
+    , asHtml
+    , idle
+    )
 
 import Form.Error as Error exposing (Error)
 import Form.Value as Value
@@ -65,12 +64,14 @@ asHtml { onChange, action, loading } form model =
                 Ok msg ->
                     if model.state == Loading then
                         Nothing
+
                     else
                         Just msg
 
                 Err _ ->
                     if errorTracking.showAllErrors then
                         Nothing
+
                     else
                         Just
                             (onChange
@@ -106,6 +107,7 @@ asHtml { onChange, action, loading } form model =
                     ]
                     [ if model.state == Loading then
                         Html.text loading
+
                       else
                         Html.text action
                     ]
@@ -115,8 +117,8 @@ asHtml { onChange, action, loading } form model =
 
 
 field : { disabled : Bool, showError : Bool } -> ( Form.Field values msg, Maybe Error ) -> Html msg
-field { disabled, showError } ( field, maybeError ) =
-    case field of
+field { disabled, showError } ( field_, maybeError ) =
+    case field_ of
         Form.Email { onChange, state, value, attributes } ->
             emailField
                 { onChange = onChange
@@ -155,6 +157,7 @@ emailField { onChange, disabled, value, error, showError, attributes } state =
                 Form.EmailValidated ->
                     if error == Nothing then
                         Html.i [ Attributes.class "fas fa-check" ] []
+
                     else
                         Html.i [ Attributes.class "fas fa-times" ] []
 
@@ -177,6 +180,7 @@ maybeErrorMessage showError maybeError =
             |> Maybe.map errorToString
             |> Maybe.map errorMessage
             |> Maybe.withDefault (Html.text "")
+
     else
         Html.text ""
 

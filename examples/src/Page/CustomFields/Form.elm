@@ -1,22 +1,22 @@
-module Page.CustomFields.Form
-    exposing
-        ( EmailState(..)
-        , Field(..)
-        , Form
-        , andThen
-        , append
-        , customEmailField
-        , fill
-        , meta
-        , optional
-        , succeed
-        )
+module Page.CustomFields.Form exposing
+    ( EmailState(..)
+    , Field(..)
+    , Form
+    , andThen
+    , append
+    , customEmailField
+    , fill
+    , meta
+    , optional
+    , succeed
+    )
 
 import Form.Base as Base
 import Form.Base.TextField as TextField exposing (TextField)
 import Form.Error exposing (Error)
 import Form.Value as Value exposing (Value)
 import Page.CustomFields.ComplexValidationField as ComplexValidationField
+
 
 
 -- Definition

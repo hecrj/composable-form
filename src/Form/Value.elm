@@ -1,12 +1,9 @@
-module Form.Value
-    exposing
-        ( Value
-        , blank
-        , filled
-        , newest
-        , raw
-        , update
-        )
+module Form.Value exposing
+    ( Value
+    , blank, filled
+    , raw
+    , map
+    )
 
 {-| This module contains a value type for your form fields.
 
@@ -26,14 +23,9 @@ module Form.Value
 @docs raw
 
 
-# Updates
+# Mappings
 
-@docs update
-
-
-# Comparisons
-
-@docs newest
+@docs map
 
 -}
 
@@ -41,8 +33,8 @@ module Form.Value
 {-| Represents a form field value.
 -}
 type Value a
-    = Blank Int
-    | Filled Int a
+    = Blank
+    | Filled a
 
 
 
@@ -63,7 +55,7 @@ Use this to initialize the values of your empty fields:
 -}
 blank : Value a
 blank =
-    Blank 0
+    Blank
 
 
 {-| Build an already filled value.
@@ -79,7 +71,7 @@ Use this when you are using forms to edit existing values:
 -}
 filled : a -> Value a
 filled =
-    Filled 0
+    Filled
 
 
 
@@ -97,77 +89,43 @@ custom view code.
 raw : Value a -> Maybe a
 raw value =
     case value of
-        Blank _ ->
+        Blank ->
             Nothing
 
-        Filled _ v ->
+        Filled v ->
             Just v
 
 
 
--- Update
+-- Mapping
 
 
-{-| Update a value with new data.
+{-| Transform a value.
 
-**Note:** You should not need to care about this unless you are creating your own
-custom fields.
+For instance, this can be useful if you want to use a
+[`Form.numberField`](Form#numberField) with a `Value Int` instead
+of `Value Float`:
 
--}
-update : a -> Value a -> Value a
-update v value =
-    Filled (version value + 1) v
-
-
-
--- Comparisons
-
-
-{-| Select the newest value out of two sets of values.
-
-This is necessary to fix an issue with autocompletion. When a form is autocompleted, many events
-can get triggered before the view can be rerendered, causing the first autocompleted values to be
-lost.
-
-`newest` allows to fix this:
-
-    update : Msg -> Model -> Model
-    update msg values =
-        FormChanged newForm ->
-            { form |
-                values =
-                    { email = Value.newest .email form.values newForm.values
-                    , password = Value.newest .password form.values newForm.values
-                    }
+    numberOfApples : Form { r | number : Value Int } Int
+    numberOfApples =
+        Form.numberField
+            { parser = round >> Ok
+            , value = .number >> Value.map toFloat
+            , update =
+                \value values ->
+                    { values | number = Value.map round value }
+            , attributes =
+                { label = "How many apples do you have?"
+                , placeholder = "Type a number"
+                , step = 1
+                , min = Just 0
+                , max = Nothing
+                }
             }
 
-**Note:** This issue _seems_ fixed in Elm 0.19, thus this function will be removed soon.
-
 -}
-newest : (values -> Value a) -> values -> values -> Value a
-newest getter values1 values2 =
-    let
-        value1 =
-            getter values1
-
-        value2 =
-            getter values2
-    in
-    if version value1 >= version value2 then
-        value1
-    else
-        value2
-
-
-
--- PRIVATE HELPERS
-
-
-version : Value a -> Int
-version value =
-    case value of
-        Blank version ->
-            version
-
-        Filled version _ ->
-            version
+map : (a -> b) -> Value a -> Value b
+map fn value =
+    raw value
+        |> Maybe.map (fn >> Filled)
+        |> Maybe.withDefault Blank

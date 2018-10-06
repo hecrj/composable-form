@@ -81,6 +81,7 @@ form { onSubmit, action, loading, state, fields } =
                 (button.shape
                     ++ (if onSubmit == Nothing then
                             button.disabledColors
+
                         else
                             button.enabledColors
                        )
@@ -89,6 +90,7 @@ form { onSubmit, action, loading, state, fields } =
                 , label =
                     if state == Loading then
                         text loading
+
                     else
                         text action
                 }
@@ -158,13 +160,6 @@ textareaField { onChange, onBlur, disabled, value, error, showError, attributes 
 
 numberField : NumberFieldConfig msg -> Element msg
 numberField { onChange, onBlur, disabled, value, error, showError, attributes } =
-    let
-        safeOnChange =
-            String.toFloat
-                >> Result.toMaybe
-                >> Maybe.map onChange
-                >> Maybe.withDefault (onChange (Maybe.withDefault 0 value))
-    in
     Input.text
         ([]
             |> withHtmlAttribute Html.Attributes.type_ (Just "number")
@@ -173,7 +168,7 @@ numberField { onChange, onBlur, disabled, value, error, showError, attributes } 
             |> withHtmlAttribute (toString >> Html.Attributes.min) attributes.min
             |> withCommonAttrs showError error disabled onBlur
         )
-        { onChange = maybeOnChange disabled safeOnChange
+        { onChange = maybeOnChange disabled (fromString String.toFloat value >> onChange)
         , text = value |> Maybe.map toString |> Maybe.withDefault ""
         , placeholder = placeholder attributes
         , label = labelAbove (showError && error /= Nothing) attributes
@@ -182,13 +177,6 @@ numberField { onChange, onBlur, disabled, value, error, showError, attributes } 
 
 rangeField : RangeFieldConfig msg -> Element msg
 rangeField { onChange, onBlur, disabled, value, error, showError, attributes } =
-    let
-        safeOnChange =
-            String.toFloat
-                >> Result.toMaybe
-                >> Maybe.map onChange
-                >> Maybe.withDefault (onChange (Maybe.withDefault 0 value))
-    in
     Input.text
         ([]
             |> withHtmlAttribute Html.Attributes.type_ (Just "range")
@@ -197,7 +185,7 @@ rangeField { onChange, onBlur, disabled, value, error, showError, attributes } =
             |> withHtmlAttribute (toString >> Html.Attributes.min) attributes.min
             |> withCommonAttrs showError error disabled onBlur
         )
-        { onChange = maybeOnChange disabled safeOnChange
+        { onChange = maybeOnChange disabled (fromString String.toFloat value >> onChange)
         , text = value |> Maybe.map toString |> Maybe.withDefault ""
         , placeholder = Nothing
         , label = labelAbove (showError && error /= Nothing) attributes
@@ -277,7 +265,14 @@ errorToString error =
 
 placeholder : { r | placeholder : String } -> Maybe (Input.Placeholder msg)
 placeholder attributes =
-    Just (Input.placeholder [] (text attributes.placeholder))
+    Just
+        (Input.placeholder []
+            (el
+                [ Font.color Color.gray
+                ]
+                (text attributes.placeholder)
+            )
+        )
 
 
 labelCenterY : (List (Attribute msg) -> Element msg -> Input.Label msg) -> Bool -> { r | label : String } -> Input.Label msg
@@ -321,8 +316,21 @@ maybeOnChange : Bool -> msg -> Maybe msg
 maybeOnChange disabled onChange =
     if disabled then
         Nothing
+
     else
         Just onChange
+
+
+fromString : (String -> Result err a) -> Maybe a -> String -> Maybe a
+fromString parse currentValue input =
+    if String.isEmpty input then
+        Nothing
+
+    else
+        parse input
+            |> Result.toMaybe
+            |> Maybe.map Just
+            |> Maybe.withDefault currentValue
 
 
 withCommonAttrs :
@@ -350,6 +358,7 @@ when : Bool -> Attribute msg -> List (Attribute msg) -> List (Attribute msg)
 when test attr attrs =
     if test then
         attr :: attrs
+
     else
         attrs
 

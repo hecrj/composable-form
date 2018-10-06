@@ -141,7 +141,7 @@ passwordField =
 viewPassword : User.Password -> Html msg
 viewPassword password =
     Html.div [ Attributes.class "stage" ]
-        [ Html.text ("Your password length is: " ++ toString (User.passwordLength password)) ]
+        [ Html.text ("Your password length is: " ++ String.fromInt (User.passwordLength password)) ]
 
 
 
@@ -169,6 +169,7 @@ favoriteLanguageField =
                     (\lang ->
                         if lang == User.Javascript then
                             Err "You didn't choose right :/"
+
                         else
                             Ok lang
                     )

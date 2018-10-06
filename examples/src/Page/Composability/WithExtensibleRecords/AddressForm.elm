@@ -1,10 +1,9 @@
-module Page.Composability.WithExtensibleRecords.AddressForm
-    exposing
-        ( AddressForm
-        , Values
-        , blank
-        , form
-        )
+module Page.Composability.WithExtensibleRecords.AddressForm exposing
+    ( AddressForm
+    , Values
+    , blank
+    , form
+    )
 
 import Data.Address as Address exposing (Address)
 import Form exposing (Form)

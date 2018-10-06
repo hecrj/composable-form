@@ -1,26 +1,24 @@
-module Data.User
-    exposing
-        ( FavoriteLanguage(..)
-        , Name
-        , Password
-        , User
-        , ValidEmail
-        , favoriteLanguageToString
-        , favoriteLanguages
-        , nameToString
-        , parseFavoriteLanguage
-        , parseName
-        , parsePassword
-        , passwordLength
-        , signUp
-        , validateEmailAddress
-        )
+module Data.User exposing
+    ( FavoriteLanguage(..)
+    , Name
+    , Password
+    , User
+    , ValidEmail
+    , favoriteLanguageToString
+    , favoriteLanguages
+    , nameToString
+    , parseFavoriteLanguage
+    , parseName
+    , parsePassword
+    , passwordLength
+    , signUp
+    , validateEmailAddress
+    )
 
 import Data.EmailAddress as EmailAddress exposing (EmailAddress)
 import Dict
 import Process
 import Task exposing (Task)
-import Time
 
 
 type alias User =
@@ -65,6 +63,7 @@ parseName : String -> Result String Name
 parseName name =
     if String.length name < 2 then
         Err "The name must have at least 2 characters"
+
     else
         Ok (Name name)
 
@@ -86,6 +85,7 @@ parsePassword : String -> Result String Password
 parsePassword password =
     if String.length password < 8 then
         Err "The password must have at least 8 characters"
+
     else
         Ok (Password password)
 
@@ -144,9 +144,10 @@ checkEmailAddress email =
         response =
             if EmailAddress.toString email == "free@email.com" then
                 Task.succeed (ValidEmail email)
+
             else
                 Task.fail "The e-mail address is taken. Try this one: free@email.com"
     in
     -- Here we simulate an HTTP request to some backend server
-    Process.sleep (1 * Time.second)
+    Process.sleep 1000
         |> Task.andThen (always response)

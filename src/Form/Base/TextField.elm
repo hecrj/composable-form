@@ -1,9 +1,7 @@
-module Form.Base.TextField
-    exposing
-        ( Attributes
-        , TextField
-        , form
-        )
+module Form.Base.TextField exposing
+    ( TextField, Attributes
+    , form
+    )
 
 {-| This module contains a reusable `TextField` type.
 

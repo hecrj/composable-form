@@ -24,12 +24,12 @@ examplesUrl =
 code : List CodeSnippet -> Html msg
 code =
     let
-        snippetToHtml { filename, path, code } =
+        snippetToHtml snippet =
             [ Html.i [ Attributes.class "far fa-file-code" ] []
             , Html.text " "
-            , Html.a [ Attributes.href (examplesUrl ++ path) ] [ Html.text filename ]
+            , Html.a [ Attributes.href (examplesUrl ++ snippet.path) ] [ Html.text snippet.filename ]
             , Html.text "\n\n"
-            , Html.text code
+            , Html.text snippet.code
             , Html.text "\n"
             ]
     in

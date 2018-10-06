@@ -2,3 +2,5 @@ elm-stuff/
 node_modules/
 dist/
 documentation.json
+package.json
+yarn.lock

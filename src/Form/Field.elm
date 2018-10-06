@@ -1,11 +1,11 @@
-module Form.Field exposing (Field)
+module Form.Field exposing (Field, mapValues)
 
 {-| This module contains a type that represents a generic form field.
 
 **Note:** You should not need to care about this unless you are creating your own
 custom fields or writing custom view code.
 
-@docs Field
+@docs Field, mapValues
 
 -}
 
@@ -53,7 +53,7 @@ attributes. For example, you could render a `TextField` like this:
                             |> Value.raw
                             |> Maybe.withDefault ""
                         )
-                    , Attributes.onInput (update >> onChange)
+                    , Attributes.onInput (Just >> update >> onChange)
                     , Attributes.placeholder attributes.placeholder
                     ]
                     []
@@ -64,6 +64,19 @@ attributes. For example, you could render a `TextField` like this:
 -}
 type alias Field attributes value values =
     { value : Value value
-    , update : value -> values
+    , update : Maybe value -> values
     , attributes : attributes
+    }
+
+
+{-| Transform the `values` of a `Field`.
+
+It can be useful to build your own [`Form.mapValues`](Form#mapValues) function.
+
+-}
+mapValues : (a -> b) -> Field attributes value a -> Field attributes value b
+mapValues fn { value, update, attributes } =
+    { value = value
+    , update = update >> fn
+    , attributes = attributes
     }

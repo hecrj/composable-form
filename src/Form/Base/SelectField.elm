@@ -1,9 +1,7 @@
-module Form.Base.SelectField
-    exposing
-        ( Attributes
-        , SelectField
-        , form
-        )
+module Form.Base.SelectField exposing
+    ( SelectField, Attributes
+    , form
+    )
 
 {-| This module contains a reusable `SelectField` type.
 

@@ -1,5 +1,9 @@
-import 'normalize.css';
-import './styles.scss';
+'use strict';
 
-const Elm = require('Main.elm');
-Elm.Main.fullscreen();
+import 'normalize.css'
+import './styles.scss'
+
+// Elm
+var Elm = require('Main.elm');
+var app = Elm.Elm.Main.init();
+

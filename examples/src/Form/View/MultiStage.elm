@@ -1,15 +1,14 @@
-module Form.View.MultiStage
-    exposing
-        ( Build
-        , Form
-        , Model
-        , State(..)
-        , add
-        , build
-        , end
-        , idle
-        , view
-        )
+module Form.View.MultiStage exposing
+    ( Build
+    , Form
+    , Model
+    , State(..)
+    , add
+    , build
+    , end
+    , idle
+    , view
+    )
 
 import Form
 import Form.Error as Error exposing (Error)
@@ -43,10 +42,10 @@ build output =
 
 
 add : Form.Form values a -> (a -> Html Never) -> Build values (a -> b) -> Build values b
-add form view (Build (Form stages currentForm)) =
+add form view_ (Build (Form stages currentForm)) =
     let
         viewStage =
-            Form.fill form >> .result >> Result.map view >> Result.toMaybe
+            Form.fill form >> .result >> Result.map view_ >> Result.toMaybe
 
         newStage =
             Stage (Form.fill form >> .fields) viewStage
@@ -56,8 +55,8 @@ add form view (Build (Form stages currentForm)) =
 
 
 end : Form.Form values a -> Build values (a -> b) -> Form values b
-end form build =
-    case add form (always (Html.text "")) build of
+end form build_ =
+    case add form (always (Html.text "")) build_ of
         Build multiStageForm ->
             multiStageForm
 
@@ -110,6 +109,7 @@ view { onChange, action, loading, next, back } (Form stages form) model =
         maybeShowErrors =
             if model.showErrors then
                 Nothing
+
             else
                 Just (onChange { model | showErrors = True })
 
@@ -122,15 +122,17 @@ view { onChange, action, loading, next, back } (Form stages form) model =
                     Ok msg ->
                         if model.state == Loading then
                             Nothing
+
                         else
                             Just msg
 
                     Err _ ->
                         maybeShowErrors
+
             else
                 case currentStage of
-                    Just (Stage _ view) ->
-                        case view model.values of
+                    Just (Stage _ view_) ->
+                        case view_ model.values of
                             Just _ ->
                                 Just (onChange { model | stage = model.stage + 1, showErrors = False })
 
@@ -148,8 +150,8 @@ view { onChange, action, loading, next, back } (Form stages form) model =
         filledStages =
             List.take model.stage stages
                 |> List.map
-                    (\(Stage _ view) ->
-                        view model.values
+                    (\(Stage _ view_) ->
+                        view_ model.values
                             |> Maybe.map (Html.map (always (onChange model)))
                             |> Maybe.withDefault (Html.text "error")
                     )
@@ -180,6 +182,7 @@ view { onChange, action, loading, next, back } (Form stages form) model =
             , Html.div [ Attributes.class "elm-form-multistage-controls" ]
                 [ if model.stage == 0 || model.state == Loading then
                     Html.div [] []
+
                   else
                     Html.a
                         [ Attributes.class "elm-form-multistage-back"
@@ -192,8 +195,10 @@ view { onChange, action, loading, next, back } (Form stages form) model =
                     ]
                     [ if model.state == Loading then
                         Html.text loading
+
                       else if isLastStage then
                         Html.text action
+
                       else
                         Html.text next
                     ]
@@ -227,14 +232,15 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
         blurWhenNotBlank value label =
             if Value.raw value == Nothing then
                 Nothing
+
             else
-                Maybe.map (\onBlur -> onBlur label) onBlur
+                Maybe.map (\onBlur_ -> onBlur_ label) onBlur
     in
     case field of
         Form.Text type_ { attributes, value, update } ->
             let
                 config =
-                    { onChange = update >> onChange
+                    { onChange = Just >> update >> onChange
                     , onBlur = blurWhenNotBlank value attributes.label
                     , disabled = disabled
                     , value = Value.raw value |> Maybe.withDefault ""
@@ -283,7 +289,7 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
 
         Form.Checkbox { attributes, value, update } ->
             checkboxField
-                { onChange = update >> onChange
+                { onChange = Just >> update >> onChange
                 , onBlur = blurWhenNotBlank value attributes.label
                 , disabled = disabled
                 , value = Value.raw value |> Maybe.withDefault False
@@ -294,7 +300,7 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
 
         Form.Radio { attributes, value, update } ->
             radioField
-                { onChange = update >> onChange
+                { onChange = Just >> update >> onChange
                 , onBlur = blurWhenNotBlank value attributes.label
                 , disabled = disabled
                 , value = Value.raw value |> Maybe.withDefault ""
@@ -305,7 +311,7 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
 
         Form.Select { attributes, value, update } ->
             selectField
-                { onChange = update >> onChange
+                { onChange = Just >> update >> onChange
                 , onBlur = blurWhenNotBlank value attributes.label
                 , disabled = disabled
                 , value = Value.raw value |> Maybe.withDefault ""
@@ -351,23 +357,16 @@ textareaField { onChange, onBlur, disabled, value, error, showError, attributes 
 
 numberField : View.NumberFieldConfig msg -> Html msg
 numberField { onChange, onBlur, disabled, value, error, showError, attributes } =
-    let
-        safeOnChange =
-            String.toFloat
-                >> Result.toMaybe
-                >> Maybe.map onChange
-                >> Maybe.withDefault (onChange (Maybe.withDefault 0 value))
-    in
     Html.input
-        ([ Events.onInput safeOnChange
+        ([ Events.onInput (fromString String.toFloat value >> onChange)
          , Attributes.disabled disabled
-         , Attributes.value (value |> Maybe.map toString |> Maybe.withDefault "")
+         , Attributes.value (value |> Maybe.map String.fromFloat |> Maybe.withDefault "")
          , Attributes.placeholder attributes.placeholder
          , Attributes.type_ "number"
-         , Attributes.step (toString attributes.step)
+         , Attributes.step (String.fromFloat attributes.step)
          ]
-            |> withMaybeAttribute (toString >> Attributes.max) attributes.max
-            |> withMaybeAttribute (toString >> Attributes.min) attributes.min
+            |> withMaybeAttribute (String.fromFloat >> Attributes.max) attributes.max
+            |> withMaybeAttribute (String.fromFloat >> Attributes.min) attributes.min
             |> withMaybeAttribute Events.onBlur onBlur
         )
         []
@@ -376,22 +375,15 @@ numberField { onChange, onBlur, disabled, value, error, showError, attributes } 
 
 rangeField : View.RangeFieldConfig msg -> Html msg
 rangeField { onChange, onBlur, disabled, value, error, showError, attributes } =
-    let
-        safeOnChange =
-            String.toFloat
-                >> Result.toMaybe
-                >> Maybe.map onChange
-                >> Maybe.withDefault (onChange (Maybe.withDefault 0 value))
-    in
     Html.input
-        ([ Events.onInput safeOnChange
+        ([ Events.onInput (fromString String.toFloat value >> onChange)
          , Attributes.disabled disabled
-         , Attributes.value (value |> Maybe.map toString |> Maybe.withDefault "")
+         , Attributes.value (value |> Maybe.map String.fromFloat |> Maybe.withDefault "")
          , Attributes.type_ "range"
-         , Attributes.step (toString attributes.step)
+         , Attributes.step (String.fromFloat attributes.step)
          ]
-            |> withMaybeAttribute (toString >> Attributes.max) attributes.max
-            |> withMaybeAttribute (toString >> Attributes.min) attributes.min
+            |> withMaybeAttribute (String.fromFloat >> Attributes.max) attributes.max
+            |> withMaybeAttribute (String.fromFloat >> Attributes.min) attributes.min
             |> withMaybeAttribute Events.onBlur onBlur
         )
         []
@@ -503,6 +495,7 @@ maybeErrorMessage showError maybeError =
             |> Maybe.map errorToString
             |> Maybe.map errorMessage
             |> Maybe.withDefault (Html.text "")
+
     else
         Html.text ""
 
@@ -524,5 +517,16 @@ errorToString error =
 
 withMaybeAttribute : (a -> Html.Attribute msg) -> Maybe a -> List (Html.Attribute msg) -> List (Html.Attribute msg)
 withMaybeAttribute toAttribute maybeValue attrs =
-    Maybe.map (toAttribute >> flip (::) attrs) maybeValue
+    Maybe.map (toAttribute >> (\attr -> attr :: attrs)) maybeValue
         |> Maybe.withDefault attrs
+
+
+fromString : (String -> Maybe a) -> Maybe a -> String -> Maybe a
+fromString parse currentValue input =
+    if String.isEmpty input then
+        Nothing
+
+    else
+        parse input
+            |> Maybe.map Just
+            |> Maybe.withDefault currentValue

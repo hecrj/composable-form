@@ -22,8 +22,6 @@ module.exports = (env, argv) => ({
           {
             loader: 'elm-webpack-loader',
             options: {
-              warn: true,
-              debug: true
             }
           }
         ]
@@ -34,6 +32,30 @@ module.exports = (env, argv) => ({
       }
     ]
   },
+
+  devServer: {
+    inline: true,
+    stats: { colors: true },
+    historyApiFallback: true,
+    host: '0.0.0.0',
+    disableHostCheck: true,
+    stats: {
+      hash: false,
+      version: false,
+      timings: false,
+      assets: false,
+      chunks: false,
+      modules: false,
+      reasons: false,
+      children: false,
+      source: false,
+      errors: true,
+      errorDetails: true,
+      warnings: true,
+      publicPath: false
+    }
+  },
+
   plugins: [
     new HtmlWebpackPlugin({
       title: 'composable-form - Build type-safe composable forms in Elm',

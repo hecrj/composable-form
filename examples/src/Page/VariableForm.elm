@@ -81,7 +81,7 @@ form =
         |> Form.append nameField
         |> Form.append
             (Form.variable
-                { blank =
+                { default =
                     { name = Value.blank
                     , address = Value.filled "https://"
                     }

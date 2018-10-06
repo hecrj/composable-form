@@ -1,4 +1,4 @@
-module Base exposing (..)
+module Base exposing (ContentAction(..), ContentType(..), CustomField(..), andThen, append, contentTypeError, contentTypeField, custom, emailError, emailField, field, map, meta, optional, passwordError, passwordField, repeatPasswordError, repeatPasswordField, succeed)
 
 import Expect exposing (Expectation)
 import Form exposing (Form)
@@ -6,6 +6,7 @@ import Form.Base
 import Form.Error as Error
 import Form.Value as Value exposing (Value)
 import Test exposing (..)
+
 
 
 -- Custom fields
@@ -23,6 +24,7 @@ field =
                     \string ->
                         if string == invalidString then
                             Err "invalid input"
+
                         else
                             Ok string
                 , value = identity
@@ -81,8 +83,9 @@ field =
                     fill value
                         |> withField
                             (\field_ ->
-                                field_.update newValue
-                                    |> Expect.equal (Value.update newValue value)
+                                field_.update (Just newValue)
+                                    |> Expect.equal
+                                        (Value.filled newValue)
                             )
             , test "builds the field with its attributes" <|
                 \_ ->
@@ -173,6 +176,7 @@ custom =
                                   , Error.ValidationFailed "error 3"
                                   ]
                                 )
+
                         else
                             Ok "valid"
                     , isEmpty = False
@@ -254,7 +258,7 @@ append : Test
 append =
     let
         form =
-            Form.Base.succeed (,)
+            Form.Base.succeed Tuple.pair
                 |> Form.Base.append emailField
                 |> Form.Base.append passwordField
 
@@ -450,7 +454,7 @@ optional : Test
 optional =
     let
         form =
-            Form.Base.succeed (,)
+            Form.Base.succeed Tuple.pair
                 |> Form.Base.append emailField
                 |> Form.Base.append passwordField
                 |> Form.optional
@@ -565,6 +569,7 @@ emailField =
             \value ->
                 if String.contains "@" value then
                     Ok value
+
                 else
                     Err emailError
         , value = .email
@@ -592,6 +597,7 @@ passwordField =
             \value ->
                 if String.length value >= 8 then
                     Ok value
+
                 else
                     Err passwordError
         , value = .password
@@ -621,12 +627,13 @@ repeatPasswordField =
                     \value ->
                         if Just value == Value.raw values.password then
                             Ok ()
+
                         else
                             Err repeatPasswordError
                 , value = .repeatPassword
                 , update =
-                    \newValue values ->
-                        { values | repeatPassword = newValue }
+                    \newValue values_ ->
+                        { values_ | repeatPassword = newValue }
                 , attributes =
                     { label = "Repeat password"
                     , placeholder = "Type your password again..."

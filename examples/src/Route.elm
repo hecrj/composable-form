@@ -1,18 +1,20 @@
-module Route
-    exposing
-        ( Route(..)
-        , goBack
-        , href
-        , navigate
-        , program
-        )
+module Route exposing
+    ( Key
+    , Route(..)
+    , goBack
+    , href
+    , navigate
+    , program
+    )
 
+import Browser
+import Browser.Navigation as Navigation
 import Html exposing (Attribute, Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Json.Decode as Decode exposing (Decoder)
-import Navigation
-import UrlParser exposing (Parser, map, s)
+import Url exposing (Url)
+import Url.Parser as UrlParser exposing (Parser, map, s)
 
 
 type Route
@@ -26,6 +28,10 @@ type Route
     | MultiStage
     | CustomFields
     | NotFound
+
+
+type alias Key =
+    Navigation.Key
 
 
 parser : Parser (Route -> a) a
@@ -43,53 +49,53 @@ parser =
         ]
 
 
-fromLocation : Navigation.Location -> Route
-fromLocation location =
-    case UrlParser.parseHash parser location of
-        Just route ->
-            route
-
-        Nothing ->
-            NotFound
+fromUrl : Url -> Route
+fromUrl url =
+    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
+        |> UrlParser.parse parser
+        |> Maybe.withDefault NotFound
 
 
 program :
-    (Route -> msg)
-    ->
-        { init : Route -> ( model, Cmd msg )
-        , update : msg -> model -> ( model, Cmd msg )
-        , view : model -> Html msg
-        }
-    -> Program Never model msg
-program toMsg { init, update, view } =
-    Navigation.program
-        (fromLocation >> toMsg)
-        { init = fromLocation >> init
+    { init : Route -> Navigation.Key -> ( model, Cmd msg )
+    , update : msg -> model -> ( model, Cmd msg )
+    , view : model -> Html msg
+    , onExternalUrlRequest : String -> msg
+    , onInternalUrlRequest : Route -> msg
+    , onUrlChange : Route -> msg
+    }
+    -> Program () model msg
+program { init, update, view, onInternalUrlRequest, onExternalUrlRequest, onUrlChange } =
+    Browser.application
+        { init = \flags -> fromUrl >> init
         , update = update
-        , view = view
+        , view = view >> List.singleton >> Browser.Document "composable-form - Build type-safe composable forms in Elm"
+        , onUrlRequest =
+            \request ->
+                case request of
+                    Browser.Internal url ->
+                        onInternalUrlRequest (fromUrl url)
+
+                    Browser.External url ->
+                        onExternalUrlRequest url
+        , onUrlChange = fromUrl >> onUrlChange
         , subscriptions = always Sub.none
         }
 
 
-navigate : Route -> Cmd msg
-navigate =
-    Navigation.newUrl << toString
+navigate : Navigation.Key -> Route -> Cmd msg
+navigate key =
+    Navigation.pushUrl key << toString
 
 
-goBack : Cmd msg
-goBack =
-    Navigation.back 1
+goBack : Navigation.Key -> Cmd msg
+goBack key =
+    Navigation.back key 1
 
 
 href : (Route -> msg) -> Route -> List (Attribute msg)
 href toMsg route =
     [ Attributes.attribute "href" (toString route)
-    , Events.onWithOptions
-        "click"
-        { stopPropagation = False, preventDefault = True }
-        (preventDefault2
-            |> Decode.andThen (maybePreventDefault <| toMsg route)
-        )
     ]
 
 
@@ -129,32 +135,3 @@ toString route =
                     [ "404" ]
     in
     "#/" ++ String.join "/" parts
-
-
-
--- FIX Ctrl/Cmd Click in Windows and Mac
--- https://github.com/elm-lang/html/issues/110
--- TODO: Review in Elm 0.19
-
-
-preventDefault2 : Decoder Bool
-preventDefault2 =
-    Decode.map2
-        invertedOr
-        (Decode.field "ctrlKey" Decode.bool)
-        (Decode.field "metaKey" Decode.bool)
-
-
-maybePreventDefault : msg -> Bool -> Decoder msg
-maybePreventDefault msg preventDefault =
-    case preventDefault of
-        True ->
-            Decode.succeed msg
-
-        False ->
-            Decode.fail "Normal link"
-
-
-invertedOr : Bool -> Bool -> Bool
-invertedOr x y =
-    not (x || y)

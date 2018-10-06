@@ -1,10 +1,8 @@
-module Form.Base.VariableForm
-    exposing
-        ( Config
-        , Form
-        , VariableForm
-        , form
-        )
+module Form.Base.VariableForm exposing
+    ( VariableForm
+    , form
+    , Config, Form
+    )
 
 {-| This module contains a reusable `VariableForm` type.
 
@@ -52,7 +50,7 @@ type alias Form values field =
 type alias Config values subValues =
     { value : values -> Array subValues
     , update : Array subValues -> values -> values
-    , blank : subValues
+    , default : subValues
     , attributes : Attributes
     }
 
@@ -74,7 +72,7 @@ form :
     -> Config values subValues
     -> ((subValues -> values -> values) -> subValues -> values -> Base.FilledForm output field)
     -> Base.Form values (List output) field
-form tagger { value, update, blank, attributes } buildSubform =
+form tagger { value, update, default, attributes } buildSubform =
     Base.custom
         (\values ->
             let
@@ -83,7 +81,7 @@ form tagger { value, update, blank, attributes } buildSubform =
 
                 subformForIndex index subValues =
                     buildSubform
-                        (\newSubValues values -> update (Array.set index newSubValues listOfSubvalues) values)
+                        (\newSubValues values_ -> update (Array.set index newSubValues listOfSubvalues) values_)
                         subValues
                         values
 
@@ -121,7 +119,7 @@ form tagger { value, update, blank, attributes } buildSubform =
             { field =
                 tagger
                     { forms = List.indexedMap toForm filledSubForms
-                    , add = \_ -> update (Array.push blank listOfSubvalues) values
+                    , add = \_ -> update (Array.push default listOfSubvalues) values
                     , attributes = attributes
                     }
             , result = result

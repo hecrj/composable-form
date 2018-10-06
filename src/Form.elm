@@ -1,28 +1,11 @@
-module Form
-    exposing
-        ( Field(..)
-        , Form
-        , TextType(..)
-        , andThen
-        , append
-        , checkboxField
-        , emailField
-        , fill
-        , group
-        , map
-        , mapValues
-        , meta
-        , numberField
-        , optional
-        , passwordField
-        , radioField
-        , rangeField
-        , selectField
-        , succeed
-        , textField
-        , textareaField
-        , variable
-        )
+module Form exposing
+    ( Form
+    , textField, emailField, passwordField, textareaField, numberField, rangeField, checkboxField
+    , radioField, selectField
+    , succeed, append, optional, group, andThen, meta, variable
+    , map, mapValues
+    , Field(..), TextType(..), fill
+    )
 
 {-| Build [composable forms](#Form) comprised of [fields](#fields).
 
@@ -74,7 +57,9 @@ import Form.Base.SelectField as SelectField exposing (SelectField)
 import Form.Base.TextField as TextField exposing (TextField)
 import Form.Base.VariableForm as VariableForm exposing (VariableForm)
 import Form.Error exposing (Error)
+import Form.Field as Field
 import Form.Value exposing (Value)
+
 
 
 -- Definition
@@ -120,6 +105,7 @@ inputted name has at least 2 characters, like this:
                 \name ->
                     if String.length name < 2 then
                         Err "the name must have at least 2 characters"
+
                     else
                         Ok name
             , value = .name
@@ -227,7 +213,7 @@ numberField :
     { parser : Float -> Result String output
     , value : values -> Value Float
     , update : Value Float -> values -> values
-    , attributes : NumberField.Attributes
+    , attributes : NumberField.Attributes Float
     }
     -> Form values output
 numberField =
@@ -246,7 +232,7 @@ rangeField :
     { parser : Float -> Result String output
     , value : values -> Value Float
     , update : Value Float -> values -> values
-    , attributes : RangeField.Attributes
+    , attributes : RangeField.Attributes Float
     }
     -> Form values output
 rangeField =
@@ -349,11 +335,11 @@ For instance, we could build a signup form:
             }
             ( EmailAddress, Password )
     signupForm =
-        Form.succeed (,)
+        Form.succeed Tuple.pair
             |> Form.append signupEmailField
             |> Form.append signupPasswordField
 
-In this pipeline, `append` is being used to feed the `(,)` function and combine two forms
+In this pipeline, `append` is being used to feed the `Tuple.pair` function and combine two forms
 into a bigger form that outputs `( EmailAddress, Password )` when submitted.
 
 **Note:** You can use [`succeed`](#succeed) smartly to **skip** some values.
@@ -519,6 +505,7 @@ the values of other fields. An example of this is a "repeat password" field:
                         \value ->
                             if Just value == Value.raw values.password then
                                 Ok ()
+
                             else
                                 Err "the passwords do not match"
                     , value = .repeatPassword
@@ -617,28 +604,31 @@ mapFieldValues update values field =
     let
         mapUpdate fn value =
             update (fn value) values
+
+        newUpdate oldValues =
+            update oldValues values
     in
     case field of
-        Text textType field ->
-            Text textType { field | update = mapUpdate field.update }
+        Text textType field_ ->
+            Text textType (Field.mapValues newUpdate field_)
 
-        Number field ->
-            Number { field | update = mapUpdate field.update }
+        Number field_ ->
+            Number (Field.mapValues newUpdate field_)
 
-        Range field ->
-            Range { field | update = mapUpdate field.update }
+        Range field_ ->
+            Range (Field.mapValues newUpdate field_)
 
-        Checkbox field ->
-            Checkbox { field | update = mapUpdate field.update }
+        Checkbox field_ ->
+            Checkbox (Field.mapValues newUpdate field_)
 
-        Radio field ->
-            Radio { field | update = mapUpdate field.update }
+        Radio field_ ->
+            Radio (Field.mapValues newUpdate field_)
 
-        Select field ->
-            Select { field | update = mapUpdate field.update }
+        Select field_ ->
+            Select (Field.mapValues newUpdate field_)
 
         Group fields ->
-            Group (List.map (\( field, error ) -> ( mapFieldValues update values field, error )) fields)
+            Group (List.map (\( field_, error ) -> ( mapFieldValues update values field_, error )) fields)
 
         Variable { forms, add, attributes } ->
             Variable
@@ -647,8 +637,8 @@ mapFieldValues update values field =
                         (\{ fields, delete } ->
                             { fields =
                                 List.map
-                                    (\( field, error ) ->
-                                        ( mapFieldValues update values field, error )
+                                    (\( field_, error ) ->
+                                        ( mapFieldValues update values field_, error )
                                     )
                                     fields
                             , delete = \_ -> update (delete ()) values
@@ -672,8 +662,8 @@ using the result of [`fill`](#fill).
 -}
 type Field values
     = Text TextType (TextField values)
-    | Number (NumberField values)
-    | Range (RangeField values)
+    | Number (NumberField Float values)
+    | Range (RangeField Float values)
     | Checkbox (CheckboxField values)
     | Radio (RadioField values)
     | Select (SelectField values)

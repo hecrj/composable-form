@@ -57,8 +57,8 @@ update msg model =
 
         SignUp email name password favoriteLanguage ->
             case model of
-                FillingForm form ->
-                    ( FillingForm { form | state = Form.View.Loading }
+                FillingForm formModel ->
+                    ( FillingForm { formModel | state = Form.View.Loading }
                     , User.signUp email name password favoriteLanguage
                         |> Task.attempt SignupAttempted
                     )
@@ -71,8 +71,8 @@ update msg model =
 
         SignupAttempted (Err error) ->
             case model of
-                FillingForm form ->
-                    ( FillingForm { form | state = Form.View.Error error }, Cmd.none )
+                FillingForm formModel ->
+                    ( FillingForm { formModel | state = Form.View.Error error }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -98,7 +98,7 @@ view model =
         SignedUp user ->
             Html.div []
                 [ Html.h1 [] [ Html.text "Signup successful!" ]
-                , Html.text (toString user)
+                , Html.text (Debug.toString user)
                 ]
 
 
@@ -146,12 +146,13 @@ form =
                             \value ->
                                 if Just value == Value.raw values.password then
                                     Ok ()
+
                                 else
                                     Err "The passwords do not match"
                         , value = .repeatPassword
                         , update =
-                            \newValue values ->
-                                { values | repeatPassword = newValue }
+                            \newValue values_ ->
+                                { values_ | repeatPassword = newValue }
                         , attributes =
                             { label = "Repeat password"
                             , placeholder = "Your password again..."
@@ -167,6 +168,7 @@ form =
                             (\lang ->
                                 if lang == User.Javascript then
                                     Err "You didn't choose right :/"
+
                                 else
                                     Ok lang
                             )
@@ -192,6 +194,7 @@ form =
                     \value ->
                         if value then
                             Ok ()
+
                         else
                             Err "You must accept the terms"
                 , value = .acceptTerms

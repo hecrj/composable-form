@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import Browser.Navigation as Navigation
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Page.Composability.Simple as Composability
@@ -15,7 +16,9 @@ import View
 
 
 type alias Model =
-    Page
+    { page : Page
+    , key : Route.Key
+    }
 
 
 type Page
@@ -34,6 +37,7 @@ type Page
 type Msg
     = RouteAccessed Route
     | Navigate Route
+    | LoadExternalUrl String
     | LoginMsg Login.Msg
     | SignupMsg Signup.Msg
     | DynamicFormMsg DynamicForm.Msg
@@ -44,68 +48,80 @@ type Msg
     | CustomFieldsMsg CustomFields.Msg
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
     Route.program
-        RouteAccessed
         { init = init
         , update = update
         , view = view
+        , onExternalUrlRequest = LoadExternalUrl
+        , onInternalUrlRequest = Navigate
+        , onUrlChange = RouteAccessed
         }
 
 
-init : Route -> ( Model, Cmd Msg )
-init route =
-    ( fromRoute route, Cmd.none )
+init : Route -> Route.Key -> ( Model, Cmd Msg )
+init route key =
+    ( { page = fromRoute route
+      , key = key
+      }
+    , Cmd.none
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         RouteAccessed route ->
-            ( fromRoute route, Cmd.none )
+            ( { model | page = fromRoute route }, Cmd.none )
 
         Navigate route ->
-            ( model, Route.navigate route )
+            ( model, Route.navigate model.key route )
+
+        LoadExternalUrl string ->
+            ( model, Navigation.load string )
 
         LoginMsg loginMsg ->
-            case model of
+            case model.page of
                 Login loginModel ->
-                    ( Login (Login.update loginMsg loginModel), Cmd.none )
+                    ( { model | page = Login (Login.update loginMsg loginModel) }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
 
         SignupMsg signupMsg ->
-            case model of
+            case model.page of
                 Signup signupModel ->
                     Signup.update signupMsg signupModel
                         |> Tuple.mapFirst Signup
+                        |> Tuple.mapFirst (\page -> { model | page = page })
                         |> Tuple.mapSecond (Cmd.map SignupMsg)
 
                 _ ->
                     ( model, Cmd.none )
 
         DynamicFormMsg subMsg ->
-            case model of
+            case model.page of
                 DynamicForm subModel ->
-                    ( DynamicForm (DynamicForm.update subMsg subModel), Cmd.none )
+                    ( { model | page = DynamicForm (DynamicForm.update subMsg subModel) }
+                    , Cmd.none
+                    )
 
                 _ ->
                     ( model, Cmd.none )
 
         VariableFormMsg subMsg ->
-            case model of
+            case model.page of
                 VariableForm subModel ->
-                    ( VariableForm (VariableForm.update subMsg subModel), Cmd.none )
+                    ( { model | page = VariableForm (VariableForm.update subMsg subModel) }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
 
         ValidationStrategiesMsg subMsg ->
-            case model of
+            case model.page of
                 ValidationStrategies subModel ->
-                    ( ValidationStrategies (ValidationStrategies.update subMsg subModel)
+                    ( { model | page = ValidationStrategies (ValidationStrategies.update subMsg subModel) }
                     , Cmd.none
                     )
 
@@ -113,28 +129,30 @@ update msg model =
                     ( model, Cmd.none )
 
         ComposabilityMsg subMsg ->
-            case model of
+            case model.page of
                 Composability subModel ->
-                    ( Composability (Composability.update subMsg subModel), Cmd.none )
+                    ( { model | page = Composability (Composability.update subMsg subModel) }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
 
         MultiStageMsg subMsg ->
-            case model of
+            case model.page of
                 MultiStage subModel ->
                     MultiStage.update subMsg subModel
                         |> Tuple.mapFirst MultiStage
+                        |> Tuple.mapFirst (\page -> { model | page = page })
                         |> Tuple.mapSecond (Cmd.map MultiStageMsg)
 
                 _ ->
                     ( model, Cmd.none )
 
         CustomFieldsMsg subMsg ->
-            case model of
+            case model.page of
                 CustomFields signupModel ->
                     CustomFields.update subMsg signupModel
                         |> Tuple.mapFirst CustomFields
+                        |> Tuple.mapFirst (\page -> { model | page = page })
                         |> Tuple.mapSecond (Cmd.map CustomFieldsMsg)
 
                 _ ->
@@ -155,7 +173,7 @@ view model =
                 ]
             ]
         , Html.div [ Attributes.class "wrapper" ]
-            [ case model of
+            [ case model.page of
                 Home ->
                     viewHome
 
