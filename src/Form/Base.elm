@@ -47,7 +47,6 @@ If that still does not convince you, you could start your own `MyProject.Form` m
     succeed =
         Base.succeed
 
-
     -- Other useful operations you will probably want to use,
     -- like append, andThen...
 
