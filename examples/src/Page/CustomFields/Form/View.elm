@@ -7,7 +7,6 @@ module Page.CustomFields.Form.View exposing
     )
 
 import Form.Error as Error exposing (Error)
-import Form.Value as Value
 import Form.View
 import Html exposing (Html)
 import Html.Attributes as Attributes
@@ -123,7 +122,7 @@ field { disabled, showError } ( field_, maybeError ) =
             emailField
                 { onChange = onChange
                 , onBlur = Nothing
-                , value = Value.raw value |> Maybe.withDefault ""
+                , value = value
                 , disabled = disabled
                 , error = maybeError
                 , showError = state == Form.EmailValidated

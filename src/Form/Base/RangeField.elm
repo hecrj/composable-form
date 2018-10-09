@@ -19,7 +19,6 @@ module Form.Base.RangeField exposing
 
 import Form.Base as Base
 import Form.Field exposing (Field)
-import Form.Value as Value
 
 
 {-| Represents a range field.
@@ -29,7 +28,11 @@ custom fields or writing custom view code.
 
 -}
 type alias RangeField number values =
-    Field (Attributes number) number values
+    Field (Attributes number) (Maybe number) values
+
+
+type alias Config number values output =
+    Base.FieldConfig (Attributes number) (Maybe number) values output
 
 
 {-| The attributes of a RangeField.
@@ -57,20 +60,19 @@ custom fields.
 -}
 form :
     (RangeField number values -> field)
-    -> Base.FieldConfig (Attributes number) number values output
+    -> Config number values output
     -> Base.Form values output field
 form build { parser, value, update, attributes } =
     let
-        withDefault v =
-            Value.raw v
-                |> Maybe.map (always v)
-                |> Maybe.withDefault
-                    (attributes.min
-                        |> Maybe.map Value.filled
-                        |> Maybe.withDefault Value.blank
-                    )
+        withDefault maybeValue =
+            case maybeValue of
+                Just v ->
+                    Just v
+
+                Nothing ->
+                    attributes.min
     in
-    Base.field { isEmpty = always False }
+    Base.field { isEmpty = (==) Nothing }
         build
         { parser = parser
         , value = value >> withDefault

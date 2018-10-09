@@ -19,7 +19,6 @@ module Form.Base.CheckboxField exposing
 
 import Form.Base as Base
 import Form.Field exposing (Field)
-import Form.Value as Value
 
 
 {-| Represents a checkbox field.
@@ -55,17 +54,5 @@ form :
     (CheckboxField values -> field)
     -> Base.FieldConfig Attributes Bool values output
     -> Base.Form values output field
-form build { parser, value, update, attributes } =
-    let
-        withDefault default v =
-            Value.raw v
-                |> Maybe.map (always v)
-                |> Maybe.withDefault (Value.filled default)
-    in
+form =
     Base.field { isEmpty = always False }
-        build
-        { parser = parser
-        , value = value >> withDefault False
-        , update = update
-        , attributes = attributes
-        }

@@ -4,7 +4,7 @@ cache:
   yarn: true
 
 install:
-  - npm install -g elm elm-test@beta elm-format
+  - npm install -g elm elm-test@0.19.0-beta6 elm-format
 
 script:
   - elm-format --validate src tests examples

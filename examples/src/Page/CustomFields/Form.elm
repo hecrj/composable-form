@@ -14,7 +14,6 @@ module Page.CustomFields.Form exposing
 import Form.Base as Base
 import Form.Base.TextField as TextField exposing (TextField)
 import Form.Error exposing (Error)
-import Form.Value as Value exposing (Value)
 import Page.CustomFields.ComplexValidationField as ComplexValidationField
 
 
@@ -46,7 +45,7 @@ customEmailField { onChange, state, attributes } =
             in
             { field =
                 Email
-                    { onChange = ComplexValidationField.InputChanged >> onChange
+                    { onChange = ComplexValidationField.ValueChanged >> onChange
                     , state =
                         case ComplexValidationField.validationState (state values) of
                             ComplexValidationField.Loading ->
@@ -64,10 +63,7 @@ customEmailField { onChange, state, attributes } =
                 state values
                     |> ComplexValidationField.result
                     |> Result.mapError (\error -> ( error, [] ))
-            , isEmpty =
-                Value.raw value
-                    |> Maybe.withDefault ""
-                    |> (==) ""
+            , isEmpty = String.isEmpty value
             }
     in
     Base.custom filledField
@@ -110,7 +106,7 @@ type Field values msg
     = Email
         { onChange : String -> msg
         , state : EmailState
-        , value : Value String
+        , value : String
         , attributes : TextField.Attributes
         }
 

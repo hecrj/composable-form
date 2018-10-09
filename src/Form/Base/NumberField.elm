@@ -28,7 +28,7 @@ custom fields or writing custom view code.
 
 -}
 type alias NumberField number values =
-    Field (Attributes number) number values
+    Field (Attributes number) (Maybe number) values
 
 
 {-| The attributes of a NumberField.
@@ -57,7 +57,7 @@ custom fields.
 -}
 form :
     (NumberField number values -> field)
-    -> Base.FieldConfig (Attributes number) number values output
+    -> Base.FieldConfig (Attributes number) (Maybe number) values output
     -> Base.Form values output field
 form =
-    Base.field { isEmpty = always False }
+    Base.field { isEmpty = (==) Nothing }
