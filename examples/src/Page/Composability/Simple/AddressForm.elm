@@ -2,21 +2,20 @@ module Page.Composability.Simple.AddressForm exposing (Values, blank, form)
 
 import Data.Address as Address exposing (Address)
 import Form exposing (Form)
-import Form.Value as Value exposing (Value)
 
 
 type alias Values =
-    { country : Value String
-    , city : Value String
-    , postalCode : Value String
+    { country : String
+    , city : String
+    , postalCode : String
     }
 
 
 blank : Values
 blank =
-    { country = Value.blank
-    , city = Value.blank
-    , postalCode = Value.blank
+    { country = ""
+    , city = ""
+    , postalCode = ""
     }
 
 

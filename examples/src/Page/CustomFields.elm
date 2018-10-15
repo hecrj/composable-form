@@ -25,7 +25,7 @@ type Msg
 
 init : Model
 init =
-    { email = ComplexValidationField.blank
+    { email = ComplexValidationField.init ""
     }
         |> FormView.idle
 

@@ -2,7 +2,7 @@ module Page.CustomFields.ComplexValidationField exposing
     ( Msg(..)
     , State
     , ValidationState(..)
-    , blank
+    , init
     , result
     , update
     , validationState
@@ -10,59 +10,58 @@ module Page.CustomFields.ComplexValidationField exposing
     )
 
 import Form.Error as Error exposing (Error)
-import Form.Value as Value exposing (Value)
 import Process
 import Task exposing (Task)
 
 
-type State input output
-    = State (Value input) (ValidationState (Value input) output)
+type State value output
+    = State value (ValidationState value output)
 
 
-type ValidationState input output
+type ValidationState value output
     = Loading
     | NotValidated
-    | Validated input (Result Error output)
+    | Validated value (Result Error output)
 
 
-blank : State input output
-blank =
-    State Value.blank NotValidated
+init : value -> State value output
+init value_ =
+    State value_ NotValidated
 
 
-validationState : State input output -> ValidationState (Value input) output
+validationState : State value output -> ValidationState value output
 validationState (State _ validationState_) =
     validationState_
 
 
-type Msg input output
-    = InputChanged input
-    | ValidateAfterChange input
-    | InputValidated input (Result String output)
+type Msg value output
+    = ValueChanged value
+    | ValidateAfterChange value
+    | ValueValidated value (Result String output)
 
 
 update :
-    (input -> Task String output)
-    -> Msg input output
-    -> State input output
-    -> ( State input output, Cmd (Msg input output) )
+    (value -> Task String output)
+    -> Msg value output
+    -> State value output
+    -> ( State value output, Cmd (Msg value output) )
 update validate msg ((State value_ validationState_) as state) =
     case msg of
-        InputChanged input ->
-            ( State (Value.filled input) NotValidated
+        ValueChanged newValue ->
+            ( State newValue NotValidated
             , Process.sleep 1000
-                |> Task.perform (always (ValidateAfterChange input))
+                |> Task.perform (always (ValidateAfterChange newValue))
             )
 
         ValidateAfterChange old ->
-            if Value.raw value_ == Just old then
+            if value_ == old then
                 performValidation validate state
 
             else
                 ( state, Cmd.none )
 
-        InputValidated target result_ ->
-            if Value.raw value_ == Just target then
+        ValueValidated target result_ ->
+            if value_ == target then
                 ( State value_ (Validated value_ (Result.mapError Error.ValidationFailed result_))
                 , Cmd.none
                 )
@@ -72,15 +71,15 @@ update validate msg ((State value_ validationState_) as state) =
 
 
 performValidation :
-    (input -> Task String output)
-    -> State input output
-    -> ( State input output, Cmd (Msg input output) )
+    (value -> Task String output)
+    -> State value output
+    -> ( State value output, Cmd (Msg value output) )
 performValidation validate (State value_ validationState_) =
     let
         isAlreadyValidated =
             case validationState_ of
                 Validated validatedValue _ ->
-                    Value.raw validatedValue == Value.raw value_
+                    validatedValue == value_
 
                 _ ->
                     False
@@ -91,25 +90,18 @@ performValidation validate (State value_ validationState_) =
         )
 
     else
-        case Value.raw value_ of
-            Just input ->
-                ( State value_ Loading
-                , validate input
-                    |> Task.attempt (InputValidated input)
-                )
-
-            Nothing ->
-                ( State value_ (Validated value_ (Err Error.RequiredFieldIsEmpty))
-                , Cmd.none
-                )
+        ( State value_ Loading
+        , validate value_
+            |> Task.attempt (ValueValidated value_)
+        )
 
 
-value : State input output -> Value input
+value : State value output -> value
 value (State value_ _) =
     value_
 
 
-result : State input output -> Result Error output
+result : State value output -> Result Error output
 result (State _ validationState_) =
     case validationState_ of
         Loading ->

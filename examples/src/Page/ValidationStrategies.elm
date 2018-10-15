@@ -3,7 +3,6 @@ module Page.ValidationStrategies exposing (Model, Msg, init, update, view)
 import Data.EmailAddress as EmailAddress exposing (EmailAddress)
 import Data.User as User exposing (User)
 import Form exposing (Form)
-import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
 import View
@@ -14,10 +13,10 @@ type alias Model =
 
 
 type alias Values =
-    { validationStrategy : Value String
-    , email : Value String
-    , name : Value String
-    , password : Value String
+    { validationStrategy : String
+    , email : String
+    , name : String
+    , password : String
     }
 
 
@@ -28,10 +27,10 @@ type Msg
 
 init : Model
 init =
-    { validationStrategy = Value.filled "onSubmit"
-    , email = Value.blank
-    , name = Value.blank
-    , password = Value.blank
+    { validationStrategy = "onSubmit"
+    , email = ""
+    , name = ""
+    , password = ""
     }
         |> Form.View.idle
 
@@ -56,7 +55,7 @@ view model =
             , action = "Submit"
             , loading = "Loading..."
             , validation =
-                if onBlurSelected model.values then
+                if model.values.validationStrategy == "onBlur" then
                     Form.View.ValidateOnBlur
 
                 else
@@ -65,11 +64,6 @@ view model =
             form
             model
         ]
-
-
-onBlurSelected : Values -> Bool
-onBlurSelected { validationStrategy } =
-    Value.raw validationStrategy == Just "onBlur"
 
 
 form : Form Values Msg

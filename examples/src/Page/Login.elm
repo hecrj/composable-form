@@ -2,7 +2,6 @@ module Page.Login exposing (Model, Msg, init, update, view)
 
 import Data.EmailAddress as EmailAddress exposing (EmailAddress)
 import Form exposing (Form)
-import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
 import View
@@ -13,9 +12,9 @@ type alias Model =
 
 
 type alias Values =
-    { email : Value String
-    , password : Value String
-    , rememberMe : Value Bool
+    { email : String
+    , password : String
+    , rememberMe : Bool
     }
 
 
@@ -26,9 +25,9 @@ type Msg
 
 init : Model
 init =
-    { email = Value.blank
-    , password = Value.blank
-    , rememberMe = Value.blank
+    { email = ""
+    , password = ""
+    , rememberMe = False
     }
         |> Form.View.idle
 

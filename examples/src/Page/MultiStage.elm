@@ -3,7 +3,6 @@ module Page.MultiStage exposing (Model, Msg, init, update, view)
 import Data.EmailAddress as EmailAddress exposing (EmailAddress)
 import Data.User as User exposing (User)
 import Form exposing (Form)
-import Form.Value as Value exposing (Value)
 import Form.View.MultiStage as MultiStage
 import Html exposing (Html)
 import Html.Attributes as Attributes
@@ -15,10 +14,10 @@ type alias Model =
 
 
 type alias Values =
-    { email : Value String
-    , name : Value String
-    , password : Value String
-    , favoriteLanguage : Value String
+    { email : String
+    , name : String
+    , password : String
+    , favoriteLanguage : String
     }
 
 
@@ -29,10 +28,10 @@ type Msg
 
 init : Model
 init =
-    { email = Value.blank
-    , name = Value.blank
-    , password = Value.blank
-    , favoriteLanguage = Value.blank
+    { email = ""
+    , name = ""
+    , password = ""
+    , favoriteLanguage = ""
     }
         |> MultiStage.idle
 

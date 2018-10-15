@@ -48,7 +48,6 @@ import Form.Base.RangeField as RangeField
 import Form.Base.SelectField as SelectField
 import Form.Base.TextField as TextField
 import Form.Error as Error exposing (Error)
-import Form.Value as Value
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -428,21 +427,17 @@ type alias FieldConfig values msg =
 renderField : CustomConfig msg element -> FieldConfig values msg -> ( Form.Field values, Maybe Error ) -> element
 renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, maybeError ) =
     let
-        blurWhenNotBlank value label =
-            if Value.raw value == Nothing then
-                Nothing
-
-            else
-                Maybe.map (\onBlurEvent -> onBlurEvent label) onBlur
+        blur label =
+            Maybe.map (\onBlurEvent -> onBlurEvent label) onBlur
     in
     case field of
         Form.Text type_ { attributes, value, update } ->
             let
                 config =
-                    { onChange = Just >> update >> onChange
-                    , onBlur = blurWhenNotBlank value attributes.label
+                    { onChange = update >> onChange
+                    , onBlur = blur attributes.label
                     , disabled = disabled
-                    , value = Value.raw value |> Maybe.withDefault ""
+                    , value = value
                     , error = maybeError
                     , showError = showError attributes.label
                     , attributes = attributes
@@ -467,9 +462,9 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
         Form.Number { attributes, value, update } ->
             customConfig.numberField
                 { onChange = update >> onChange
-                , onBlur = blurWhenNotBlank value attributes.label
+                , onBlur = blur attributes.label
                 , disabled = disabled
-                , value = Value.raw value
+                , value = value
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes
@@ -478,9 +473,9 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
         Form.Range { attributes, value, update } ->
             customConfig.rangeField
                 { onChange = update >> onChange
-                , onBlur = blurWhenNotBlank value attributes.label
+                , onBlur = blur attributes.label
                 , disabled = disabled
-                , value = Value.raw value
+                , value = value
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes
@@ -488,10 +483,10 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
 
         Form.Checkbox { attributes, value, update } ->
             customConfig.checkboxField
-                { onChange = Just >> update >> onChange
-                , onBlur = blurWhenNotBlank value attributes.label
+                { onChange = update >> onChange
+                , onBlur = blur attributes.label
                 , disabled = disabled
-                , value = Value.raw value |> Maybe.withDefault False
+                , value = value
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes
@@ -499,10 +494,10 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
 
         Form.Radio { attributes, value, update } ->
             customConfig.radioField
-                { onChange = Just >> update >> onChange
-                , onBlur = blurWhenNotBlank value attributes.label
+                { onChange = update >> onChange
+                , onBlur = blur attributes.label
                 , disabled = disabled
-                , value = Value.raw value |> Maybe.withDefault ""
+                , value = value
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes
@@ -510,10 +505,10 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
 
         Form.Select { attributes, value, update } ->
             customConfig.selectField
-                { onChange = Just >> update >> onChange
-                , onBlur = blurWhenNotBlank value attributes.label
+                { onChange = update >> onChange
+                , onBlur = blur attributes.label
                 , disabled = disabled
-                , value = Value.raw value |> Maybe.withDefault ""
+                , value = value
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes

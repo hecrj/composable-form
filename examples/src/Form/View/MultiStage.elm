@@ -12,7 +12,6 @@ module Form.View.MultiStage exposing
 
 import Form
 import Form.Error as Error exposing (Error)
-import Form.Value as Value
 import Form.View as View
 import Html exposing (Html)
 import Html.Attributes as Attributes
@@ -229,21 +228,17 @@ type alias FieldConfig values msg =
 renderField : FieldConfig values msg -> ( Form.Field values, Maybe Error ) -> Html msg
 renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, maybeError ) =
     let
-        blurWhenNotBlank value label =
-            if Value.raw value == Nothing then
-                Nothing
-
-            else
-                Maybe.map (\onBlur_ -> onBlur_ label) onBlur
+        blur label =
+            Maybe.map (\onBlur_ -> onBlur_ label) onBlur
     in
     case field of
         Form.Text type_ { attributes, value, update } ->
             let
                 config =
-                    { onChange = Just >> update >> onChange
-                    , onBlur = blurWhenNotBlank value attributes.label
+                    { onChange = update >> onChange
+                    , onBlur = blur attributes.label
                     , disabled = disabled
-                    , value = Value.raw value |> Maybe.withDefault ""
+                    , value = value
                     , error = maybeError
                     , showError = showError attributes.label
                     , attributes = attributes
@@ -268,9 +263,9 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
         Form.Number { attributes, value, update } ->
             numberField
                 { onChange = update >> onChange
-                , onBlur = blurWhenNotBlank value attributes.label
+                , onBlur = blur attributes.label
                 , disabled = disabled
-                , value = Value.raw value
+                , value = value
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes
@@ -279,9 +274,9 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
         Form.Range { attributes, value, update } ->
             rangeField
                 { onChange = update >> onChange
-                , onBlur = blurWhenNotBlank value attributes.label
+                , onBlur = blur attributes.label
                 , disabled = disabled
-                , value = Value.raw value
+                , value = value
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes
@@ -289,10 +284,10 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
 
         Form.Checkbox { attributes, value, update } ->
             checkboxField
-                { onChange = Just >> update >> onChange
-                , onBlur = blurWhenNotBlank value attributes.label
+                { onChange = update >> onChange
+                , onBlur = blur attributes.label
                 , disabled = disabled
-                , value = Value.raw value |> Maybe.withDefault False
+                , value = value
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes
@@ -300,10 +295,10 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
 
         Form.Radio { attributes, value, update } ->
             radioField
-                { onChange = Just >> update >> onChange
-                , onBlur = blurWhenNotBlank value attributes.label
+                { onChange = update >> onChange
+                , onBlur = blur attributes.label
                 , disabled = disabled
-                , value = Value.raw value |> Maybe.withDefault ""
+                , value = value
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes
@@ -311,10 +306,10 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
 
         Form.Select { attributes, value, update } ->
             selectField
-                { onChange = Just >> update >> onChange
-                , onBlur = blurWhenNotBlank value attributes.label
+                { onChange = update >> onChange
+                , onBlur = blur attributes.label
                 , disabled = disabled
-                , value = Value.raw value |> Maybe.withDefault ""
+                , value = value
                 , error = maybeError
                 , showError = showError attributes.label
                 , attributes = attributes

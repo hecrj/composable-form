@@ -47,7 +47,6 @@ If that still does not convince you, you could start your own `MyProject.Form` m
     succeed =
         Base.succeed
 
-
     -- Other useful operations you will probably want to use,
     -- like append, andThen...
 
@@ -75,7 +74,6 @@ import `Form.Base` every time we needed to use those operations with our brand n
 
 import Form.Error as Error exposing (Error)
 import Form.Field exposing (Field)
-import Form.Value as Value exposing (Value)
 
 
 {-| A [`Form`](Form#Form) that can contain any type of `field`.
@@ -95,16 +93,15 @@ concrete field is validated and updated, alongside its attributes:
     of either:
       - the correct `output`
       - a `String` describing a problem
-  - `value` defines how the [`Value`](Form.Value) of the field is obtained from the form `values`
-  - `update` defines how the current form `values` should be updated with a new field
-    [`Value`](Form.Value)
+  - `value` defines how the value of the field is obtained from the form `values`
+  - `update` defines how the current form `values` should be updated with a new field value
   - `attributes` represent the attributes of the field
 
 -}
 type alias FieldConfig attrs input values output =
     { parser : input -> Result String output
-    , value : values -> Value input
-    , update : Value input -> values -> values
+    , value : values -> input
+    , update : input -> values -> values
     , attributes : attrs
     }
 
@@ -125,8 +122,8 @@ For example, [`Form.textField`](Form#textField) could be implemented like this:
 
     textField :
         { parser : String -> Result String output
-        , value : values -> Value String
-        , update : Value String -> values -> values
+        , value : values -> String
+        , update : String -> values -> values
         , attributes : TextField.Attributes
         }
         -> Form values output
@@ -147,21 +144,16 @@ field :
     -> Form values output field
 field { isEmpty } build config =
     let
-        requiredParser maybeValue =
-            case maybeValue of
-                Nothing ->
-                    Err ( Error.RequiredFieldIsEmpty, [] )
+        requiredParser value =
+            if isEmpty value then
+                Err ( Error.RequiredFieldIsEmpty, [] )
 
-                Just value ->
-                    if isEmpty value then
-                        Err ( Error.RequiredFieldIsEmpty, [] )
-
-                    else
-                        config.parser value
-                            |> Result.mapError (\error -> ( Error.ValidationFailed error, [] ))
+            else
+                config.parser value
+                    |> Result.mapError (\error -> ( Error.ValidationFailed error, [] ))
 
         parse =
-            config.value >> Value.raw >> requiredParser
+            config.value >> requiredParser
 
         field_ values =
             let
@@ -169,12 +161,7 @@ field { isEmpty } build config =
                     config.value values
 
                 update newValue =
-                    config.update
-                        (newValue
-                            |> Maybe.map Value.filled
-                            |> Maybe.withDefault Value.blank
-                        )
-                        values
+                    config.update newValue values
             in
             build
                 { value = value
