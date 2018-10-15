@@ -3,7 +3,6 @@ module Page.Signup exposing (Model, Msg, init, update, view)
 import Data.EmailAddress as EmailAddress exposing (EmailAddress)
 import Data.User as User exposing (User)
 import Form exposing (Form)
-import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
 import Task
@@ -16,12 +15,12 @@ type Model
 
 
 type alias Values =
-    { email : Value String
-    , name : Value String
-    , password : Value String
-    , repeatPassword : Value String
-    , favoriteLanguage : Value String
-    , acceptTerms : Value Bool
+    { email : String
+    , name : String
+    , password : String
+    , repeatPassword : String
+    , favoriteLanguage : String
+    , acceptTerms : Bool
     }
 
 
@@ -33,12 +32,12 @@ type Msg
 
 init : Model
 init =
-    { email = Value.blank
-    , name = Value.blank
-    , password = Value.blank
-    , repeatPassword = Value.blank
-    , favoriteLanguage = Value.blank
-    , acceptTerms = Value.blank
+    { email = ""
+    , name = ""
+    , password = ""
+    , repeatPassword = ""
+    , favoriteLanguage = ""
+    , acceptTerms = False
     }
         |> Form.View.idle
         |> FillingForm
@@ -144,7 +143,7 @@ form =
                     Form.passwordField
                         { parser =
                             \value ->
-                                if Just value == Value.raw values.password then
+                                if value == values.password then
                                     Ok ()
 
                                 else

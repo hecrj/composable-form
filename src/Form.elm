@@ -58,7 +58,6 @@ import Form.Base.TextField as TextField exposing (TextField)
 import Form.Base.VariableForm as VariableForm exposing (VariableForm)
 import Form.Error exposing (Error)
 import Form.Field as Field
-import Form.Value exposing (Value)
 
 
 
@@ -88,9 +87,8 @@ It requires some configuration:
     the field and produces a `Result` of either:
       - a `String` describing an error
       - a correct `output`
-  - `value` describes how to obtain the field [`Value`](Form-Value) from the form `values`
-  - `update` describes how the current form `values` should be updated with a new field
-    [`Value`](Form-Value)
+  - `value` describes how to obtain the field value from the form `values`
+  - `update` describes how the current form `values` should be updated with a new field value
   - `attributes` let you define the specific attributes of the field (`label` and `placeholder`
     in this case, see [`TextField.Attributes`](Form-Base-TextField#Attributes))
 
@@ -98,7 +96,7 @@ It might seem like a lot of configuration, but don't be scared! In practice, it 
 For instance, you could use this function to build a `nameField` that only succeeds when the
 inputted name has at least 2 characters, like this:
 
-    nameField : Form { r | name : Value String } String
+    nameField : Form { r | name : String } String
     nameField =
         Form.textField
             { parser =
@@ -128,8 +126,8 @@ As you can see:
 -}
 textField :
     { parser : String -> Result String output
-    , value : values -> Value String
-    , update : Value String -> values -> values
+    , value : values -> String
+    , update : String -> values -> values
     , attributes : TextField.Attributes
     }
     -> Form values output
@@ -144,8 +142,8 @@ It has the same configuration options as [`textField`](#textField).
 -}
 emailField :
     { parser : String -> Result String output
-    , value : values -> Value String
-    , update : Value String -> values -> values
+    , value : values -> String
+    , update : String -> values -> values
     , attributes : TextField.Attributes
     }
     -> Form values output
@@ -160,8 +158,8 @@ It has the same configuration options as [`textField`](#textField).
 -}
 passwordField :
     { parser : String -> Result String output
-    , value : values -> Value String
-    , update : Value String -> values -> values
+    , value : values -> String
+    , update : String -> values -> values
     , attributes : TextField.Attributes
     }
     -> Form values output
@@ -176,8 +174,8 @@ It has the same configuration options as [`textField`](#textField).
 -}
 textareaField :
     { parser : String -> Result String output
-    , value : values -> Value String
-    , update : Value String -> values -> values
+    , value : values -> String
+    , update : String -> values -> values
     , attributes : TextField.Attributes
     }
     -> Form values output
@@ -192,8 +190,8 @@ It has the same configuration options as [`textField`](#textField).
 -}
 searchField :
     { parser : String -> Result String output
-    , value : values -> Value String
-    , update : Value String -> values -> values
+    , value : values -> String
+    , update : String -> values -> values
     , attributes : TextField.Attributes
     }
     -> Form values output
@@ -210,9 +208,9 @@ It has a very similar configuration to [`textField`](#textField), the only diffe
 
 -}
 numberField :
-    { parser : Float -> Result String output
-    , value : values -> Value Float
-    , update : Value Float -> values -> values
+    { parser : Maybe Float -> Result String output
+    , value : values -> Maybe Float
+    , update : Maybe Float -> values -> values
     , attributes : NumberField.Attributes Float
     }
     -> Form values output
@@ -229,9 +227,9 @@ It has a very similar configuration to [`textField`](#textField), the only diffe
 
 -}
 rangeField :
-    { parser : Float -> Result String output
-    , value : values -> Value Float
-    , update : Value Float -> values -> values
+    { parser : Maybe Float -> Result String output
+    , value : values -> Maybe Float
+    , update : Maybe Float -> values -> values
     , attributes : RangeField.Attributes Float
     }
     -> Form values output
@@ -250,8 +248,8 @@ It has a very similar configuration to [`textField`](#textField), the only diffe
 -}
 checkboxField :
     { parser : Bool -> Result String output
-    , value : values -> Value Bool
-    , update : Value Bool -> values -> values
+    , value : values -> Bool
+    , update : Bool -> values -> values
     , attributes : CheckboxField.Attributes
     }
     -> Form values output
@@ -269,8 +267,8 @@ It has a very similar configuration to [`textField`](#textField), the only diffe
 -}
 radioField :
     { parser : String -> Result String output
-    , value : values -> Value String
-    , update : Value String -> values -> values
+    , value : values -> String
+    , update : String -> values -> values
     , attributes : RadioField.Attributes
     }
     -> Form values output
@@ -288,8 +286,8 @@ It has a very similar configuration to [`textField`](#textField), the only diffe
 -}
 selectField :
     { parser : String -> Result String output
-    , value : values -> Value String
-    , update : Value String -> values -> values
+    , value : values -> String
+    , update : String -> values -> values
     , attributes : SelectField.Attributes
     }
     -> Form values output
@@ -316,13 +314,13 @@ succeed =
 
 For instance, we could build a signup form:
 
-    signupEmailField : Form { r | email : Value String } EmailAddress
+    signupEmailField : Form { r | email : String } EmailAddress
     signupEmailField =
         Form.emailField
             { -- ...
             }
 
-    signupPasswordField : Form { r | password : Value String } Password
+    signupPasswordField : Form { r | password : String } Password
     signupPasswordField =
         Form.passwordField
             { -- ...
@@ -330,8 +328,8 @@ For instance, we could build a signup form:
 
     signupForm :
         Form
-            { email : Value String
-            , password : Value String
+            { email : String
+            , password : String
             }
             ( EmailAddress, Password )
     signupForm =
@@ -348,8 +346,8 @@ you do not care about the `output` they produce. An example of this is a "repeat
 
     passwordForm :
         Form
-            { password : Value String
-            , repeatPassword : Value String
+            { password : String
+            , repeatPassword : String
             }
             Password
     passwordForm =
@@ -422,9 +420,9 @@ to choose between different forms, like this:
         | Question
 
     type alias Values =
-        { type_ : Value String
-        , title : Value String
-        , body : Value String
+        { type_ : String
+        , title : String
+        , body : String
         }
 
     contentForm : Form Values Msg
@@ -493,8 +491,8 @@ the values of other fields. An example of this is a "repeat password" field:
     repeatPasswordField :
         Form
             { r
-                | password : Value String
-                , repeatPassword : Value String
+                | password : String
+                , repeatPassword : String
             }
             ()
     repeatPasswordField =
@@ -503,7 +501,7 @@ the values of other fields. An example of this is a "repeat password" field:
                 Form.passwordField
                     { parser =
                         \value ->
-                            if Just value == Value.raw values.password then
+                            if value == values.password then
                                 Ok ()
 
                             else
@@ -568,8 +566,8 @@ map =
 This can be useful when you need to nest forms:
 
     type alias SignupValues =
-        { email : Value String
-        , password : Value String
+        { email : String
+        , password : String
         , address : AddressValues
         }
 

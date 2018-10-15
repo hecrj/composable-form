@@ -3,7 +3,6 @@ module Page.VariableForm exposing (Model, Msg, init, update, view)
 import Array exposing (Array)
 import Data.User as User
 import Form exposing (Form)
-import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
 import View
@@ -14,7 +13,7 @@ type alias Model =
 
 
 type alias Values =
-    { name : Value String
+    { name : String
     , websites : List WebsiteValues
     }
 
@@ -26,10 +25,10 @@ type Msg
 
 init : Model
 init =
-    { name = Value.blank
+    { name = ""
     , websites =
-        [ { name = Value.filled "Elm"
-          , address = Value.filled "https://elm-lang.org/"
+        [ { name = "Elm"
+          , address = "https://elm-lang.org/"
           }
         ]
     }
@@ -81,8 +80,8 @@ form =
         |> Form.append
             (Form.variable
                 { default =
-                    { name = Value.blank
-                    , address = Value.filled "https://"
+                    { name = ""
+                    , address = "https://"
                     }
                 , value = .websites
                 , update = \value values -> { values | websites = value }
@@ -96,8 +95,8 @@ form =
 
 
 type alias WebsiteValues =
-    { name : Value String
-    , address : Value String
+    { name : String
+    , address : String
     }
 
 

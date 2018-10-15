@@ -4,7 +4,6 @@ import Data.Address exposing (Address)
 import Data.EmailAddress as EmailAddress exposing (EmailAddress)
 import Data.User as User
 import Form exposing (Form)
-import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
 import Page.Composability.Simple.AddressForm as AddressForm
@@ -16,8 +15,8 @@ type alias Model =
 
 
 type alias Values =
-    { email : Value String
-    , name : Value String
+    { email : String
+    , name : String
     , address : AddressForm.Values
     }
 
@@ -29,8 +28,8 @@ type Msg
 
 init : Model
 init =
-    { email = Value.blank
-    , name = Value.blank
+    { email = ""
+    , name = ""
     , address = AddressForm.blank
     }
         |> Form.View.idle

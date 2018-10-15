@@ -9,8 +9,6 @@ custom fields or writing custom view code.
 
 -}
 
-import Form.Value exposing (Value)
-
 
 {-| Represents a form field.
 
@@ -48,12 +46,8 @@ attributes. For example, you could render a `TextField` like this:
             Form.Text TextField.Raw { value, update, attributes } ->
                 Html.input
                     [ Attributes.type_ "text"
-                    , Attributes.value
-                        (value
-                            |> Value.raw
-                            |> Maybe.withDefault ""
-                        )
-                    , Attributes.onInput (Just >> update >> onChange)
+                    , Attributes.value value
+                    , Attributes.onInput (update >> onChange)
                     , Attributes.placeholder attributes.placeholder
                     ]
                     []
@@ -63,8 +57,8 @@ attributes. For example, you could render a `TextField` like this:
 
 -}
 type alias Field attributes value values =
-    { value : Value value
-    , update : Maybe value -> values
+    { value : value
+    , update : value -> values
     , attributes : attributes
     }
 

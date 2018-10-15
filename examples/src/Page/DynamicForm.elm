@@ -3,7 +3,6 @@ module Page.DynamicForm exposing (Model, Msg, init, update, view)
 import Data.Post as Post
 import Data.Question as Question
 import Form exposing (Form)
-import Form.Value as Value exposing (Value)
 import Form.View
 import Html exposing (Html)
 import View
@@ -14,9 +13,9 @@ type alias Model =
 
 
 type alias Values =
-    { publicationType : Value String
-    , title : Value String
-    , body : Value String
+    { publicationType : String
+    , title : String
+    , body : String
     }
 
 
@@ -28,9 +27,9 @@ type Msg
 
 init : Model
 init =
-    { publicationType = Value.blank
-    , title = Value.blank
-    , body = Value.blank
+    { publicationType = ""
+    , title = ""
+    , body = ""
     }
         |> Form.View.idle
 
