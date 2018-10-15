@@ -14,15 +14,14 @@ Here is an example that defines a login form:
 ```elm
 module Form.Login exposing (Output, Values, form)
 
-import Data.EmailAddress as EmailAddress exposing (EmailAddress)
+import EmailAddress exposing (EmailAddress)
 import Form exposing (Form)
-import Form.Value exposing (Value)
 
 
 type alias Values =
-    { email : Value String
-    , password : Value String
-    , rememberMe : Value Bool
+    { email : String
+    , password : String
+    , rememberMe : Bool
     }
 
 
