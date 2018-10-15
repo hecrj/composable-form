@@ -6,11 +6,10 @@ import Html.Attributes as Attributes
 import Page.Composability.Simple as Composability
 import Page.CustomFields as CustomFields
 import Page.DynamicForm as DynamicForm
+import Page.FormList as FormList
 import Page.Login as Login
-import Page.MultiStage as MultiStage
 import Page.Signup as Signup
 import Page.ValidationStrategies as ValidationStrategies
-import Page.VariableForm as VariableForm
 import Route exposing (Route)
 import View
 
@@ -26,10 +25,9 @@ type Page
     | Login Login.Model
     | Signup Signup.Model
     | DynamicForm DynamicForm.Model
-    | VariableForm VariableForm.Model
+    | FormList FormList.Model
     | ValidationStrategies ValidationStrategies.Model
     | Composability Composability.Model
-    | MultiStage MultiStage.Model
     | CustomFields CustomFields.Model
     | NotFound
 
@@ -41,10 +39,9 @@ type Msg
     | LoginMsg Login.Msg
     | SignupMsg Signup.Msg
     | DynamicFormMsg DynamicForm.Msg
-    | VariableFormMsg VariableForm.Msg
+    | FormListMsg FormList.Msg
     | ValidationStrategiesMsg ValidationStrategies.Msg
     | ComposabilityMsg Composability.Msg
-    | MultiStageMsg MultiStage.Msg
     | CustomFieldsMsg CustomFields.Msg
 
 
@@ -110,10 +107,10 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
-        VariableFormMsg subMsg ->
+        FormListMsg subMsg ->
             case model.page of
-                VariableForm subModel ->
-                    ( { model | page = VariableForm (VariableForm.update subMsg subModel) }, Cmd.none )
+                FormList subModel ->
+                    ( { model | page = FormList (FormList.update subMsg subModel) }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -132,17 +129,6 @@ update msg model =
             case model.page of
                 Composability subModel ->
                     ( { model | page = Composability (Composability.update subMsg subModel) }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        MultiStageMsg subMsg ->
-            case model.page of
-                MultiStage subModel ->
-                    MultiStage.update subMsg subModel
-                        |> Tuple.mapFirst MultiStage
-                        |> Tuple.mapFirst (\page -> { model | page = page })
-                        |> Tuple.mapSecond (Cmd.map MultiStageMsg)
 
                 _ ->
                     ( model, Cmd.none )
@@ -189,9 +175,9 @@ view model =
                     DynamicForm.view subModel
                         |> Html.map DynamicFormMsg
 
-                VariableForm subModel ->
-                    VariableForm.view subModel
-                        |> Html.map VariableFormMsg
+                FormList subModel ->
+                    FormList.view subModel
+                        |> Html.map FormListMsg
 
                 ValidationStrategies subModel ->
                     ValidationStrategies.view subModel
@@ -200,10 +186,6 @@ view model =
                 Composability subModel ->
                     Composability.view subModel
                         |> Html.map ComposabilityMsg
-
-                MultiStage subModel ->
-                    MultiStage.view subModel
-                        |> Html.map MultiStageMsg
 
                 CustomFields subModel ->
                     CustomFields.view subModel
@@ -234,17 +216,14 @@ fromRoute route =
         Route.DynamicForm ->
             DynamicForm DynamicForm.init
 
-        Route.VariableForm ->
-            VariableForm VariableForm.init
+        Route.FormList ->
+            FormList FormList.init
 
         Route.ValidationStrategies ->
             ValidationStrategies ValidationStrategies.init
 
         Route.Composability ->
             Composability Composability.init
-
-        Route.MultiStage ->
-            MultiStage MultiStage.init
 
         Route.CustomFields ->
             CustomFields CustomFields.init
@@ -269,9 +248,9 @@ viewHome =
               , Route.DynamicForm
               , "A form that changes dynamically based on its own values."
               )
-            , ( "Variable form"
-              , Route.VariableForm
-              , "A form with a variable number of fields that can be added and deleted."
+            , ( "Form list"
+              , Route.FormList
+              , "A variable list of forms that can be added and deleted."
               )
             , ( "Validation strategies"
               , Route.ValidationStrategies
@@ -280,10 +259,6 @@ viewHome =
             , ( "Composability"
               , Route.Composability
               , "An address form embedded in a bigger form."
-              )
-            , ( "Multiple stages"
-              , Route.MultiStage
-              , "Custom form view that allows the user to fill a form in multiple stages."
               )
             , ( "Custom fields"
               , Route.CustomFields

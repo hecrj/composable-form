@@ -2,7 +2,7 @@ module Form exposing
     ( Form
     , textField, emailField, passwordField, textareaField, numberField, rangeField, checkboxField
     , radioField, selectField
-    , succeed, append, optional, group, andThen, meta, variable
+    , succeed, append, optional, group, andThen, meta, list
     , map, mapValues
     , Field(..), TextType(..), fill
     )
@@ -28,7 +28,7 @@ field. You might then be wondering: "How do I create a `Form` with multiple fiel
 Well, as the name of this package says: `Form` is composable! This section explains how you
 can combine different forms into bigger and more complex ones.
 
-@docs succeed, append, optional, group, andThen, meta, variable
+@docs succeed, append, optional, group, andThen, meta, list
 
 
 # Mapping
@@ -50,12 +50,12 @@ might suit your needs.
 
 import Form.Base as Base
 import Form.Base.CheckboxField as CheckboxField exposing (CheckboxField)
+import Form.Base.FormList as FormList exposing (FormList)
 import Form.Base.NumberField as NumberField exposing (NumberField)
 import Form.Base.RadioField as RadioField exposing (RadioField)
 import Form.Base.RangeField as RangeField exposing (RangeField)
 import Form.Base.SelectField as SelectField exposing (SelectField)
 import Form.Base.TextField as TextField exposing (TextField)
-import Form.Base.VariableForm as VariableForm exposing (VariableForm)
 import Form.Error exposing (Error)
 import Form.Field as Field
 
@@ -524,25 +524,25 @@ meta =
 
 
 {-| -}
-variable : VariableForm.Config values subValues -> Form subValues output -> Form values (List output)
-variable config subform =
+list : FormList.Config values elementValues -> (Int -> Form elementValues output) -> Form values (List output)
+list config elementForIndex =
     let
-        subformForIndex update subValues values =
+        fillElement { index, update, values, elementValues } =
             let
-                filledSubform =
-                    fill subform subValues
+                filledElement =
+                    fill (elementForIndex index) elementValues
             in
             { fields =
                 List.map
                     (\( field, error ) ->
                         ( mapFieldValues update values field, error )
                     )
-                    filledSubform.fields
-            , result = filledSubform.result
-            , isEmpty = filledSubform.isEmpty
+                    filledElement.fields
+            , result = filledElement.result
+            , isEmpty = filledElement.isEmpty
             }
     in
-    VariableForm.form Variable config subformForIndex
+    FormList.form List config fillElement
 
 
 
@@ -628,8 +628,8 @@ mapFieldValues update values field =
         Group fields ->
             Group (List.map (\( field_, error ) -> ( mapFieldValues update values field_, error )) fields)
 
-        Variable { forms, add, attributes } ->
-            Variable
+        List { forms, add, attributes } ->
+            List
                 { forms =
                     List.map
                         (\{ fields, delete } ->
@@ -666,7 +666,7 @@ type Field values
     | Radio (RadioField values)
     | Select (SelectField values)
     | Group (List ( Field values, Maybe Error ))
-    | Variable (VariableForm values (Field values))
+    | List (FormList values (Field values))
 
 
 {-| Represents a type of text field

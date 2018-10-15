@@ -531,7 +531,7 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
         Form.Group fields ->
             customConfig.group (List.map (renderField customConfig fieldConfig) fields)
 
-        Form.Variable { forms, add, attributes } ->
+        Form.List { forms, add, attributes } ->
             customConfig.variable
                 { forms =
                     List.map

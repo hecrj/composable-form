@@ -1,6 +1,5 @@
-module Page.VariableForm exposing (Model, Msg, init, update, view)
+module Page.FormList exposing (Model, Msg, init, update, view)
 
-import Array exposing (Array)
 import Data.User as User
 import Form exposing (Form)
 import Form.View
@@ -78,7 +77,7 @@ form =
     Form.succeed Submit
         |> Form.append nameField
         |> Form.append
-            (Form.variable
+            (Form.list
                 { default =
                     { name = ""
                     , address = "https://"
@@ -106,8 +105,8 @@ type alias Website =
     }
 
 
-websiteForm : Form WebsiteValues Website
-websiteForm =
+websiteForm : Int -> Form WebsiteValues Website
+websiteForm index =
     let
         nameField =
             Form.textField
@@ -115,7 +114,7 @@ websiteForm =
                 , value = .name
                 , update = \value values -> { values | name = value }
                 , attributes =
-                    { label = "Website name"
+                    { label = "Name of website #" ++ String.fromInt (index + 1)
                     , placeholder = ""
                     }
                 }
@@ -126,7 +125,7 @@ websiteForm =
                 , value = .address
                 , update = \value values -> { values | address = value }
                 , attributes =
-                    { label = "Website address"
+                    { label = "Address of website #" ++ String.fromInt (index + 1)
                     , placeholder = "https://..."
                     }
                 }
