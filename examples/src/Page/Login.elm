@@ -3,6 +3,7 @@ module Page.Login exposing (Model, Msg, init, update, view)
 import Data.EmailAddress as EmailAddress exposing (EmailAddress)
 import Form exposing (Form)
 import Form.View
+import Form.View.Ui
 import Html exposing (Html)
 import View
 
@@ -42,12 +43,12 @@ update msg model =
             { model | state = Form.View.Loading }
 
 
-view : Model -> Html Msg
-view model =
+view : View.FormView -> Model -> Html Msg
+view formView model =
     Html.div []
         [ Html.h1 [] [ Html.text "Login" ]
         , code
-        , Form.View.asHtml
+        , View.form formView
             { onChange = FormChanged
             , action = "Log in"
             , loading = "Logging in..."

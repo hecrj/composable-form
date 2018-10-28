@@ -47,13 +47,13 @@ update msg model =
             { model | state = Form.View.Loading }
 
 
-view : Model -> Html Msg
-view model =
+view : View.FormView -> Model -> Html Msg
+view formView model =
     Html.div []
         [ Html.h1 [] [ Html.text "Dynamic form" ]
         , Html.p [] [ Html.text "A form that changes based on a field value." ]
         , code
-        , Form.View.asHtml
+        , View.form formView
             { onChange = FormChanged
             , action = "New Publication"
             , loading = "Loading..."

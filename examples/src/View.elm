@@ -1,5 +1,10 @@
-module View exposing (code, repositoryUrl)
+module View exposing (FormView(..), code, form, repositoryUrl)
 
+import Element exposing (Element)
+import Element.Font as Font
+import Form
+import Form.View
+import Form.View.Ui
 import Html exposing (Html)
 import Html.Attributes as Attributes
 
@@ -9,6 +14,11 @@ type alias CodeSnippet =
     , path : String
     , code : String
     }
+
+
+type FormView
+    = Default
+    | Ui
 
 
 repositoryUrl : String
@@ -37,3 +47,31 @@ code =
         >> List.intersperse [ Html.text "\n\n" ]
         >> List.concatMap identity
         >> Html.pre []
+
+
+form formView =
+    case formView of
+        Default ->
+            Form.View.asHtml
+
+        Ui ->
+            asUi
+
+
+asUi :
+    Form.View.ViewConfig values msg
+    -> Form.Form values msg
+    -> Form.View.Model values
+    -> Html msg
+asUi viewConfig form_ model =
+    Element.layout
+        [ Font.size 16
+        , Font.family
+            [ Font.external
+                { url = "https://fonts.googleapis.com/css?family=Source+Sans+Pro"
+                , name = "Source Sans Pro"
+                }
+            , Font.sansSerif
+            ]
+        ]
+        (Form.View.Ui.layout viewConfig form_ model)
