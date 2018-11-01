@@ -41,6 +41,7 @@ layout =
         , radioField = radioField
         , selectField = selectField
         , group = group
+        , section = section
         }
 
 
@@ -220,6 +221,28 @@ group =
     row [ spacing 12 ]
 
 
+section : String -> List (Element msg) -> Element msg
+section title fields =
+    column
+        [ Border.solid
+        , Border.width 1
+        , padding 20
+        , width fill
+        , inFront
+            (el
+                [ moveUp 14
+                , moveRight 10
+                , Background.color black
+                , Font.color white
+                , padding 6
+                , width shrink
+                ]
+                (text title)
+            )
+        ]
+        fields
+
+
 errorToString : Error -> String
 errorToString error =
     case error of
@@ -361,6 +384,11 @@ gray =
 white : Color
 white =
     rgb 1 1 1
+
+
+black : Color
+black =
+    rgb 0 0 0
 
 
 button :

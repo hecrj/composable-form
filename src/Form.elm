@@ -5,6 +5,7 @@ module Form exposing
     , succeed, append, optional, group, andThen, meta
     , map, mapValues
     , Field(..), TextType(..), fill
+    , section
     )
 
 {-| Build [composable forms](#Form) comprised of [fields](#fields).
@@ -405,6 +406,28 @@ group form =
         )
 
 
+{-| Wraps a form in a section: an area with a title.
+
+Like [`group`](#group), this function has no effect on form behavior. It just
+indicates to the form view function that the fields are part of some user-defined
+section.
+
+-}
+section : String -> Form values output -> Form values output
+section title form =
+    Base.custom
+        (\values ->
+            let
+                { fields, result, isEmpty } =
+                    Base.fill form values
+            in
+            { field = Section title fields
+            , result = result
+            , isEmpty = isEmpty
+            }
+        )
+
+
 {-| Fill a form `andThen` fill another one.
 
 This is useful to build dynamic forms. For instance, you could use the output of a `selectField`
@@ -594,6 +617,9 @@ mapValues { value, update } form =
 
                         Group fields ->
                             Group (List.map (\( field_, error ) -> ( mapField field_, error )) fields)
+
+                        Section title fields ->
+                            Section title (List.map (\( field_, error ) -> ( mapField field_, error )) fields)
             in
             form
                 |> Base.mapValues value
@@ -619,6 +645,7 @@ type Field values
     | Radio (RadioField values)
     | Select (SelectField values)
     | Group (List ( Field values, Maybe Error ))
+    | Section String (List ( Field values, Maybe Error ))
 
 
 {-| Represents a type of text field
