@@ -227,3 +227,14 @@ pre {
   padding: 1em;
   overflow-x: auto;
 }
+
+legend {
+    background-color: #000;
+    color: #fff;
+    padding: 3px 6px;
+}
+
+
+fieldset input {
+    margin: .4rem;
+}

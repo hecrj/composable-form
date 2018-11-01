@@ -77,14 +77,14 @@ update msg model =
                     ( model, Cmd.none )
 
 
-view : Model -> Html Msg
-view model =
+view : View.FormView -> Model -> Html Msg
+view formView model =
     case model of
         FillingForm formModel ->
             Html.div []
                 [ Html.h1 [] [ Html.text "Signup" ]
                 , code
-                , Form.View.asHtml
+                , View.form formView
                     { onChange = FormChanged
                     , action = "Sign up"
                     , loading = "Loading..."
