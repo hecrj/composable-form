@@ -539,15 +539,15 @@ And here is an example of the produced HTML:
 
 ```html
 <form class="elm-form">
-   <div class="elm-form-field">
-       <label>E-Mail</label>
+   <label class="elm-form-field">
+       <div class="elm-form-label">E-Mail</div>
        <input type="email" value="some@value.com" placeholder="Type your e-mail...">
-   </div>
-   <div class="elm-form-field elm-form-field-error">
-       <label>Password</label>
+   </label>
+   <label class="elm-form-field elm-form-field-error">
+       <div class="elm-form-label">Password</div>
        <input type="password" value="" placeholder="Type your password...">
        <div class="elm-form-error">This field is required</div>
-   </div>
+   </label>
    <button type="submit">Log in</button>
 </form>
 ```
@@ -676,7 +676,7 @@ rangeField { onChange, onBlur, disabled, value, error, showError, attributes } =
 
 checkboxField : CheckboxFieldConfig msg -> Html msg
 checkboxField { onChange, onBlur, value, disabled, error, showError, attributes } =
-    [ Html.label []
+    [ Html.div [ Attributes.class "elm-form-label" ]
         [ Html.input
             ([ Events.onCheck onChange
              , Attributes.checked value
@@ -697,7 +697,7 @@ radioField : RadioFieldConfig msg -> Html msg
 radioField { onChange, onBlur, disabled, value, error, showError, attributes } =
     let
         radio ( key, label ) =
-            Html.label []
+            Html.div [ Attributes.class "elm-form-label" ]
                 [ Html.input
                     ([ Attributes.name attributes.label
                      , Attributes.value key
@@ -750,7 +750,7 @@ group =
 
 wrapInFieldContainer : Bool -> Maybe Error -> List (Html msg) -> Html msg
 wrapInFieldContainer showError error =
-    Html.div
+    Html.label
         [ Attributes.classList
             [ ( "elm-form-field", True )
             , ( "elm-form-field-error", showError && error /= Nothing )
@@ -769,7 +769,7 @@ withLabelAndError label showError error fieldAsHtml =
 
 fieldLabel : String -> Html msg
 fieldLabel label =
-    Html.label [] [ Html.text label ]
+    Html.div [ Attributes.class "elm-form-label" ] [ Html.text label ]
 
 
 maybeErrorMessage : Bool -> Maybe Error -> Html msg
