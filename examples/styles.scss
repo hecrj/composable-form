@@ -229,12 +229,17 @@ pre {
 }
 
 legend {
-    background-color: #000;
-    color: #fff;
-    padding: 3px 6px;
+  background-color: #60B5CC;
+  color: #fff;
+  padding: 3px 6px;
 }
 
 
-fieldset input {
+fieldset {
+  border: 1px solid #60B5CC;
+  border-radius: 5px;
+
+  input {
     margin: .4rem;
+  }
 }

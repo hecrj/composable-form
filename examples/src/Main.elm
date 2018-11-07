@@ -172,7 +172,7 @@ view model =
         , Html.div [ Attributes.class "wrapper" ]
             [ case model.page of
                 Home ->
-                    viewHome model.formView
+                    viewHome
 
                 Login loginModel ->
                     Login.view model.formView loginModel
@@ -204,6 +204,11 @@ view model =
 
                 NotFound ->
                     Html.text "Not found"
+            , if model.page /= Home && model.page /= NotFound then
+                viewStrategySelector model.formView
+
+              else
+                Html.text ""
             ]
         ]
 
@@ -243,8 +248,8 @@ fromRoute route =
             NotFound
 
 
-viewHome : FormView -> Html Msg
-viewHome formView =
+viewHome : Html Msg
+viewHome =
     let
         examples =
             [ ( "Login"
@@ -285,13 +290,17 @@ viewHome formView =
     in
     Html.div []
         [ Html.h1 [] [ Html.text "Examples" ]
-        , Html.fieldset []
-            [ Html.legend [] [ Html.text "Form View" ]
-            , radio (SelectedFormView Default) (formView == Default) "Default"
-            , radio (SelectedFormView Ui) (formView == Ui) "Elm Ui"
-            ]
         , Html.ul []
             (List.map toItem examples)
+        ]
+
+
+viewStrategySelector : FormView -> Html Msg
+viewStrategySelector formView =
+    Html.fieldset []
+        [ Html.legend [] [ Html.text "View strategy" ]
+        , radio (SelectedFormView Default) (formView == Default) "Default"
+        , radio (SelectedFormView Ui) (formView == Ui) "elm-ui"
         ]
 
 
