@@ -73,7 +73,6 @@ form =
 ```
 
 Read the [`Form` module documentation][form-docs] to understand how this code works.
-Feel free to play with the package using [this Ellie snippet][ellie-example].
 
 [form-docs]: http://package.elm-lang.org/packages/hecrj/composable-form/latest/Form
 [ellie-example]: https://ellie-app.com/3Q3ydLznQRra1
@@ -82,6 +81,8 @@ Feel free to play with the package using [this Ellie snippet][ellie-example].
 
 Try out the [live demo](https://hecrj.github.io/composable-form) and/or
 [check out the examples](https://github.com/hecrj/composable-form/tree/master/examples/src/Page).
+
+Also, feel free to play with the package using [this Ellie snippet][ellie-example].
 
 ## Contributing / Feedback
 
