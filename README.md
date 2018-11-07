@@ -73,8 +73,10 @@ form =
 ```
 
 Read the [`Form` module documentation][form-docs] to understand how this code works.
+Feel free to play with the package using [this Ellie snippet][ellie-example].
 
 [form-docs]: http://package.elm-lang.org/packages/hecrj/composable-form/latest/Form
+[ellie-example]: https://ellie-app.com/3Q3ydLznQRra1
 
 ## Demo / Examples
 
