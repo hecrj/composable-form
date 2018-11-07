@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - View strategy selector on examples website.
 
 ### Changed
-- Render fields inside HTML `label` for accessibility. The previous `label`
-  elements are now `div` elements with the `elm-form-label` class. To migrate,
-  replace your old CSS rules `.elm-form label { ... }` with
+- Render fields inside HTML `label` for accessibility in `Form.View.asHtml`.
+  The previous `label` elements are now `div` elements with the `elm-form-label`
+  class. To migrate, replace your old CSS rules `.elm-form label { ... }` with
   `.elm-form .elm-form-label { ... }`.
 
 ### Removed
