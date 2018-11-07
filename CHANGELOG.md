@@ -4,11 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [5.0.0] - 2018-11-07
+### Added
+- View strategy selector on examples website.
+
+### Changed
+- Render fields inside HTML `label` for accessibility. The previous `label`
+  elements are now `div` elements with the `elm-form-label` class. To migrate,
+  replace your old CSS rules `.elm-form label { ... }` with
+  `.elm-form .elm-form-label { ... }`.
+
+### Removed
+- `Form.Value`. Elm 0.19 makes this module unnecessary! The API is simpler now,
+  allowing you to work with your types directly. To migrate, replace `Value a`
+  with `a` and initialize your form values explicitly.
 
 ## [4.0.1] - 2018-09-02
 ### Changed
-- Replace mentions of old `(,)` operator in docs with the new `Tuple.pair` equivalent in Elm 0.19.
+- Replace mentions of old `(,)` operator in docs with the new `Tuple.pair`
+  equivalent in Elm 0.19.
 - Fix example in `Field` documentation.
 
 ## [4.0.0] - 2018-08-20
@@ -88,7 +102,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/hecrj/composable-form/compare/4.0.1...HEAD
+[Unreleased]: https://github.com/hecrj/composable-form/compare/5.0.0...HEAD
+[5.0.0]: https://github.com/hecrj/composable-form/compare/4.0.1...5.0.0
 [4.0.1]: https://github.com/hecrj/composable-form/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/hecrj/composable-form/compare/3.0.1...4.0.0
 [3.0.1]: https://github.com/hecrj/composable-form/compare/3.0.0...3.0.1
