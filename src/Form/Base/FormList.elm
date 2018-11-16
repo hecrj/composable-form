@@ -127,11 +127,12 @@ form tagger { value, update, default, attributes } buildElement =
                             Result.map ((::) output) current
 
                         Err ( head, errors ) ->
-                            Result.mapError
-                                (\( currentHead, currentErrors ) ->
-                                    ( head, errors ++ (currentHead :: currentErrors) )
-                                )
-                                current
+                            case current of
+                                Ok _ ->
+                                    Err ( head, errors )
+
+                                Err ( currentHead, currentErrors ) ->
+                                    Err ( head, errors ++ (currentHead :: currentErrors) )
             in
             { field =
                 tagger
