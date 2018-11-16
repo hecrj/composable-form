@@ -133,7 +133,7 @@ questionForm =
                 , value = .title
                 , update = \value values -> { values | title = value }
                 , attributes =
-                    { label = "Question title"
+                    { label = "Title"
                     , placeholder = "Type your question here..."
                     }
                 }
@@ -144,7 +144,7 @@ questionForm =
                 , value = .body
                 , update = \value values -> { values | body = value }
                 , attributes =
-                    { label = "Question body"
+                    { label = "Body"
                     , placeholder = "Describe your question here... (optional)"
                     }
                 }
@@ -152,6 +152,7 @@ questionForm =
     Form.succeed NewQuestion
         |> Form.append titleField
         |> Form.append (Form.optional bodyField)
+        |> Form.section "Question"
 
 
 code : Html msg

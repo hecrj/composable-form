@@ -318,6 +318,9 @@ renderField ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, 
         Form.Group fields ->
             group (List.map (renderField fieldConfig) fields)
 
+        Form.Section title fields ->
+            section title (List.map (renderField fieldConfig) fields)
+
 
 inputField : String -> View.TextFieldConfig msg -> Html msg
 inputField type_ { onChange, onBlur, disabled, value, error, showError, attributes } =
@@ -454,6 +457,14 @@ selectField { onChange, onBlur, disabled, value, error, showError, attributes } 
 group : List (Html msg) -> Html msg
 group =
     Html.div [ Attributes.class "elm-form-group" ]
+
+
+section : String -> List (Html msg) -> Html msg
+section title fields =
+    Html.fieldset []
+        (Html.legend [] [ Html.text title ]
+            :: fields
+        )
 
 
 wrapInFieldContainer : Bool -> Maybe Error -> List (Html msg) -> Html msg

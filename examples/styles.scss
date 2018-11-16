@@ -142,20 +142,6 @@ form.elm-form, form.elm-form-multistage {
     }
   }
 
-  > div.elm-form-group {
-    display: flex;
-    flex-direction: row;
-
-    > * {
-      flex-grow: 1;
-      flex-basis: 0;
-
-      &:not(:last-child) {
-        margin-right: 1em;
-      }
-    }
-  }
-
   .elm-form-error {
     color: red;
   }
@@ -192,6 +178,20 @@ form.elm-form, form.elm-form-multistage {
       cursor: default;
       background-color: #CCC;
       color: #888;
+    }
+  }
+}
+
+.elm-form-group {
+  display: flex;
+  flex-direction: row;
+
+  > * {
+    flex-grow: 1;
+    flex-basis: 0;
+
+    &:not(:last-child) {
+      margin-right: 1em;
     }
   }
 }
