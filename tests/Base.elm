@@ -1,4 +1,24 @@
-module Base exposing (ContentAction(..), ContentType(..), CustomField(..), andThen, append, contentTypeError, contentTypeField, custom, emailError, emailField, field, map, meta, optional, passwordError, passwordField, repeatPasswordError, repeatPasswordField, succeed)
+module Base exposing
+    ( ContentAction(..)
+    , ContentType(..)
+    , CustomField(..)
+    , andThen
+    , append
+    , contentTypeError
+    , contentTypeField
+    , custom
+    , emailError
+    , emailField
+    , field
+    , map
+    , meta
+    , optional
+    , passwordError
+    , passwordField
+    , repeatPasswordError
+    , repeatPasswordField
+    , succeed
+    )
 
 import Expect exposing (Expectation)
 import Form exposing (Form)

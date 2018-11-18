@@ -517,10 +517,24 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
                 }
 
         Form.Group fields ->
-            customConfig.group (List.map (renderField customConfig fieldConfig) fields)
+            fields
+                |> List.map (maybeIgnoreChildError maybeError >> renderField customConfig fieldConfig)
+                |> customConfig.group
 
         Form.Section title fields ->
-            customConfig.section title (List.map (renderField customConfig fieldConfig) fields)
+            fields
+                |> List.map (maybeIgnoreChildError maybeError >> renderField customConfig fieldConfig)
+                |> customConfig.section title
+
+
+maybeIgnoreChildError : Maybe Error -> ( field, Maybe Error ) -> ( field, Maybe Error )
+maybeIgnoreChildError maybeParentError =
+    case maybeParentError of
+        Just _ ->
+            identity
+
+        Nothing ->
+            Tuple.mapSecond (\_ -> Nothing)
 
 
 
