@@ -717,7 +717,7 @@ radioField : RadioFieldConfig msg -> Html msg
 radioField { onChange, onBlur, disabled, value, error, showError, attributes } =
     let
         radio ( key, label ) =
-            Html.div [ Attributes.class "elm-form-label" ]
+            Html.label []
                 [ Html.input
                     ([ Attributes.name attributes.label
                      , Attributes.value key
@@ -732,8 +732,12 @@ radioField { onChange, onBlur, disabled, value, error, showError, attributes } =
                 , Html.text label
                 ]
     in
-    Html.fieldset [] (List.map radio attributes.options)
-        |> withLabelAndError attributes.label showError error
+    Html.div (fieldContainerAttributes showError error)
+        ((fieldLabel attributes.label
+            :: List.map radio attributes.options
+         )
+            ++ [ maybeErrorMessage showError error ]
+        )
 
 
 selectField : SelectFieldConfig msg -> Html msg
@@ -778,12 +782,16 @@ section title fields =
 
 wrapInFieldContainer : Bool -> Maybe Error -> List (Html msg) -> Html msg
 wrapInFieldContainer showError error =
-    Html.label
-        [ Attributes.classList
-            [ ( "elm-form-field", True )
-            , ( "elm-form-field-error", showError && error /= Nothing )
-            ]
+    Html.label (fieldContainerAttributes showError error)
+
+
+fieldContainerAttributes : Bool -> Maybe Error -> List (Html.Attribute msg)
+fieldContainerAttributes showError error =
+    [ Attributes.classList
+        [ ( "elm-form-field", True )
+        , ( "elm-form-field-error", showError && error /= Nothing )
         ]
+    ]
 
 
 withLabelAndError : String -> Bool -> Maybe Error -> Html msg -> Html msg

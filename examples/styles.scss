@@ -125,6 +125,10 @@ form.elm-form, form.elm-form-multistage {
     }
   }
 
+  input[type="radio"] {
+    margin: .4rem;
+  }
+
   textarea {
     resize: vertical;
   }
@@ -241,5 +245,9 @@ fieldset {
 
   input {
     margin: .4rem;
+  }
+
+  > label {
+    display: block;
   }
 }

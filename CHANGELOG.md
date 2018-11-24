@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [6.0.1] - 2018-11-24
+### Changed
+- Fix radio fields being rendered inside a main label when using `Form.View.asHtml`.
+- Remove `fieldset` parent when rendering radio fields using `Form.View.asHtml`.
+
 ## [6.0.0] - 2018-11-19
 ### Added
 - `Form.section` (thanks to @russelldavies).
