@@ -117,7 +117,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/hecrj/composable-form/compare/6.0.0...HEAD
+[Unreleased]: https://github.com/hecrj/composable-form/compare/6.0.1...HEAD
+[6.0.1]: https://github.com/hecrj/composable-form/compare/6.0.0...6.0.1
 [6.0.0]: https://github.com/hecrj/composable-form/compare/5.0.0...6.0.0
 [5.0.0]: https://github.com/hecrj/composable-form/compare/4.0.1...5.0.0
 [4.0.1]: https://github.com/hecrj/composable-form/compare/4.0.0...4.0.1
