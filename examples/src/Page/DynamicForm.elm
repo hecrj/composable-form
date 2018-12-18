@@ -47,13 +47,13 @@ update msg model =
             { model | state = Form.View.Loading }
 
 
-view : Model -> Html Msg
-view model =
+view : View.FormView -> Model -> Html Msg
+view formView model =
     Html.div []
         [ Html.h1 [] [ Html.text "Dynamic form" ]
         , Html.p [] [ Html.text "A form that changes based on a field value." ]
         , code
-        , Form.View.asHtml
+        , View.form formView
             { onChange = FormChanged
             , action = "New Publication"
             , loading = "Loading..."
@@ -115,13 +115,14 @@ postForm =
                 , value = .body
                 , update = \value values -> { values | body = value }
                 , attributes =
-                    { label = "Post body"
+                    { label = "Body"
                     , placeholder = "Type your post here..."
                     }
                 }
     in
     Form.succeed NewPost
         |> Form.append bodyField
+        |> Form.section "Post"
 
 
 questionForm : Form Values Msg
@@ -133,7 +134,7 @@ questionForm =
                 , value = .title
                 , update = \value values -> { values | title = value }
                 , attributes =
-                    { label = "Question title"
+                    { label = "Title"
                     , placeholder = "Type your question here..."
                     }
                 }
@@ -144,7 +145,7 @@ questionForm =
                 , value = .body
                 , update = \value values -> { values | body = value }
                 , attributes =
-                    { label = "Question body"
+                    { label = "Body"
                     , placeholder = "Describe your question here... (optional)"
                     }
                 }
@@ -152,6 +153,7 @@ questionForm =
     Form.succeed NewQuestion
         |> Form.append titleField
         |> Form.append (Form.optional bodyField)
+        |> Form.section "Question"
 
 
 code : Html msg

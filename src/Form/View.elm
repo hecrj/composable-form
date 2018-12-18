@@ -4,6 +4,7 @@ module Form.View exposing
     , asHtml
     , custom, CustomConfig, FormConfig, TextFieldConfig, NumberFieldConfig, RangeFieldConfig
     , CheckboxFieldConfig, RadioFieldConfig, SelectFieldConfig
+    , FormListConfig, FormListItemConfig
     )
 
 {-| This module provides helpers to render a [`Form`](Form#Form).
@@ -37,6 +38,7 @@ custom view code. Take a look at [the source code of this module][source] for in
 
 @docs custom, CustomConfig, FormConfig, TextFieldConfig, NumberFieldConfig, RangeFieldConfig
 @docs CheckboxFieldConfig, RadioFieldConfig, SelectFieldConfig
+@docs FormListConfig, FormListItemConfig
 
 -}
 
@@ -170,18 +172,19 @@ type alias CustomConfig msg element =
     , radioField : RadioFieldConfig msg -> element
     , selectField : SelectFieldConfig msg -> element
     , group : List element -> element
-    , variable : VariableFormConfig msg element -> element
-    , variableFormItem : VariableFormItemConfig msg element -> element
+    , section : String -> List element -> element
+    , formList : FormListConfig msg element -> element
+    , formListItem : FormListItemConfig msg element -> element
     }
 
 
-type alias VariableFormConfig msg element =
+type alias FormListConfig msg element =
     { forms : List element
     , add : { action : () -> msg, label : String }
     }
 
 
-type alias VariableFormItemConfig msg element =
+type alias FormListItemConfig msg element =
     { fields : List element
     , delete : { action : () -> msg, label : String }
     }
@@ -350,6 +353,7 @@ a [`ViewConfig`](#ViewConfig). In fact, [`asHtml`](#asHtml) is implemented using
             , radioField = radioField
             , selectField = selectField
             , group = group
+            , section = section
             }
 
 -}
@@ -529,14 +533,21 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
                 }
 
         Form.Group fields ->
-            customConfig.group (List.map (renderField customConfig fieldConfig) fields)
+            fields
+                |> List.map (maybeIgnoreChildError maybeError >> renderField customConfig fieldConfig)
+                |> customConfig.group
+
+        Form.Section title fields ->
+            fields
+                |> List.map (maybeIgnoreChildError maybeError >> renderField customConfig fieldConfig)
+                |> customConfig.section title
 
         Form.List { forms, add, attributes } ->
-            customConfig.variable
+            customConfig.formList
                 { forms =
                     List.map
                         (\{ fields, delete } ->
-                            customConfig.variableFormItem
+                            customConfig.formListItem
                                 { fields = List.map (renderField customConfig fieldConfig) fields
                                 , delete = { action = delete >> onChange, label = attributes.delete }
                                 }
@@ -544,6 +555,16 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
                         forms
                 , add = { action = add >> onChange, label = attributes.add }
                 }
+
+
+maybeIgnoreChildError : Maybe Error -> ( field, Maybe Error ) -> ( field, Maybe Error )
+maybeIgnoreChildError maybeParentError =
+    case maybeParentError of
+        Just _ ->
+            identity
+
+        Nothing ->
+            Tuple.mapSecond (\_ -> Nothing)
 
 
 
@@ -567,15 +588,15 @@ And here is an example of the produced HTML:
 
 ```html
 <form class="elm-form">
-   <div class="elm-form-field">
-       <label>E-Mail</label>
+   <label class="elm-form-field">
+       <div class="elm-form-label">E-Mail</div>
        <input type="email" value="some@value.com" placeholder="Type your e-mail...">
-   </div>
-   <div class="elm-form-field elm-form-field-error">
-       <label>Password</label>
+   </label>
+   <label class="elm-form-field elm-form-field-error">
+       <div class="elm-form-label">Password</div>
        <input type="password" value="" placeholder="Type your password...">
        <div class="elm-form-error">This field is required</div>
-   </div>
+   </label>
    <button type="submit">Log in</button>
 </form>
 ```
@@ -600,13 +621,14 @@ asHtml =
         , radioField = radioField
         , selectField = selectField
         , group = group
-        , variable = variable
-        , variableFormItem = variableFormItem
+        , section = section
+        , formList = formList
+        , formListItem = formListItem
         }
 
 
-variable : VariableFormConfig msg (Html msg) -> Html msg
-variable { forms, add } =
+formList : FormListConfig msg (Html msg) -> Html msg
+formList { forms, add } =
     Html.div [ Attributes.class "elm-form-variable" ]
         (forms
             ++ [ Html.button
@@ -621,8 +643,8 @@ variable { forms, add } =
         )
 
 
-variableFormItem : VariableFormItemConfig msg (Html msg) -> Html msg
-variableFormItem { fields, delete } =
+formListItem : FormListItemConfig msg (Html msg) -> Html msg
+formListItem { fields, delete } =
     Html.div [ Attributes.class "elm-form-variable-item" ]
         ((Html.button
             [ Events.onClick delete.action
@@ -738,7 +760,7 @@ rangeField { onChange, onBlur, disabled, value, error, showError, attributes } =
 
 checkboxField : CheckboxFieldConfig msg -> Html msg
 checkboxField { onChange, onBlur, value, disabled, error, showError, attributes } =
-    [ Html.label []
+    [ Html.div [ Attributes.class "elm-form-label" ]
         [ Html.input
             ([ Events.onCheck onChange
              , Attributes.checked value
@@ -774,8 +796,12 @@ radioField { onChange, onBlur, disabled, value, error, showError, attributes } =
                 , Html.text label
                 ]
     in
-    Html.fieldset [] (List.map radio attributes.options)
-        |> withLabelAndError attributes.label showError error
+    Html.div (fieldContainerAttributes showError error)
+        ((fieldLabel attributes.label
+            :: List.map radio attributes.options
+         )
+            ++ [ maybeErrorMessage showError error ]
+        )
 
 
 selectField : SelectFieldConfig msg -> Html msg
@@ -810,14 +836,26 @@ group =
     Html.div [ Attributes.class "elm-form-group" ]
 
 
+section : String -> List (Html msg) -> Html msg
+section title fields =
+    Html.fieldset []
+        (Html.legend [] [ Html.text title ]
+            :: fields
+        )
+
+
 wrapInFieldContainer : Bool -> Maybe Error -> List (Html msg) -> Html msg
 wrapInFieldContainer showError error =
-    Html.div
-        [ Attributes.classList
-            [ ( "elm-form-field", True )
-            , ( "elm-form-field-error", showError && error /= Nothing )
-            ]
+    Html.label (fieldContainerAttributes showError error)
+
+
+fieldContainerAttributes : Bool -> Maybe Error -> List (Html.Attribute msg)
+fieldContainerAttributes showError error =
+    [ Attributes.classList
+        [ ( "elm-form-field", True )
+        , ( "elm-form-field-error", showError && error /= Nothing )
         ]
+    ]
 
 
 withLabelAndError : String -> Bool -> Maybe Error -> Html msg -> Html msg
@@ -831,7 +869,7 @@ withLabelAndError label showError error fieldAsHtml =
 
 fieldLabel : String -> Html msg
 fieldLabel label =
-    Html.label [] [ Html.text label ]
+    Html.div [ Attributes.class "elm-form-label" ] [ Html.text label ]
 
 
 maybeErrorMessage : Bool -> Maybe Error -> Html msg

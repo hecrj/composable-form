@@ -2,9 +2,10 @@ module Form exposing
     ( Form
     , textField, emailField, passwordField, textareaField, numberField, rangeField, checkboxField
     , radioField, selectField
-    , succeed, append, optional, group, andThen, meta, list
+    , succeed, append, optional, group, section, andThen, meta
     , map, mapValues
     , Field(..), TextType(..), fill
+    , list
     )
 
 {-| Build [composable forms](#Form) comprised of [fields](#fields).
@@ -28,7 +29,14 @@ field. You might then be wondering: "How do I create a `Form` with multiple fiel
 Well, as the name of this package says: `Form` is composable! This section explains how you
 can combine different forms into bigger and more complex ones.
 
-@docs succeed, append, optional, group, andThen, meta, list
+<<<<<<< HEAD
+
+
+# @docs succeed, append, optional, group, andThen, meta, list
+
+@docs succeed, append, optional, group, section, andThen, meta
+
+> > > > > > > master
 
 
 # Mapping
@@ -406,6 +414,28 @@ group form =
         )
 
 
+{-| Wraps a form in a section: an area with a title.
+
+Like [`group`](#group), this function has no effect on form behavior. It just
+indicates to the form view function that the fields are part of some user-defined
+section.
+
+-}
+section : String -> Form values output -> Form values output
+section title form =
+    Base.custom
+        (\values ->
+            let
+                { fields, result, isEmpty } =
+                    Base.fill form values
+            in
+            { field = Section title fields
+            , result = result
+            , isEmpty = isEmpty
+            }
+        )
+
+
 {-| Fill a form `andThen` fill another one.
 
 This is useful to build dynamic forms. For instance, you could use the output of a `selectField`
@@ -626,7 +656,22 @@ mapFieldValues update values field =
             Select (Field.mapValues newUpdate field_)
 
         Group fields ->
-            Group (List.map (\( field_, error ) -> ( mapFieldValues update values field_, error )) fields)
+            Group
+                (List.map
+                    (\( field_, error ) ->
+                        ( mapFieldValues update values field_, error )
+                    )
+                    fields
+                )
+
+        Section title fields ->
+            Section title
+                (List.map
+                    (\( field_, error ) ->
+                        ( mapFieldValues update values field_, error )
+                    )
+                    fields
+                )
 
         List { forms, add, attributes } ->
             List
@@ -666,6 +711,7 @@ type Field values
     | Radio (RadioField values)
     | Select (SelectField values)
     | Group (List ( Field values, Maybe Error ))
+    | Section String (List ( Field values, Maybe Error ))
     | List (FormList values (Field values))
 
 

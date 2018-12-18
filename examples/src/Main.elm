@@ -1,8 +1,10 @@
 module Main exposing (main)
 
 import Browser.Navigation as Navigation
+import Form.View
 import Html exposing (Html)
 import Html.Attributes as Attributes
+import Html.Events
 import Page.Composability.Simple as Composability
 import Page.CustomFields as CustomFields
 import Page.DynamicForm as DynamicForm
@@ -11,12 +13,13 @@ import Page.Login as Login
 import Page.Signup as Signup
 import Page.ValidationStrategies as ValidationStrategies
 import Route exposing (Route)
-import View
+import View exposing (FormView(..))
 
 
 type alias Model =
     { page : Page
     , key : Route.Key
+    , formView : FormView
     }
 
 
@@ -36,6 +39,7 @@ type Msg
     = RouteAccessed Route
     | Navigate Route
     | LoadExternalUrl String
+    | SelectedFormView FormView
     | LoginMsg Login.Msg
     | SignupMsg Signup.Msg
     | DynamicFormMsg DynamicForm.Msg
@@ -61,6 +65,7 @@ init : Route -> Route.Key -> ( Model, Cmd Msg )
 init route key =
     ( { page = fromRoute route
       , key = key
+      , formView = Default
       }
     , Cmd.none
     )
@@ -77,6 +82,9 @@ update msg model =
 
         LoadExternalUrl string ->
             ( model, Navigation.load string )
+
+        SelectedFormView formView ->
+            ( { model | formView = formView }, Cmd.none )
 
         LoginMsg loginMsg ->
             case model.page of
@@ -164,15 +172,15 @@ view model =
                     viewHome
 
                 Login loginModel ->
-                    Login.view loginModel
+                    Login.view model.formView loginModel
                         |> Html.map LoginMsg
 
                 Signup signupModel ->
-                    Signup.view signupModel
+                    Signup.view model.formView signupModel
                         |> Html.map SignupMsg
 
                 DynamicForm subModel ->
-                    DynamicForm.view subModel
+                    DynamicForm.view model.formView subModel
                         |> Html.map DynamicFormMsg
 
                 FormList subModel ->
@@ -180,11 +188,11 @@ view model =
                         |> Html.map FormListMsg
 
                 ValidationStrategies subModel ->
-                    ValidationStrategies.view subModel
+                    ValidationStrategies.view model.formView subModel
                         |> Html.map ValidationStrategiesMsg
 
                 Composability subModel ->
-                    Composability.view subModel
+                    Composability.view model.formView subModel
                         |> Html.map ComposabilityMsg
 
                 CustomFields subModel ->
@@ -193,6 +201,11 @@ view model =
 
                 NotFound ->
                     Html.text "Not found"
+            , if model.page /= Home && model.page /= NotFound then
+                viewStrategySelector model.formView
+
+              else
+                Html.text ""
             ]
         ]
 
@@ -276,4 +289,26 @@ viewHome =
         [ Html.h1 [] [ Html.text "Examples" ]
         , Html.ul []
             (List.map toItem examples)
+        ]
+
+
+viewStrategySelector : FormView -> Html Msg
+viewStrategySelector formView =
+    Html.fieldset []
+        [ Html.legend [] [ Html.text "View strategy" ]
+        , radio (SelectedFormView Default) (formView == Default) "Default"
+        , radio (SelectedFormView Ui) (formView == Ui) "elm-ui"
+        ]
+
+
+radio : msg -> Bool -> String -> Html msg
+radio msg isChecked name =
+    Html.label []
+        [ Html.input
+            [ Attributes.type_ "radio"
+            , Html.Events.onClick msg
+            , Attributes.checked isChecked
+            ]
+            []
+        , Html.text name
         ]

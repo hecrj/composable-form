@@ -45,12 +45,12 @@ update msg model =
             { model | state = Form.View.Loading }
 
 
-view : Model -> Html Msg
-view model =
+view : View.FormView -> Model -> Html Msg
+view formView model =
     Html.div []
         [ Html.h1 [] [ Html.text "Validation strategies" ]
         , code
-        , Form.View.asHtml
+        , View.form formView
             { onChange = FormChanged
             , action = "Submit"
             , loading = "Loading..."
@@ -70,13 +70,12 @@ form : Form Values Msg
 form =
     let
         validationStrategyField =
-            Form.selectField
+            Form.radioField
                 { parser = Ok
                 , value = .validationStrategy
                 , update = \value values -> { values | validationStrategy = value }
                 , attributes =
                     { label = "Validation strategy"
-                    , placeholder = "Choose a strategy"
                     , options =
                         [ Form.View.ValidateOnSubmit, Form.View.ValidateOnBlur ]
                             |> List.map strategyToOption

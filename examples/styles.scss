@@ -103,7 +103,7 @@ form.elm-form, form.elm-form-multistage {
     }
   }
 
-  label {
+  .elm-form-label {
     display: flex;
     align-items: center;
 
@@ -112,7 +112,12 @@ form.elm-form, form.elm-form-multistage {
     }
   }
 
-  input[type="text"], input[type="password"], input[type="email"], input[type="number"], select, textarea {
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  input[type="number"],
+  select,
+  textarea {
     width: 100%;
     box-sizing: border-box;
     padding: 0.8em;
@@ -123,6 +128,10 @@ form.elm-form, form.elm-form-multistage {
     &:disabled {
       background-color: #CCC;
     }
+  }
+
+  input[type="radio"] {
+    margin: .4rem;
   }
 
   textarea {
@@ -262,6 +271,20 @@ form.elm-form, form.elm-form-multistage {
   }
 }
 
+.elm-form-group {
+  display: flex;
+  flex-direction: row;
+
+  > * {
+    flex-grow: 1;
+    flex-basis: 0;
+
+    &:not(:last-child) {
+      margin-right: 1em;
+    }
+  }
+}
+
 .stage h3 {
   margin: 0;
 }
@@ -292,4 +315,24 @@ pre {
   background-color: #FAFAFA;
   padding: 1em;
   overflow-x: auto;
+}
+
+legend {
+  background-color: #60B5CC;
+  color: #fff;
+  padding: 3px 6px;
+}
+
+
+fieldset {
+  border: 1px solid #60B5CC;
+  border-radius: 5px;
+
+  input {
+    margin: .4rem;
+  }
+
+  > label {
+    display: block;
+  }
 }
