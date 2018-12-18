@@ -26,7 +26,7 @@ import Form.Error exposing (Error)
 import List.Extra
 
 
-{-| Represents a variable list of forms.
+{-| Represents a list of forms.
 
 **Note:** You should not need to care about this unless you are creating your own
 custom fields or writing custom view code.
@@ -56,8 +56,8 @@ type alias Config values elementValues =
 
 
 type alias Attributes =
-    { add : String
-    , delete : String
+    { add : Maybe String
+    , delete : Maybe String
     }
 
 

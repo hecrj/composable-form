@@ -180,13 +180,15 @@ type alias CustomConfig msg element =
 
 type alias FormListConfig msg element =
     { forms : List element
-    , add : { action : () -> msg, label : String }
+    , add : { action : () -> msg, label : Maybe String }
+    , disabled : Bool
     }
 
 
 type alias FormListItemConfig msg element =
     { fields : List element
-    , delete : { action : () -> msg, label : String }
+    , delete : { action : () -> msg, label : Maybe String }
+    , disabled : Bool
     }
 
 
@@ -550,10 +552,12 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
                             customConfig.formListItem
                                 { fields = List.map (renderField customConfig fieldConfig) fields
                                 , delete = { action = delete >> onChange, label = attributes.delete }
+                                , disabled = disabled
                                 }
                         )
                         forms
                 , add = { action = add >> onChange, label = attributes.add }
+                , disabled = disabled
                 }
 
 
@@ -628,35 +632,47 @@ asHtml =
 
 
 formList : FormListConfig msg (Html msg) -> Html msg
-formList { forms, add } =
+formList { forms, add, disabled } =
+    let
+        addButton =
+            case ( disabled, add.label ) of
+                ( False, Just addLabel ) ->
+                    Html.button
+                        [ Events.onClick add.action
+                        , Attributes.type_ "button"
+                        ]
+                        [ Html.i [ Attributes.class "fas fa-plus" ] []
+                        , Html.text addLabel
+                        ]
+                        |> Html.map (\f -> f ())
+
+                _ ->
+                    Html.text ""
+    in
     Html.div [ Attributes.class "elm-form-variable" ]
-        (forms
-            ++ [ Html.button
-                    [ Events.onClick add.action
-                    , Attributes.type_ "button"
-                    ]
-                    [ Html.i [ Attributes.class "fas fa-plus" ] []
-                    , Html.text add.label
-                    ]
-                    |> Html.map (\f -> f ())
-               ]
-        )
+        (forms ++ [ addButton ])
 
 
 formListItem : FormListItemConfig msg (Html msg) -> Html msg
-formListItem { fields, delete } =
+formListItem { fields, delete, disabled } =
+    let
+        deleteButton =
+            case ( disabled, delete.label ) of
+                ( False, Just deleteLabel ) ->
+                    Html.button
+                        [ Events.onClick delete.action
+                        , Attributes.type_ "button"
+                        ]
+                        [ Html.text deleteLabel
+                        , Html.i [ Attributes.class "fas fa-times" ] []
+                        ]
+                        |> Html.map (\f -> f ())
+
+                _ ->
+                    Html.text ""
+    in
     Html.div [ Attributes.class "elm-form-variable-item" ]
-        ((Html.button
-            [ Events.onClick delete.action
-            , Attributes.type_ "button"
-            ]
-            [ Html.text delete.label
-            , Html.i [ Attributes.class "fas fa-times" ] []
-            ]
-            |> Html.map (\f -> f ())
-         )
-            :: fields
-        )
+        (deleteButton :: fields)
 
 
 form : FormConfig msg (Html msg) -> Html msg
