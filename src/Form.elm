@@ -2,10 +2,9 @@ module Form exposing
     ( Form
     , textField, emailField, passwordField, textareaField, numberField, rangeField, checkboxField
     , radioField, selectField
-    , succeed, append, optional, group, section, andThen, meta
+    , succeed, append, optional, group, section, andThen, meta, list
     , map, mapValues
     , Field(..), TextType(..), fill
-    , list
     )
 
 {-| Build [composable forms](#Form) comprised of [fields](#fields).
@@ -29,14 +28,7 @@ field. You might then be wondering: "How do I create a `Form` with multiple fiel
 Well, as the name of this package says: `Form` is composable! This section explains how you
 can combine different forms into bigger and more complex ones.
 
-<<<<<<< HEAD
-
-
-# @docs succeed, append, optional, group, andThen, meta, list
-
-@docs succeed, append, optional, group, section, andThen, meta
-
-> > > > > > > master
+@docs succeed, append, optional, group, section, andThen, meta, list
 
 
 # Mapping
