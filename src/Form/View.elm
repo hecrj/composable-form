@@ -178,21 +178,6 @@ type alias CustomConfig msg element =
     }
 
 
-type alias FormListConfig msg element =
-    { forms : List element
-    , label : String
-    , add : { action : () -> msg, label : Maybe String }
-    , disabled : Bool
-    }
-
-
-type alias FormListItemConfig msg element =
-    { fields : List element
-    , delete : { action : () -> msg, label : Maybe String }
-    , disabled : Bool
-    }
-
-
 {-| Describes how a form should be rendered.
 
   - `onSubmit` contains the output of the form if there are no validation errors.
@@ -323,6 +308,21 @@ type alias SelectFieldConfig msg =
     , error : Maybe Error
     , showError : Bool
     , attributes : SelectField.Attributes
+    }
+
+
+type alias FormListConfig msg element =
+    { forms : List element
+    , label : String
+    , add : { action : () -> msg, label : Maybe String }
+    , disabled : Bool
+    }
+
+
+type alias FormListItemConfig msg element =
+    { fields : List element
+    , delete : { action : () -> msg, label : Maybe String }
+    , disabled : Bool
     }
 
 
@@ -652,8 +652,9 @@ formList { forms, label, add, disabled } =
                     Html.text ""
     in
     Html.div [ Attributes.class "elm-form-variable" ]
-        (forms ++ [ addButton ])
-        |> withLabelAndError label False Nothing
+        (fieldLabel label
+            :: (forms ++ [ addButton ])
+        )
 
 
 formListItem : FormListItemConfig msg (Html msg) -> Html msg
