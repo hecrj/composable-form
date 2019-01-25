@@ -545,8 +545,39 @@ meta =
     Base.meta
 
 
-{-| -}
-list : FormList.Config values elementValues -> (Int -> Form elementValues output) -> Form values (List output)
+{-| Build a variable list of forms.
+
+For instance, you can build a form that asks for a variable number of websites:
+
+    type alias WebsiteValues =
+        { name : String
+        , address : String
+        }
+
+    websiteForm : Int -> Form WebsiteValues Website
+
+    websitesForm : Form { r | websites : List WebsiteValues } (List Website)
+    websitesForm =
+        Form.list
+            { default =
+                { name = ""
+                , address = "https://"
+                }
+            , value = .websites
+            , update = \value values -> { values | websites = value }
+            , attributes =
+                { label = "Websites"
+                , add = Just "Add website"
+                , delete = Just ""
+                }
+            }
+            websiteForm
+
+-}
+list :
+    FormList.Config values elementValues
+    -> (Int -> Form elementValues output)
+    -> Form values (List output)
 list config elementForIndex =
     let
         fillElement { index, update, values, elementValues } =

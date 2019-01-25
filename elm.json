@@ -15,7 +15,8 @@
         "Form.Base.RangeField",
         "Form.Base.CheckboxField",
         "Form.Base.RadioField",
-        "Form.Base.SelectField"
+        "Form.Base.SelectField",
+        "Form.Base.FormList"
     ],
     "elm-version": "0.19.0 <= v < 0.20.0",
     "dependencies": {

@@ -1,7 +1,6 @@
 module Form.Base.FormList exposing
-    ( FormList
-    , form
-    , Config, ElementConfig, Form
+    ( FormList, Form, Attributes
+    , Config, ElementState, form
     )
 
 {-| This module contains a reusable `FormList` type.
@@ -11,12 +10,12 @@ It is useful to build a variable list of forms based on a `List` of `values`.
 
 # Definition
 
-@docs FormList, Field
+@docs FormList, Form, Attributes
 
 
 # Helpers
 
-@docs form
+@docs Config, ElementState, form
 
 -}
 
@@ -31,6 +30,9 @@ import List.Extra
 **Note:** You should not need to care about this unless you are creating your own
 custom fields or writing custom view code.
 
+It contains a list of forms, a lazy `add` action to add a new item to the list,
+and some [Attributes](Form.Base.FormList#Attributes).
+
 -}
 type alias FormList values field =
     { forms : List (Form values field)
@@ -40,6 +42,10 @@ type alias FormList values field =
 
 
 {-| Represents an element in a list of forms.
+
+It contains the fields of the form and a lazy `delete` action to remove itself
+from the list.
+
 -}
 type alias Form values field =
     { fields : List ( field, Maybe Error )
@@ -47,6 +53,28 @@ type alias Form values field =
     }
 
 
+{-| The attributes of a `FormList`.
+
+`add` and `delete` are optional labels for the add and delete buttons,
+respectively. Providing `Nothing` hides the button.
+
+-}
+type alias Attributes =
+    { label : String
+    , add : Maybe String
+    , delete : Maybe String
+    }
+
+
+{-| The configuration of a `FormList`.
+
+  - `value` describes how to obtain a `List` with the values of the forms
+    in the list.
+  - `update` describes how to replace a new `List` of element values in the
+    `values` of the form.
+  - `default` defines the values that a new element will have when added to the list.
+
+-}
 type alias Config values elementValues =
     { value : values -> List elementValues
     , update : List elementValues -> values -> values
@@ -55,14 +83,15 @@ type alias Config values elementValues =
     }
 
 
-type alias Attributes =
-    { label : String
-    , add : Maybe String
-    , delete : Maybe String
-    }
+{-| Describes the state of a particular element in a form list.
 
+  - `index` is the position of the element in the list.
+  - `update` defines how to update the current element.
+  - `values` contains the current values of the form.
+  - `elementValues` contains the current values of the elemen in the list.
 
-type alias ElementConfig values elementValues =
+-}
+type alias ElementState values elementValues =
     { index : Int
     , update : elementValues -> values -> values
     , values : values
@@ -70,7 +99,7 @@ type alias ElementConfig values elementValues =
     }
 
 
-{-| Builds a [`Form`](Form-Base#Form) with a set of variable forms.
+{-| Builds a [`Form`](Form-Base#Form) with a variable list of forms.
 
 **Note:** You should not need to care about this unless you are creating your own
 custom fields.
@@ -79,7 +108,7 @@ custom fields.
 form :
     (FormList values field -> field)
     -> Config values elementValues
-    -> (ElementConfig values elementValues -> Base.FilledForm output field)
+    -> (ElementState values elementValues -> Base.FilledForm output field)
     -> Base.Form values (List output) field
 form tagger { value, update, default, attributes } buildElement =
     Base.custom

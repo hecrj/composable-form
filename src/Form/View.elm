@@ -141,7 +141,7 @@ type alias ViewConfig values msg =
 {-| The validation strategy.
 
   - `ValidateOnSubmit` will show field errors only when the user tries to submit an invalid form.
-  - `ValidateOnBlur` will show field errors as fields are blurred.
+  - `ValidateOnBlur` will show field errors as fields are blurred. It uses field labels to identify fields on the form. This validation strategy will not work as expected if your form has multiple fields with the same label.
 
 -}
 type Validation
@@ -311,17 +311,29 @@ type alias SelectFieldConfig msg =
     }
 
 
+{-| Describes how a form list should be rendered.
+
+  - `forms` is a list containing the elements of the form list.
+  - `add` describes an optional "add an element" button. It contains a lazy `action` that can be called in order to add a new element and a `label` for the button.
+
+-}
 type alias FormListConfig msg element =
     { forms : List element
     , label : String
-    , add : { action : () -> msg, label : Maybe String }
+    , add : Maybe { action : () -> msg, label : String }
     , disabled : Bool
     }
 
 
+{-| Describes how an item in a form list should be rendered.
+
+  - `fields` contains the different fields of the item.
+  - `delete` describes an optional "delete item" button. It contains a lazy `action` that can be called in order to delete the item and a `label` for the button.
+
+-}
 type alias FormListItemConfig msg element =
     { fields : List element
-    , delete : { action : () -> msg, label : Maybe String }
+    , delete : Maybe { action : () -> msg, label : String }
     , disabled : Bool
     }
 
@@ -552,13 +564,25 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
                         (\{ fields, delete } ->
                             customConfig.formListItem
                                 { fields = List.map (renderField customConfig fieldConfig) fields
-                                , delete = { action = delete >> onChange, label = attributes.delete }
+                                , delete =
+                                    attributes.delete
+                                        |> Maybe.map
+                                            (\deleteLabel ->
+                                                { action = delete >> onChange
+                                                , label = deleteLabel
+                                                }
+                                            )
                                 , disabled = disabled
                                 }
                         )
                         forms
                 , label = attributes.label
-                , add = { action = add >> onChange, label = attributes.add }
+                , add =
+                    attributes.add
+                        |> Maybe.map
+                            (\addLabel ->
+                                { action = add >> onChange, label = addLabel }
+                            )
                 , disabled = disabled
                 }
 
@@ -637,14 +661,14 @@ formList : FormListConfig msg (Html msg) -> Html msg
 formList { forms, label, add, disabled } =
     let
         addButton =
-            case ( disabled, add.label ) of
-                ( False, Just addLabel ) ->
+            case ( disabled, add ) of
+                ( False, Just add_ ) ->
                     Html.button
-                        [ Events.onClick add.action
+                        [ Events.onClick add_.action
                         , Attributes.type_ "button"
                         ]
                         [ Html.i [ Attributes.class "fas fa-plus" ] []
-                        , Html.text addLabel
+                        , Html.text add_.label
                         ]
                         |> Html.map (\f -> f ())
 
@@ -661,13 +685,13 @@ formListItem : FormListItemConfig msg (Html msg) -> Html msg
 formListItem { fields, delete, disabled } =
     let
         deleteButton =
-            case ( disabled, delete.label ) of
-                ( False, Just deleteLabel ) ->
+            case ( disabled, delete ) of
+                ( False, Just delete_ ) ->
                     Html.button
-                        [ Events.onClick delete.action
+                        [ Events.onClick delete_.action
                         , Attributes.type_ "button"
                         ]
-                        [ Html.text deleteLabel
+                        [ Html.text delete_.label
                         , Html.i [ Attributes.class "fas fa-times" ] []
                         ]
                         |> Html.map (\f -> f ())
