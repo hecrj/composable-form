@@ -675,7 +675,7 @@ formList { forms, label, add, disabled } =
                 _ ->
                     Html.text ""
     in
-    Html.div [ Attributes.class "elm-form-variable" ]
+    Html.div [ Attributes.class "elm-form-list" ]
         (fieldLabel label
             :: (forms ++ [ addButton ])
         )
@@ -699,7 +699,7 @@ formListItem { fields, delete, disabled } =
                 _ ->
                     Html.text ""
     in
-    Html.div [ Attributes.class "elm-form-variable-item" ]
+    Html.div [ Attributes.class "elm-form-list-item" ]
         (deleteButton :: fields)
 
 

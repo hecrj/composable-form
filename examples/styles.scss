@@ -75,7 +75,7 @@ form.elm-form, form.elm-form-multistage {
     margin-bottom: 1em;
   }
 
-  .elm-form-field, .elm-form-variable {
+  .elm-form-field, .elm-form-list {
     display: flex;
     flex-direction: column;
 
@@ -166,11 +166,11 @@ form.elm-form, form.elm-form-multistage {
     }
   }
 
-  div.elm-form-variable {
+  div.elm-form-list {
     display: flex;
     flex-direction: column;
 
-    > .elm-form-variable-item {
+    > .elm-form-list-item {
       position: relative;
       border: 1px solid #CCC;
       border-radius: 8px;
