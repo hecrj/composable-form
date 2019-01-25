@@ -4,7 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [7.0.0] - 2019-01-25
+### Added
+- `Form.list` and `Form.Base.FormList` that allow to build a variable list of forms.
+
+### Changed
+- Improved introduction to the `Form` type.
 
 ## [6.0.1] - 2018-11-24
 ### Changed
@@ -117,7 +122,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/hecrj/composable-form/compare/6.0.1...HEAD
+[Unreleased]: https://github.com/hecrj/composable-form/compare/7.0.0...HEAD
+[7.0.0]: https://github.com/hecrj/composable-form/compare/6.0.1...7.0.0
 [6.0.1]: https://github.com/hecrj/composable-form/compare/6.0.0...6.0.1
 [6.0.0]: https://github.com/hecrj/composable-form/compare/5.0.0...6.0.0
 [5.0.0]: https://github.com/hecrj/composable-form/compare/4.0.1...5.0.0
@@ -135,4 +141,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 [1.0.3]: https://github.com/hecrj/composable-form/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/hecrj/composable-form/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/hecrj/composable-form/compare/1.0.0...1.0.1
-[elephants-renderer-example]: https://github.com/hecrj/composable-form/blob/master/examples/src/Form/View/Elements.elm
+[elephants-renderer-example]: https://github.com/hecrj/composable-form/blob/2.2.0/examples/src/Form/View/Elements.elm
