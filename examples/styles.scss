@@ -71,11 +71,11 @@ form.elm-form, form.elm-form-multistage {
   display: flex;
   flex-direction: column;
 
-  > .elm-form-field:not(:last-child), > .elm-form-group:not(:last-child) {
+  .elm-form-field:not(:last-child) {
     margin-bottom: 1em;
   }
 
-  .elm-form-field {
+  .elm-form-field, .elm-form-variable {
     display: flex;
     flex-direction: column;
 
@@ -112,7 +112,12 @@ form.elm-form, form.elm-form-multistage {
     }
   }
 
-  input[type="text"], input[type="password"], input[type="email"], input[type="number"], select, textarea {
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  input[type="number"],
+  select,
+  textarea {
     width: 100%;
     box-sizing: border-box;
     padding: 0.8em;
@@ -143,6 +148,86 @@ form.elm-form, form.elm-form-multistage {
 
     > span {
       margin-left: 1em;
+    }
+  }
+
+  div.elm-form-group {
+    display: flex;
+    flex-direction: row;
+
+    > * {
+      flex-grow: 1;
+      flex-basis: 0;
+      margin-bottom: 0;
+
+      &:not(:last-child) {
+        margin-right: 1em;
+      }
+    }
+  }
+
+  div.elm-form-variable {
+    display: flex;
+    flex-direction: column;
+
+    > .elm-form-variable-item {
+      position: relative;
+      border: 1px solid #CCC;
+      border-radius: 8px;
+      padding: 20px;
+
+      > button {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        display: flex;
+        align-items: center;
+        background: transparent;
+        border: none;
+        padding: 0.5em 0.5em;
+        color: #777777;
+        font-size: 1em;
+        cursor: pointer;
+        align-self: flex-start;
+
+        &:hover {
+          color: #B22222;
+        }
+
+        i {
+          font-size: 0.8em;
+          margin-left: 0.5em;
+        }
+      }
+
+      &:not(:last-child) {
+        margin-bottom: 1em;
+      }
+    }
+
+    > button {
+      display: flex;
+      align-items: center;
+      background: transparent;
+      border: none;
+      padding: 0.3em 0.8em;
+      color: #34495E;
+      font-size: 1em;
+      cursor: pointer;
+      align-self: flex-start;
+
+      i {
+        font-size: 0.8em;
+        margin-right: 0.5em;
+      }
+
+      &:hover {
+        color: #60B5CC;
+      }
+    }
+
+    &:not(:last-child) {
+      margin-bottom: 1em;
     }
   }
 

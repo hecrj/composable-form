@@ -115,13 +115,14 @@ postForm =
                 , value = .body
                 , update = \value values -> { values | body = value }
                 , attributes =
-                    { label = "Post body"
+                    { label = "Body"
                     , placeholder = "Type your post here..."
                     }
                 }
     in
     Form.succeed NewPost
         |> Form.append bodyField
+        |> Form.section "Post"
 
 
 questionForm : Form Values Msg

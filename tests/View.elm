@@ -36,6 +36,8 @@ optionalGroup =
                 , selectField = \_ -> ""
                 , group = \fields -> String.join "|" fields
                 , section = \_ _ -> ""
+                , formList = \_ -> ""
+                , formListItem = \_ -> ""
                 }
 
         errorToString maybeError =

@@ -22,9 +22,9 @@ type Route
     | Login
     | Signup
     | DynamicForm
+    | FormList
     | ValidationStrategies
     | Composability
-    | MultiStage
     | CustomFields
     | NotFound
 
@@ -40,9 +40,9 @@ parser =
         , map Login (s "login")
         , map Signup (s "signup")
         , map DynamicForm (s "dynamic-form")
+        , map FormList (s "form-list")
         , map ValidationStrategies (s "validation-strategies")
         , map Composability (s "composability")
-        , map MultiStage (s "multi-stage")
         , map CustomFields (s "custom-fields")
         ]
 
@@ -114,14 +114,14 @@ toString route =
                 DynamicForm ->
                     [ "dynamic-form" ]
 
+                FormList ->
+                    [ "form-list" ]
+
                 ValidationStrategies ->
                     [ "validation-strategies" ]
 
                 Composability ->
                     [ "composability" ]
-
-                MultiStage ->
-                    [ "multi-stage" ]
 
                 CustomFields ->
                     [ "custom-fields" ]

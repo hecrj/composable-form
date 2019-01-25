@@ -8,8 +8,8 @@ import Html.Events
 import Page.Composability.Simple as Composability
 import Page.CustomFields as CustomFields
 import Page.DynamicForm as DynamicForm
+import Page.FormList as FormList
 import Page.Login as Login
-import Page.MultiStage as MultiStage
 import Page.Signup as Signup
 import Page.ValidationStrategies as ValidationStrategies
 import Route exposing (Route)
@@ -28,9 +28,9 @@ type Page
     | Login Login.Model
     | Signup Signup.Model
     | DynamicForm DynamicForm.Model
+    | FormList FormList.Model
     | ValidationStrategies ValidationStrategies.Model
     | Composability Composability.Model
-    | MultiStage MultiStage.Model
     | CustomFields CustomFields.Model
     | NotFound
 
@@ -43,9 +43,9 @@ type Msg
     | LoginMsg Login.Msg
     | SignupMsg Signup.Msg
     | DynamicFormMsg DynamicForm.Msg
+    | FormListMsg FormList.Msg
     | ValidationStrategiesMsg ValidationStrategies.Msg
     | ComposabilityMsg Composability.Msg
-    | MultiStageMsg MultiStage.Msg
     | CustomFieldsMsg CustomFields.Msg
 
 
@@ -115,6 +115,14 @@ update msg model =
                 _ ->
                     ( model, Cmd.none )
 
+        FormListMsg subMsg ->
+            case model.page of
+                FormList subModel ->
+                    ( { model | page = FormList (FormList.update subMsg subModel) }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
         ValidationStrategiesMsg subMsg ->
             case model.page of
                 ValidationStrategies subModel ->
@@ -129,17 +137,6 @@ update msg model =
             case model.page of
                 Composability subModel ->
                     ( { model | page = Composability (Composability.update subMsg subModel) }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        MultiStageMsg subMsg ->
-            case model.page of
-                MultiStage subModel ->
-                    MultiStage.update subMsg subModel
-                        |> Tuple.mapFirst MultiStage
-                        |> Tuple.mapFirst (\page -> { model | page = page })
-                        |> Tuple.mapSecond (Cmd.map MultiStageMsg)
 
                 _ ->
                     ( model, Cmd.none )
@@ -186,6 +183,10 @@ view model =
                     DynamicForm.view model.formView subModel
                         |> Html.map DynamicFormMsg
 
+                FormList subModel ->
+                    FormList.view subModel
+                        |> Html.map FormListMsg
+
                 ValidationStrategies subModel ->
                     ValidationStrategies.view model.formView subModel
                         |> Html.map ValidationStrategiesMsg
@@ -193,10 +194,6 @@ view model =
                 Composability subModel ->
                     Composability.view model.formView subModel
                         |> Html.map ComposabilityMsg
-
-                MultiStage subModel ->
-                    MultiStage.view subModel
-                        |> Html.map MultiStageMsg
 
                 CustomFields subModel ->
                     CustomFields.view subModel
@@ -232,14 +229,14 @@ fromRoute route =
         Route.DynamicForm ->
             DynamicForm DynamicForm.init
 
+        Route.FormList ->
+            FormList FormList.init
+
         Route.ValidationStrategies ->
             ValidationStrategies ValidationStrategies.init
 
         Route.Composability ->
             Composability Composability.init
-
-        Route.MultiStage ->
-            MultiStage MultiStage.init
 
         Route.CustomFields ->
             CustomFields CustomFields.init
@@ -264,6 +261,10 @@ viewHome =
               , Route.DynamicForm
               , "A form that changes dynamically based on its own values."
               )
+            , ( "Form list"
+              , Route.FormList
+              , "A variable list of forms that can be added and deleted."
+              )
             , ( "Validation strategies"
               , Route.ValidationStrategies
               , "Two different validation strategies: validation on submit and validation on blur."
@@ -271,10 +272,6 @@ viewHome =
             , ( "Composability"
               , Route.Composability
               , "An address form embedded in a bigger form."
-              )
-            , ( "Multiple stages"
-              , Route.MultiStage
-              , "Custom form view that allows the user to fill a form in multiple stages."
               )
             , ( "Custom fields"
               , Route.CustomFields

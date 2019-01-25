@@ -2,7 +2,7 @@ module Form exposing
     ( Form
     , textField, emailField, passwordField, textareaField, numberField, rangeField, checkboxField
     , radioField, selectField
-    , succeed, append, optional, group, section, andThen, meta
+    , succeed, append, optional, group, section, andThen, meta, list
     , map, mapValues
     , Field(..), TextType(..), fill
     )
@@ -28,7 +28,7 @@ field. You might then be wondering: "How do I create a `Form` with multiple fiel
 Well, as the name of this package says: `Form` is composable! This section explains how you
 can combine different forms into bigger and more complex ones.
 
-@docs succeed, append, optional, group, section, andThen, meta
+@docs succeed, append, optional, group, section, andThen, meta, list
 
 
 # Mapping
@@ -50,6 +50,7 @@ might suit your needs.
 
 import Form.Base as Base
 import Form.Base.CheckboxField as CheckboxField exposing (CheckboxField)
+import Form.Base.FormList as FormList exposing (FormList)
 import Form.Base.NumberField as NumberField exposing (NumberField)
 import Form.Base.RadioField as RadioField exposing (RadioField)
 import Form.Base.RangeField as RangeField exposing (RangeField)
@@ -544,6 +545,59 @@ meta =
     Base.meta
 
 
+{-| Build a variable list of forms.
+
+For instance, you can build a form that asks for a variable number of websites:
+
+    type alias WebsiteValues =
+        { name : String
+        , address : String
+        }
+
+    websiteForm : Int -> Form WebsiteValues Website
+
+    websitesForm : Form { r | websites : List WebsiteValues } (List Website)
+    websitesForm =
+        Form.list
+            { default =
+                { name = ""
+                , address = "https://"
+                }
+            , value = .websites
+            , update = \value values -> { values | websites = value }
+            , attributes =
+                { label = "Websites"
+                , add = Just "Add website"
+                , delete = Just ""
+                }
+            }
+            websiteForm
+
+-}
+list :
+    FormList.Config values elementValues
+    -> (Int -> Form elementValues output)
+    -> Form values (List output)
+list config elementForIndex =
+    let
+        fillElement { index, update, values, elementValues } =
+            let
+                filledElement =
+                    fill (elementForIndex index) elementValues
+            in
+            { fields =
+                List.map
+                    (\( field, error ) ->
+                        ( mapFieldValues update values field, error )
+                    )
+                    filledElement.fields
+            , result = filledElement.result
+            , isEmpty = filledElement.isEmpty
+            }
+    in
+    FormList.form List config fillElement
+
+
 
 -- Mapping
 
@@ -590,40 +644,76 @@ mapValues : { value : a -> b, update : b -> a -> a } -> Form b output -> Form a 
 mapValues { value, update } form =
     Base.meta
         (\values ->
-            let
-                newUpdate oldValues =
-                    update oldValues values
-
-                mapField field =
-                    case field of
-                        Text textType field_ ->
-                            Text textType (Field.mapValues newUpdate field_)
-
-                        Number field_ ->
-                            Number (Field.mapValues newUpdate field_)
-
-                        Range field_ ->
-                            Range (Field.mapValues newUpdate field_)
-
-                        Checkbox field_ ->
-                            Checkbox (Field.mapValues newUpdate field_)
-
-                        Radio field_ ->
-                            Radio (Field.mapValues newUpdate field_)
-
-                        Select field_ ->
-                            Select (Field.mapValues newUpdate field_)
-
-                        Group fields ->
-                            Group (List.map (\( field_, error ) -> ( mapField field_, error )) fields)
-
-                        Section title fields ->
-                            Section title (List.map (\( field_, error ) -> ( mapField field_, error )) fields)
-            in
             form
                 |> Base.mapValues value
-                |> Base.mapField mapField
+                |> Base.mapField (mapFieldValues update values)
         )
+
+
+mapFieldValues : (a -> b -> b) -> b -> Field a -> Field b
+mapFieldValues update values field =
+    let
+        mapUpdate fn value =
+            update (fn value) values
+
+        newUpdate oldValues =
+            update oldValues values
+    in
+    case field of
+        Text textType field_ ->
+            Text textType (Field.mapValues newUpdate field_)
+
+        Number field_ ->
+            Number (Field.mapValues newUpdate field_)
+
+        Range field_ ->
+            Range (Field.mapValues newUpdate field_)
+
+        Checkbox field_ ->
+            Checkbox (Field.mapValues newUpdate field_)
+
+        Radio field_ ->
+            Radio (Field.mapValues newUpdate field_)
+
+        Select field_ ->
+            Select (Field.mapValues newUpdate field_)
+
+        Group fields ->
+            Group
+                (List.map
+                    (\( field_, error ) ->
+                        ( mapFieldValues update values field_, error )
+                    )
+                    fields
+                )
+
+        Section title fields ->
+            Section title
+                (List.map
+                    (\( field_, error ) ->
+                        ( mapFieldValues update values field_, error )
+                    )
+                    fields
+                )
+
+        List { forms, add, attributes } ->
+            List
+                { forms =
+                    List.map
+                        (\{ fields, delete } ->
+                            { fields =
+                                List.map
+                                    (\( field_, error ) ->
+                                        ( mapFieldValues update values field_, error )
+                                    )
+                                    fields
+                            , delete = \_ -> update (delete ()) values
+                            }
+                        )
+                        forms
+                , add = \_ -> update (add ()) values
+                , attributes = attributes
+                }
 
 
 
@@ -645,6 +735,7 @@ type Field values
     | Select (SelectField values)
     | Group (List ( Field values, Maybe Error ))
     | Section String (List ( Field values, Maybe Error ))
+    | List (FormList values (Field values))
 
 
 {-| Represents a type of text field

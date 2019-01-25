@@ -4,6 +4,7 @@ module Form.View exposing
     , asHtml
     , custom, CustomConfig, FormConfig, TextFieldConfig, NumberFieldConfig, RangeFieldConfig
     , CheckboxFieldConfig, RadioFieldConfig, SelectFieldConfig
+    , FormListConfig, FormListItemConfig
     )
 
 {-| This module provides helpers to render a [`Form`](Form#Form).
@@ -37,6 +38,7 @@ custom view code. Take a look at [the source code of this module][source] for in
 
 @docs custom, CustomConfig, FormConfig, TextFieldConfig, NumberFieldConfig, RangeFieldConfig
 @docs CheckboxFieldConfig, RadioFieldConfig, SelectFieldConfig
+@docs FormListConfig, FormListItemConfig
 
 -}
 
@@ -139,7 +141,7 @@ type alias ViewConfig values msg =
 {-| The validation strategy.
 
   - `ValidateOnSubmit` will show field errors only when the user tries to submit an invalid form.
-  - `ValidateOnBlur` will show field errors as fields are blurred.
+  - `ValidateOnBlur` will show field errors as fields are blurred. It uses field labels to identify fields on the form. This validation strategy will not work as expected if your form has multiple fields with the same label.
 
 -}
 type Validation
@@ -171,6 +173,8 @@ type alias CustomConfig msg element =
     , selectField : SelectFieldConfig msg -> element
     , group : List element -> element
     , section : String -> List element -> element
+    , formList : FormListConfig msg element -> element
+    , formListItem : FormListItemConfig msg element -> element
     }
 
 
@@ -304,6 +308,33 @@ type alias SelectFieldConfig msg =
     , error : Maybe Error
     , showError : Bool
     , attributes : SelectField.Attributes
+    }
+
+
+{-| Describes how a form list should be rendered.
+
+  - `forms` is a list containing the elements of the form list.
+  - `add` describes an optional "add an element" button. It contains a lazy `action` that can be called in order to add a new element and a `label` for the button.
+
+-}
+type alias FormListConfig msg element =
+    { forms : List element
+    , label : String
+    , add : Maybe { action : () -> msg, label : String }
+    , disabled : Bool
+    }
+
+
+{-| Describes how an item in a form list should be rendered.
+
+  - `fields` contains the different fields of the item.
+  - `delete` describes an optional "delete item" button. It contains a lazy `action` that can be called in order to delete the item and a `label` for the button.
+
+-}
+type alias FormListItemConfig msg element =
+    { fields : List element
+    , delete : Maybe { action : () -> msg, label : String }
+    , disabled : Bool
     }
 
 
@@ -526,6 +557,35 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
                 |> List.map (maybeIgnoreChildError maybeError >> renderField customConfig fieldConfig)
                 |> customConfig.section title
 
+        Form.List { forms, add, attributes } ->
+            customConfig.formList
+                { forms =
+                    List.map
+                        (\{ fields, delete } ->
+                            customConfig.formListItem
+                                { fields = List.map (renderField customConfig fieldConfig) fields
+                                , delete =
+                                    attributes.delete
+                                        |> Maybe.map
+                                            (\deleteLabel ->
+                                                { action = delete >> onChange
+                                                , label = deleteLabel
+                                                }
+                                            )
+                                , disabled = disabled
+                                }
+                        )
+                        forms
+                , label = attributes.label
+                , add =
+                    attributes.add
+                        |> Maybe.map
+                            (\addLabel ->
+                                { action = add >> onChange, label = addLabel }
+                            )
+                , disabled = disabled
+                }
+
 
 maybeIgnoreChildError : Maybe Error -> ( field, Maybe Error ) -> ( field, Maybe Error )
 maybeIgnoreChildError maybeParentError =
@@ -592,7 +652,55 @@ asHtml =
         , selectField = selectField
         , group = group
         , section = section
+        , formList = formList
+        , formListItem = formListItem
         }
+
+
+formList : FormListConfig msg (Html msg) -> Html msg
+formList { forms, label, add, disabled } =
+    let
+        addButton =
+            case ( disabled, add ) of
+                ( False, Just add_ ) ->
+                    Html.button
+                        [ Events.onClick add_.action
+                        , Attributes.type_ "button"
+                        ]
+                        [ Html.i [ Attributes.class "fas fa-plus" ] []
+                        , Html.text add_.label
+                        ]
+                        |> Html.map (\f -> f ())
+
+                _ ->
+                    Html.text ""
+    in
+    Html.div [ Attributes.class "elm-form-variable" ]
+        (fieldLabel label
+            :: (forms ++ [ addButton ])
+        )
+
+
+formListItem : FormListItemConfig msg (Html msg) -> Html msg
+formListItem { fields, delete, disabled } =
+    let
+        deleteButton =
+            case ( disabled, delete ) of
+                ( False, Just delete_ ) ->
+                    Html.button
+                        [ Events.onClick delete_.action
+                        , Attributes.type_ "button"
+                        ]
+                        [ Html.text delete_.label
+                        , Html.i [ Attributes.class "fas fa-times" ] []
+                        ]
+                        |> Html.map (\f -> f ())
+
+                _ ->
+                    Html.text ""
+    in
+    Html.div [ Attributes.class "elm-form-variable-item" ]
+        (deleteButton :: fields)
 
 
 form : FormConfig msg (Html msg) -> Html msg

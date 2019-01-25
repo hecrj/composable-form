@@ -13,6 +13,8 @@ import Form.View
         ( CheckboxFieldConfig
         , CustomConfig
         , FormConfig
+        , FormListConfig
+        , FormListItemConfig
         , Model
         , NumberFieldConfig
         , RadioFieldConfig
@@ -42,6 +44,8 @@ layout =
         , selectField = selectField
         , group = group
         , section = section
+        , formList = formList
+        , formListItem = formListItem
         }
 
 
@@ -197,8 +201,6 @@ radioField { onChange, onBlur, disabled, value, error, showError, attributes } =
         }
 
 
-{-| There is no select field so use a radio instead
--}
 selectField : SelectFieldConfig msg -> Element msg
 selectField { onChange, onBlur, disabled, value, error, showError, attributes } =
     -- There is no select field so use a radio instead
@@ -241,6 +243,16 @@ section title fields =
             )
         ]
         fields
+
+
+formList : FormListConfig msg (Element msg) -> Element msg
+formList { forms, add } =
+    Element.none
+
+
+formListItem : FormListItemConfig msg (Element msg) -> Element msg
+formListItem { fields, delete } =
+    Element.none
 
 
 errorToString : Error -> String
