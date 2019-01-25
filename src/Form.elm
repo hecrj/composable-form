@@ -70,6 +70,12 @@ it produces some `output` if validation succeeds.
 For example, a `Form String EmailAddress` is a form that is filled with a `String` and produces
 an `EmailAddress` when valid. This form could very well be an [`emailField`](#emailField)!
 
+A `Form` is only the **definition** of your form logic! It only represents the shape of a form! It lives on its own, decoupled from its values, the rendering strategy and view state.
+
+If you like to learn by example, you can check out [this excellent introduction to the package by Alex Korban][korban].
+
+[korban]: https://korban.net/posts/elm/2018-11-27-build-complex-forms-validation-elm/
+
 -}
 type alias Form values output =
     Base.Form values output (Field values)
