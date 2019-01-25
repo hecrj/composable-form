@@ -180,6 +180,7 @@ type alias CustomConfig msg element =
 
 type alias FormListConfig msg element =
     { forms : List element
+    , label : String
     , add : { action : () -> msg, label : Maybe String }
     , disabled : Bool
     }
@@ -556,6 +557,7 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
                                 }
                         )
                         forms
+                , label = attributes.label
                 , add = { action = add >> onChange, label = attributes.add }
                 , disabled = disabled
                 }
@@ -632,7 +634,7 @@ asHtml =
 
 
 formList : FormListConfig msg (Html msg) -> Html msg
-formList { forms, add, disabled } =
+formList { forms, label, add, disabled } =
     let
         addButton =
             case ( disabled, add.label ) of
@@ -651,6 +653,7 @@ formList { forms, add, disabled } =
     in
     Html.div [ Attributes.class "elm-form-variable" ]
         (forms ++ [ addButton ])
+        |> withLabelAndError label False Nothing
 
 
 formListItem : FormListItemConfig msg (Html msg) -> Html msg

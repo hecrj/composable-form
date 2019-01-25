@@ -56,7 +56,8 @@ type alias Config values elementValues =
 
 
 type alias Attributes =
-    { add : Maybe String
+    { label : String
+    , add : Maybe String
     , delete : Maybe String
     }
 

@@ -85,7 +85,8 @@ form =
                 , value = .websites
                 , update = \value values -> { values | websites = value }
                 , attributes =
-                    { add = Just "Add website"
+                    { label = "Websites"
+                    , add = Just "Add website"
                     , delete = Just ""
                     }
                 }
