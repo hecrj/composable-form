@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [7.0.0] - 2019-01-25
 ### Added
 - `Form.list` and `Form.Base.FormList` that allow to build a variable list of forms.
+  Thanks to everyone involved in #7!
 
 ### Changed
 - Improved introduction to the `Form` type.
