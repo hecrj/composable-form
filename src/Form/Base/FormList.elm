@@ -88,7 +88,7 @@ type alias Config values elementValues =
   - `index` is the position of the element in the list.
   - `update` defines how to update the current element.
   - `values` contains the current values of the form.
-  - `elementValues` contains the current values of the elemen in the list.
+  - `elementValues` contains the current values of the element in the list.
 
 -}
 type alias ElementState values elementValues =
