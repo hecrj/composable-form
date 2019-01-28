@@ -47,7 +47,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     Html.div []
-        [ Html.h1 [] [ Html.text "Variable form" ]
+        [ Html.h1 [] [ Html.text "Form list" ]
         , code
         , Form.View.asHtml
             { onChange = FormChanged
@@ -139,21 +139,22 @@ websiteForm index =
 code : Html msg
 code =
     View.code
-        [ { filename = "VariableForm.elm"
-          , path = "VariableForm.elm"
+        [ { filename = "FormList.elm"
+          , path = "FormList.elm"
           , code = """Form.succeed Submit
     |> Form.append nameField
     |> Form.append
-        (Form.variable
-            { blank =
-                { name = Value.blank
-                , address = Value.filled "https://"
+        (Form.list
+            { default =
+                { name = ""
+                , address = "https://"
                 }
             , value = .websites
             , update = \\value values -> { values | websites = value }
             , attributes =
-                { add = "Add website"
-                , delete = ""
+                { label = "Websites"
+                , add = Just "Add website"
+                , delete = Just ""
                 }
             }
             websiteForm
