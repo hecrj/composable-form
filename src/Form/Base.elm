@@ -23,17 +23,10 @@ first.
 # Custom fields
 
 Say you need to use a type of field that is not implemented in the [the basic `Form module`](Form).
-The recommended way of doing this is to copy [the source code of the basic `Form` module][form-source]
-into your own `MyProject.Form` module, and then use [`field`](#field) and [`custom`](#custom) to
-define new types of fields.
+The recommended way of doing this is to start your own `Form` module using [`field`](#field) and
+[`custom`](#custom) to define new types of fields.
 
-[form-source]: https://github.com/hecrj/composable-form/tree/master/src/Form.elm
-
-While copy-pasting code might sound like a bad idea, keep in mind that
-[the basic `Form module`](Form) does not contain much code at all! It is just a bunch of one-liners
-that delegate to this base module. It is the perfect template to build your own form.
-
-If that still does not convince you, you could start your own `MyProject.Form` module like this:
+For instance, you could start your own `MyProject.Form` module like this:
 
     import Form.Base as Base
 
@@ -106,7 +99,7 @@ type alias FieldConfig attrs input values output =
     }
 
 
-{-| Create functions that build forms that contain a single field with an API that is similar to
+{-| Create functions that build forms which contain a single field with an API that is similar to
 [the basic `Form` module](Form).
 
 This function is meant to be partially applied, providing only the two first parameters to
