@@ -756,10 +756,11 @@ textareaField { onChange, onBlur, disabled, value, error, showError, attributes 
         ([ Events.onInput onChange
          , Attributes.disabled disabled
          , Attributes.placeholder attributes.placeholder
+         , Attributes.value value
          ]
             |> withMaybeAttribute Events.onBlur onBlur
         )
-        [ Html.text value ]
+        []
         |> withLabelAndError attributes.label showError error
 
 
