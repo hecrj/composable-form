@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [7.0.2] - 2019-05-04
 ### Fixed
 - Textarea not updating its value properly when using `Form.View.asHtml`. [#21]
 
@@ -133,7 +135,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/hecrj/composable-form/compare/7.0.1...HEAD
+[Unreleased]: https://github.com/hecrj/composable-form/compare/7.0.2...HEAD
+[7.0.2]: https://github.com/hecrj/composable-form/compare/7.0.1...7.0.2
 [7.0.1]: https://github.com/hecrj/composable-form/compare/7.0.0...7.0.1
 [7.0.0]: https://github.com/hecrj/composable-form/compare/6.0.1...7.0.0
 [6.0.1]: https://github.com/hecrj/composable-form/compare/6.0.0...6.0.1
