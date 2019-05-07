@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [7.1.0] - 2019-05-07
+### Added
+- `Form.View.htmlViewConfig`, which allows easy customization of the default
+  `Form.View.asHtml` function. [#23]
+
+[#23]: https://github.com/hecrj/composable-form/pull/23
+
 ## [7.0.2] - 2019-05-04
 ### Fixed
 - Textarea not updating its value properly when using `Form.View.asHtml`. [#21]
@@ -135,7 +142,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/hecrj/composable-form/compare/7.0.2...HEAD
+[Unreleased]: https://github.com/hecrj/composable-form/compare/7.1.0...HEAD
+[7.1.0]: https://github.com/hecrj/composable-form/compare/7.0.2...7.1.0
 [7.0.2]: https://github.com/hecrj/composable-form/compare/7.0.1...7.0.2
 [7.0.1]: https://github.com/hecrj/composable-form/compare/7.0.0...7.0.1
 [7.0.0]: https://github.com/hecrj/composable-form/compare/6.0.1...7.0.0
