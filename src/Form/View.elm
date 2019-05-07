@@ -1,7 +1,7 @@
 module Form.View exposing
     ( Model, State(..), idle
     , ViewConfig, Validation(..)
-    , asHtml
+    , asHtml, htmlViewConfig
     , custom, CustomConfig, FormConfig, TextFieldConfig, NumberFieldConfig, RangeFieldConfig
     , CheckboxFieldConfig, RadioFieldConfig, SelectFieldConfig
     , FormListConfig, FormListItemConfig
@@ -10,7 +10,7 @@ module Form.View exposing
 {-| This module provides helpers to render a [`Form`](Form#Form).
 
 If you just want to quickly render a [`Form`](Form#Form) as HTML, take a look at
-[`asHtml`](#asHtml). If you need more control, use [`custom`](#custom).
+[`asHtml`](#asHtml). If you need more control, see [`custom`](#custom) and [`htmlViewConfig`](#htmlViewConfig).
 
 **Note:** If you are implementing your own custom fields using [`Form.Base`](Form-Base) then
 you cannot use this module. You should use [`Form.Base.fill`](Form-Base#fill) to write
@@ -31,7 +31,7 @@ custom view code. Take a look at [the source code of this module][source] for in
 
 # Basic HTML
 
-@docs asHtml
+@docs asHtml, htmlViewConfig
 
 
 # Custom
@@ -351,25 +351,7 @@ as you might find an implementation that works for you.
 [view-examples]: https://github.com/hecrj/composable-form/tree/master/examples/src/Form/View
 
 Once you provide a [`CustomConfig`](#CustomConfig), you get a view function that supports
-a [`ViewConfig`](#ViewConfig). In fact, [`asHtml`](#asHtml) is implemented using this function!
-
-    asHtml : ViewConfig values msg -> Form values msg -> Model values -> Html msg
-    asHtml =
-        custom
-            { form = form
-            , textField = inputField "text"
-            , emailField = inputField "email"
-            , passwordField = inputField "password"
-            , searchField = inputField "search"
-            , textareaField = textareaField
-            , numberField = numberField
-            , rangeField = rangeField
-            , checkboxField = checkboxField
-            , radioField = radioField
-            , selectField = selectField
-            , group = group
-            , section = section
-            }
+a [`ViewConfig`](#ViewConfig).
 
 -}
 custom :
@@ -601,6 +583,45 @@ maybeIgnoreChildError maybeParentError =
 -- Basic HTML
 
 
+{-| Default [`CustomConfig`](#CustomConfig) implementation for HTML output.
+
+You can update a subset of the `CustomConfig` fields to implement a view function that overrides the behavior of `asHtml`. For example:
+
+
+    htmlView : ViewConfig values msg -> Form values msg -> Model values -> Html msg
+    htmlView =
+        custom
+            { htmlViewConfig
+                | selectField = mySelectField
+                , radioField = myRadioField
+            }
+
+In fact, [`asHtml`](#asHtml) is just implemented as:
+
+    asHtml : ViewConfig values msg -> Form values msg -> Model values -> Html msg
+    asHtml = custom htmlViewConfig
+
+-}
+htmlViewConfig : CustomConfig msg (Html msg)
+htmlViewConfig =
+    { form = form
+    , textField = inputField "text"
+    , emailField = inputField "email"
+    , passwordField = inputField "password"
+    , searchField = inputField "search"
+    , textareaField = textareaField
+    , numberField = numberField
+    , rangeField = rangeField
+    , checkboxField = checkboxField
+    , radioField = radioField
+    , selectField = selectField
+    , group = group
+    , section = section
+    , formList = formList
+    , formListItem = formListItem
+    }
+
+
 {-| Render a form as HTML!
 
 You could use it like this:
@@ -633,28 +654,13 @@ And here is an example of the produced HTML:
 
 You can use the different CSS classes to style your forms as you please.
 
-If you need more control over the produced HTML, use [`custom`](#custom).
+If you need more control over the produced HTML, use [`custom`](#custom) to provide
+your own view functions. To customize the behavior of individual view functions, see [`htmlViewConfig`](#htmlViewConfig).
 
 -}
 asHtml : ViewConfig values msg -> Form values msg -> Model values -> Html msg
 asHtml =
-    custom
-        { form = form
-        , textField = inputField "text"
-        , emailField = inputField "email"
-        , passwordField = inputField "password"
-        , searchField = inputField "search"
-        , textareaField = textareaField
-        , numberField = numberField
-        , rangeField = rangeField
-        , checkboxField = checkboxField
-        , radioField = radioField
-        , selectField = selectField
-        , group = group
-        , section = section
-        , formList = formList
-        , formListItem = formListItem
-        }
+    custom htmlViewConfig
 
 
 formList : FormListConfig msg (Html msg) -> Html msg
