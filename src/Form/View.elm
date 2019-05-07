@@ -587,7 +587,6 @@ maybeIgnoreChildError maybeParentError =
 
 You can update a subset of the `CustomConfig` fields to implement a view function that overrides the behavior of `asHtml`. For example:
 
-
     htmlView : ViewConfig values msg -> Form values msg -> Model values -> Html msg
     htmlView =
         custom
@@ -599,7 +598,8 @@ You can update a subset of the `CustomConfig` fields to implement a view functio
 In fact, [`asHtml`](#asHtml) is just implemented as:
 
     asHtml : ViewConfig values msg -> Form values msg -> Model values -> Html msg
-    asHtml = custom htmlViewConfig
+    asHtml =
+        custom htmlViewConfig
 
 -}
 htmlViewConfig : CustomConfig msg (Html msg)
