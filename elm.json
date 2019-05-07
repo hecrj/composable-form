@@ -3,7 +3,7 @@
     "name": "hecrj/composable-form",
     "summary": "Build type-safe composable forms in Elm",
     "license": "BSD-3-Clause",
-    "version": "7.0.2",
+    "version": "7.0.3",
     "exposed-modules": [
         "Form",
         "Form.View",
