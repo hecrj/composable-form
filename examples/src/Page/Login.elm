@@ -40,7 +40,7 @@ update msg model =
             newModel
 
         LogIn email password rememberMe ->
-            { model | state = Form.View.Loading }
+            { model | state = Form.View.Success "You have been logged in successfully" }
 
 
 view : View.FormView -> Model -> Html Msg

@@ -725,6 +725,9 @@ form { onSubmit, action, loading, state, fields } =
                     Error error ->
                         errorMessage error
 
+                    Success success ->
+                        successMessage success
+
                     _ ->
                         Html.text ""
               , Html.button
@@ -934,6 +937,11 @@ maybeErrorMessage showError maybeError =
 
     else
         Html.text ""
+
+
+successMessage : String -> Html msg
+successMessage =
+    Html.text >> List.singleton >> Html.div [ Attributes.class "elm-form-success" ]
 
 
 errorMessage : String -> Html msg

@@ -71,15 +71,18 @@ form { onSubmit, action, loading, state, fields } =
                         text action
                 }
 
-        formError =
+        formFeedback =
             case state of
                 Error error ->
                     el [ Font.color red ] (text error)
 
+                Success success ->
+                    el [ Font.color black ] (text success)
+
                 _ ->
                     none
     in
-    column [ spacing 16, width fill ] (fields ++ [ formError, submitButton ])
+    column [ spacing 16, width fill ] (fields ++ [ formFeedback, submitButton ])
 
 
 inputField :
