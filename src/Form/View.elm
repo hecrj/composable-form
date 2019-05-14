@@ -85,7 +85,7 @@ such action fails.
                 )
 
             SignupTried (Ok user) ->
-                ( model, Route.navigate (Route.Profile user.slug) )
+                ( { model | state = FormView.Success "You are now registered successfully :)" }, Route.navigate (Route.Profile user.slug) )
 
             SignupTried (Err error) ->
                 ( { model | state = FormView.Error error }, Cmd.none )
@@ -95,6 +95,7 @@ type State
     = Idle
     | Loading
     | Error String
+    | Success String
 
 
 type ErrorTracking
