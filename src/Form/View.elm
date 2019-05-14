@@ -85,7 +85,7 @@ such action fails.
                 )
 
             SignupTried (Ok user) ->
-                ( model, Route.navigate (Route.Profile user.slug) )
+                ( { model | state = FormView.Success "You are now registered successfully :)" }, Route.navigate (Route.Profile user.slug) )
 
             SignupTried (Err error) ->
                 ( { model | state = FormView.Error error }, Cmd.none )
@@ -95,6 +95,7 @@ type State
     = Idle
     | Loading
     | Error String
+    | Success String
 
 
 type ErrorTracking
@@ -724,6 +725,9 @@ form { onSubmit, action, loading, state, fields } =
                     Error error ->
                         errorMessage error
 
+                    Success success ->
+                        successMessage success
+
                     _ ->
                         Html.text ""
               , Html.button
@@ -933,6 +937,11 @@ maybeErrorMessage showError maybeError =
 
     else
         Html.text ""
+
+
+successMessage : String -> Html msg
+successMessage =
+    Html.text >> List.singleton >> Html.div [ Attributes.class "elm-form-success" ]
 
 
 errorMessage : String -> Html msg
