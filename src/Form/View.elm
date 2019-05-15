@@ -440,21 +440,25 @@ type alias FieldConfig values msg =
     }
 
 
-renderField : CustomConfig msg element -> FieldConfig values msg -> ( Form.Field values, Maybe Error ) -> element
-renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConfig) ( field, maybeError ) =
+renderField :
+    CustomConfig msg element
+    -> FieldConfig values msg
+    -> Form.FilledField values
+    -> element
+renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConfig) field =
     let
         blur label =
             Maybe.map (\onBlurEvent -> onBlurEvent label) onBlur
     in
-    case field of
+    case field.state of
         Form.Text type_ { attributes, value, update } ->
             let
                 config =
                     { onChange = update >> onChange
                     , onBlur = blur attributes.label
-                    , disabled = disabled
+                    , disabled = field.isDisabled || disabled
                     , value = value
-                    , error = maybeError
+                    , error = field.error
                     , showError = showError attributes.label
                     , attributes = attributes
                     }
@@ -479,9 +483,9 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
             customConfig.numberField
                 { onChange = update >> onChange
                 , onBlur = blur attributes.label
-                , disabled = disabled
+                , disabled = field.isDisabled || disabled
                 , value = value
-                , error = maybeError
+                , error = field.error
                 , showError = showError attributes.label
                 , attributes = attributes
                 }
@@ -490,9 +494,9 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
             customConfig.rangeField
                 { onChange = update >> onChange
                 , onBlur = blur attributes.label
-                , disabled = disabled
+                , disabled = field.isDisabled || disabled
                 , value = value
-                , error = maybeError
+                , error = field.error
                 , showError = showError attributes.label
                 , attributes = attributes
                 }
@@ -501,9 +505,9 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
             customConfig.checkboxField
                 { onChange = update >> onChange
                 , onBlur = blur attributes.label
-                , disabled = disabled
+                , disabled = field.isDisabled || disabled
                 , value = value
-                , error = maybeError
+                , error = field.error
                 , showError = showError attributes.label
                 , attributes = attributes
                 }
@@ -512,9 +516,9 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
             customConfig.radioField
                 { onChange = update >> onChange
                 , onBlur = blur attributes.label
-                , disabled = disabled
+                , disabled = field.isDisabled || disabled
                 , value = value
-                , error = maybeError
+                , error = field.error
                 , showError = showError attributes.label
                 , attributes = attributes
                 }
@@ -523,21 +527,21 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
             customConfig.selectField
                 { onChange = update >> onChange
                 , onBlur = blur attributes.label
-                , disabled = disabled
+                , disabled = field.isDisabled || disabled
                 , value = value
-                , error = maybeError
+                , error = field.error
                 , showError = showError attributes.label
                 , attributes = attributes
                 }
 
         Form.Group fields ->
             fields
-                |> List.map (maybeIgnoreChildError maybeError >> renderField customConfig fieldConfig)
+                |> List.map (maybeIgnoreChildError field.error >> renderField customConfig { fieldConfig | disabled = field.isDisabled })
                 |> customConfig.group
 
         Form.Section title fields ->
             fields
-                |> List.map (maybeIgnoreChildError maybeError >> renderField customConfig fieldConfig)
+                |> List.map (maybeIgnoreChildError field.error >> renderField customConfig { fieldConfig | disabled = field.isDisabled })
                 |> customConfig.section title
 
         Form.List { forms, add, attributes } ->
@@ -555,7 +559,7 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
                                                 , label = deleteLabel
                                                 }
                                             )
-                                , disabled = disabled
+                                , disabled = field.isDisabled || disabled
                                 }
                         )
                         forms
@@ -566,18 +570,18 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
                             (\addLabel ->
                                 { action = add >> onChange, label = addLabel }
                             )
-                , disabled = disabled
+                , disabled = field.isDisabled || disabled
                 }
 
 
-maybeIgnoreChildError : Maybe Error -> ( field, Maybe Error ) -> ( field, Maybe Error )
-maybeIgnoreChildError maybeParentError =
+maybeIgnoreChildError : Maybe Error -> Form.FilledField values -> Form.FilledField values
+maybeIgnoreChildError maybeParentError field =
     case maybeParentError of
         Just _ ->
-            identity
+            field
 
         Nothing ->
-            Tuple.mapSecond (\_ -> Nothing)
+            { field | error = Nothing }
 
 
 

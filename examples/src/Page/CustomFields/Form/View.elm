@@ -6,6 +6,7 @@ module Page.CustomFields.Form.View exposing
     , idle
     )
 
+import Form.Base as Base
 import Form.Error as Error exposing (Error)
 import Form.View
 import Html exposing (Html)
@@ -115,16 +116,16 @@ asHtml { onChange, action, loading } form model =
         )
 
 
-field : { disabled : Bool, showError : Bool } -> ( Form.Field values msg, Maybe Error ) -> Html msg
-field { disabled, showError } ( field_, maybeError ) =
-    case field_ of
+field : { disabled : Bool, showError : Bool } -> Base.FilledField (Form.Field values msg) -> Html msg
+field { disabled, showError } field_ =
+    case field_.state of
         Form.Email { onChange, state, value, attributes } ->
             emailField
                 { onChange = onChange
                 , onBlur = Nothing
                 , value = value
-                , disabled = disabled
-                , error = maybeError
+                , disabled = disabled || field_.isDisabled
+                , error = field_.error
                 , showError = state == Form.EmailValidated
                 , attributes = attributes
                 }

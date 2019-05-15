@@ -2,9 +2,10 @@ module Form exposing
     ( Form
     , textField, emailField, passwordField, textareaField, numberField, rangeField, checkboxField
     , radioField, selectField
-    , succeed, append, optional, group, section, andThen, meta, list
+    , succeed, append, optional, disable, group, section, andThen, meta, list
     , map, mapValues
     , Field(..), TextType(..), fill
+    , FilledField
     )
 
 {-| Build [composable forms](#Form) comprised of [fields](#fields).
@@ -28,7 +29,7 @@ field. You might then be wondering: "How do I create a `Form` with multiple fiel
 Well, as the name of this package says: `Form` is composable! This section explains how you
 can combine different forms into bigger and more complex ones.
 
-@docs succeed, append, optional, group, section, andThen, meta, list
+@docs succeed, append, optional, disable, group, section, andThen, meta, list
 
 
 # Mapping
@@ -390,6 +391,17 @@ optional =
     Base.optional
 
 
+{-| Disable a form.
+
+You can combine this with [`meta`](#meta) to disable parts of a form based on its
+own values.
+
+-}
+disable : Form values output -> Form values output
+disable =
+    Base.disable
+
+
 {-| Wraps a form in a group.
 
 Using this function does not affect the behavior of the form in any way. However, groups of fields
@@ -405,7 +417,7 @@ group form =
                 { fields, result, isEmpty } =
                     Base.fill form values
             in
-            { field = Group fields
+            { state = Group fields
             , result = result
             , isEmpty = isEmpty
             }
@@ -427,7 +439,7 @@ section title form =
                 { fields, result, isEmpty } =
                     Base.fill form values
             in
-            { field = Section title fields
+            { state = Section title fields
             , result = result
             , isEmpty = isEmpty
             }
@@ -593,8 +605,11 @@ list config elementForIndex =
             in
             { fields =
                 List.map
-                    (\( field, error ) ->
-                        ( mapFieldValues update values field, error )
+                    (\filledField ->
+                        { state = mapFieldValues update values filledField.state
+                        , error = filledField.error
+                        , isDisabled = filledField.isDisabled
+                        }
                     )
                     filledElement.fields
             , result = filledElement.result
@@ -687,8 +702,11 @@ mapFieldValues update values field =
         Group fields ->
             Group
                 (List.map
-                    (\( field_, error ) ->
-                        ( mapFieldValues update values field_, error )
+                    (\filledField ->
+                        { state = mapFieldValues update values filledField.state
+                        , error = filledField.error
+                        , isDisabled = filledField.isDisabled
+                        }
                     )
                     fields
                 )
@@ -696,8 +714,11 @@ mapFieldValues update values field =
         Section title fields ->
             Section title
                 (List.map
-                    (\( field_, error ) ->
-                        ( mapFieldValues update values field_, error )
+                    (\filledField ->
+                        { state = mapFieldValues update values filledField.state
+                        , error = filledField.error
+                        , isDisabled = filledField.isDisabled
+                        }
                     )
                     fields
                 )
@@ -709,8 +730,11 @@ mapFieldValues update values field =
                         (\{ fields, delete } ->
                             { fields =
                                 List.map
-                                    (\( field_, error ) ->
-                                        ( mapFieldValues update values field_, error )
+                                    (\filledField ->
+                                        { state = mapFieldValues update values filledField.state
+                                        , error = filledField.error
+                                        , isDisabled = filledField.isDisabled
+                                        }
                                     )
                                     fields
                             , delete = \_ -> update (delete ()) values
@@ -739,8 +763,8 @@ type Field values
     | Checkbox (CheckboxField values)
     | Radio (RadioField values)
     | Select (SelectField values)
-    | Group (List ( Field values, Maybe Error ))
-    | Section String (List ( Field values, Maybe Error ))
+    | Group (List (FilledField values))
+    | Section String (List (FilledField values))
     | List (FormList values (Field values))
 
 
@@ -752,6 +776,12 @@ type TextType
     | TextPassword
     | TextArea
     | TextSearch
+
+
+{-| Represents a filled field.
+-}
+type alias FilledField values =
+    Base.FilledField (Field values)
 
 
 {-| Fill a form with some `values`.
@@ -769,7 +799,7 @@ fill :
     Form values output
     -> values
     ->
-        { fields : List ( Field values, Maybe Error )
+        { fields : List (FilledField values)
         , result : Result ( Error, List Error ) output
         , isEmpty : Bool
         }
