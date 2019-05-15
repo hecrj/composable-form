@@ -342,10 +342,7 @@ optional form =
                         { fields =
                             List.map
                                 (\filledField ->
-                                    { state = filledField.state
-                                    , error = Nothing
-                                    , isDisabled = filledField.isDisabled
-                                    }
+                                    { filledField | error = Nothing }
                                 )
                                 filled.fields
                         , result = Ok Nothing
@@ -373,10 +370,7 @@ disable form =
             { fields =
                 List.map
                     (\filledField ->
-                        { state = filledField.state
-                        , error = filledField.error
-                        , isDisabled = True
-                        }
+                        { filledField | isDisabled = True }
                     )
                     filled.fields
             , result = filled.result
