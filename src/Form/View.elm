@@ -53,6 +53,7 @@ import Form.Error as Error exposing (Error)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Json.Decode
 import Set exposing (Set)
 
 
@@ -877,7 +878,7 @@ selectField { onChange, onBlur, disabled, value, error, showError, attributes } 
                 [ Html.text ("-- " ++ attributes.placeholder ++ " --") ]
     in
     Html.select
-        ([ Events.onInput onChange
+        ([ Events.on "change" (Json.Decode.map onChange Events.targetValue)
          , Attributes.disabled disabled
          ]
             |> withMaybeAttribute Events.onBlur onBlur
