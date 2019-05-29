@@ -68,6 +68,7 @@ form =
                 { parser = User.parseName
                 , value = .name
                 , update = \value values -> { values | name = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Your name"
                     , placeholder = "Type your name"
@@ -114,6 +115,7 @@ websiteForm index =
                 { parser = Ok
                 , value = .name
                 , update = \value values -> { values | name = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Name of website #" ++ String.fromInt (index + 1)
                     , placeholder = ""
@@ -125,6 +127,7 @@ websiteForm index =
                 { parser = Ok
                 , value = .address
                 , update = \value values -> { values | address = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Address of website #" ++ String.fromInt (index + 1)
                     , placeholder = "https://..."

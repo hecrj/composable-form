@@ -537,12 +537,12 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
 
         Form.Group fields ->
             fields
-                |> List.map (maybeIgnoreChildError field.error >> renderField customConfig { fieldConfig | disabled = field.isDisabled })
+                |> List.map (maybeIgnoreChildError field.error >> renderField customConfig { fieldConfig | disabled = field.isDisabled || disabled })
                 |> customConfig.group
 
         Form.Section title fields ->
             fields
-                |> List.map (maybeIgnoreChildError field.error >> renderField customConfig { fieldConfig | disabled = field.isDisabled })
+                |> List.map (maybeIgnoreChildError field.error >> renderField customConfig { fieldConfig | disabled = field.isDisabled || disabled })
                 |> customConfig.section title
 
         Form.List { forms, add, attributes } ->
@@ -934,14 +934,19 @@ fieldLabel label =
 
 maybeErrorMessage : Bool -> Maybe Error -> Html msg
 maybeErrorMessage showError maybeError =
-    if showError then
-        maybeError
-            |> Maybe.map errorToString
-            |> Maybe.map errorMessage
-            |> Maybe.withDefault (Html.text "")
+    case maybeError of
+        Just (Error.External externalError) ->
+            errorMessage externalError
 
-    else
-        Html.text ""
+        _ ->
+            if showError then
+                maybeError
+                    |> Maybe.map errorToString
+                    |> Maybe.map errorMessage
+                    |> Maybe.withDefault (Html.text "")
+
+            else
+                Html.text ""
 
 
 successMessage : String -> Html msg

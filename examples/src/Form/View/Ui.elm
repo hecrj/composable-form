@@ -267,6 +267,9 @@ errorToString error =
         Error.ValidationFailed validationError ->
             validationError
 
+        Error.External externalError ->
+            externalError
+
 
 
 -- Common Elements

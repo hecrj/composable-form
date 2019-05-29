@@ -87,6 +87,7 @@ publicationForm =
                                 Err "Invalid publication type"
                 , value = .publicationType
                 , update = \value values -> { values | publicationType = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Type of publication"
                     , placeholder = "Choose a type"
@@ -114,6 +115,7 @@ postForm =
                 { parser = Post.parseBody
                 , value = .body
                 , update = \value values -> { values | body = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Body"
                     , placeholder = "Type your post here..."
@@ -133,6 +135,7 @@ questionForm =
                 { parser = Question.parseTitle
                 , value = .title
                 , update = \value values -> { values | title = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Title"
                     , placeholder = "Type your question here..."
@@ -144,6 +147,7 @@ questionForm =
                 { parser = Question.parseBody
                 , value = .body
                 , update = \value values -> { values | body = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Body"
                     , placeholder = "Describe your question here... (optional)"
