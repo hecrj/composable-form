@@ -963,6 +963,9 @@ errorToString error =
         Error.ValidationFailed validationError ->
             validationError
 
+        Error.External externalError ->
+            externalError
+
 
 withMaybeAttribute : (a -> Html.Attribute msg) -> Maybe a -> List (Html.Attribute msg) -> List (Html.Attribute msg)
 withMaybeAttribute toAttribute maybeValue attrs =

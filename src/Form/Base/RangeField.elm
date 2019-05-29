@@ -62,7 +62,7 @@ form :
     (RangeField number values -> field)
     -> Config number values output
     -> Base.Form values output field
-form build { parser, value, update, attributes } =
+form build { parser, value, update, error, attributes } =
     let
         withDefault maybeValue =
             case maybeValue of
@@ -77,5 +77,6 @@ form build { parser, value, update, attributes } =
         { parser = parser
         , value = value >> withDefault
         , update = update
+        , error = error
         , attributes = attributes
         }

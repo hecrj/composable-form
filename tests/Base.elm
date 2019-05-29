@@ -48,11 +48,21 @@ field =
                             Ok string
                 , value = identity
                 , update = \value _ -> value
+                , error =
+                    \string ->
+                        if string == externalErrorString then
+                            Just "external error"
+
+                        else
+                            Nothing
                 , attributes = attributes
                 }
 
         invalidString =
             "invalid"
+
+        externalErrorString =
+            "external_error"
 
         attributes =
             { a = 1, b = "some attribute" }
@@ -158,7 +168,23 @@ field =
                         |> Expect.equal (Err ( Error.ValidationFailed "invalid input", [] ))
             , test "form is not empty" <|
                 \_ ->
-                    fill "hello"
+                    fill invalidString
+                        |> .isEmpty
+                        |> Expect.equal False
+            ]
+        , describe "when there is an external error" <|
+            [ test "field error is External" <|
+                \_ ->
+                    fill externalErrorString
+                        |> withFieldError (Expect.equal (Just (Error.External "external error")))
+            , test "result is an External error" <|
+                \_ ->
+                    fill externalErrorString
+                        |> .result
+                        |> Expect.equal (Err ( Error.External "external error", [] ))
+            , test "form is not empty" <|
+                \_ ->
+                    fill externalErrorString
                         |> .isEmpty
                         |> Expect.equal False
             ]
@@ -368,6 +394,7 @@ andThen =
                 { parser = Ok
                 , value = .title
                 , update = \value values -> { values | title = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Title"
                     , placeholder = "Write a title..."
@@ -379,6 +406,7 @@ andThen =
                 { parser = Ok
                 , value = .body
                 , update = \value values -> { values | body = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Body"
                     , placeholder = "Write the body..."
@@ -591,6 +619,7 @@ emailField =
                     Err emailError
         , value = .email
         , update = \value values -> { values | email = value }
+        , error = always Nothing
         , attributes =
             { label = "E-Mail"
             , placeholder = "Type your e-mail..."
@@ -619,6 +648,7 @@ passwordField =
                     Err passwordError
         , value = .password
         , update = \value values -> { values | password = value }
+        , error = always Nothing
         , attributes =
             { label = "Password"
             , placeholder = "Type your password..."
@@ -651,6 +681,7 @@ repeatPasswordField =
                 , update =
                     \newValue values_ ->
                         { values_ | repeatPassword = newValue }
+                , error = always Nothing
                 , attributes =
                     { label = "Repeat password"
                     , placeholder = "Type your password again..."
@@ -689,6 +720,7 @@ contentTypeField =
                         Err contentTypeError
         , value = .contentType
         , update = \value values -> { values | contentType = value }
+        , error = always Nothing
         , attributes =
             { label = "Content type"
             , placeholder = "Select a type of content"

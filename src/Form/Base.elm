@@ -86,15 +86,18 @@ concrete field is validated and updated, alongside its attributes:
     of either:
       - the correct `output`
       - a `String` describing a problem
-  - `value` defines how the value of the field is obtained from the form `values`
-  - `update` defines how the current form `values` should be updated with a new field value
-  - `attributes` represent the attributes of the field
+  - `value` defines how the value of the field is obtained from the form `values`.
+  - `update` defines how the current form `values` should be updated with a new field value.
+  - `error` defines how to obtain a potential external error from the form `values`.
+    This can be useful to include server-side errors in your form!
+  - `attributes` represent the attributes of the field.
 
 -}
 type alias FieldConfig attrs input values output =
     { parser : input -> Result String output
     , value : values -> input
     , update : input -> values -> values
+    , error : values -> Maybe String
     , attributes : attrs
     }
 
@@ -145,8 +148,14 @@ field { isEmpty } build config =
                 config.parser value
                     |> Result.mapError (\error -> ( Error.ValidationFailed error, [] ))
 
-        parse =
-            config.value >> requiredParser
+        parse values =
+            requiredParser (config.value values)
+                |> Result.andThen
+                    (\output ->
+                        config.error values
+                            |> Maybe.map (\error -> Err ( Error.External error, [] ))
+                            |> Maybe.withDefault (Ok output)
+                    )
 
         field_ values =
             let

@@ -135,6 +135,7 @@ textField :
     { parser : String -> Result String output
     , value : values -> String
     , update : String -> values -> values
+    , error : values -> Maybe String
     , attributes : TextField.Attributes
     }
     -> Form values output
@@ -151,6 +152,7 @@ emailField :
     { parser : String -> Result String output
     , value : values -> String
     , update : String -> values -> values
+    , error : values -> Maybe String
     , attributes : TextField.Attributes
     }
     -> Form values output
@@ -167,6 +169,7 @@ passwordField :
     { parser : String -> Result String output
     , value : values -> String
     , update : String -> values -> values
+    , error : values -> Maybe String
     , attributes : TextField.Attributes
     }
     -> Form values output
@@ -183,6 +186,7 @@ textareaField :
     { parser : String -> Result String output
     , value : values -> String
     , update : String -> values -> values
+    , error : values -> Maybe String
     , attributes : TextField.Attributes
     }
     -> Form values output
@@ -199,6 +203,7 @@ searchField :
     { parser : String -> Result String output
     , value : values -> String
     , update : String -> values -> values
+    , error : values -> Maybe String
     , attributes : TextField.Attributes
     }
     -> Form values output
@@ -218,6 +223,7 @@ numberField :
     { parser : Maybe Float -> Result String output
     , value : values -> Maybe Float
     , update : Maybe Float -> values -> values
+    , error : values -> Maybe String
     , attributes : NumberField.Attributes Float
     }
     -> Form values output
@@ -237,6 +243,7 @@ rangeField :
     { parser : Maybe Float -> Result String output
     , value : values -> Maybe Float
     , update : Maybe Float -> values -> values
+    , error : values -> Maybe String
     , attributes : RangeField.Attributes Float
     }
     -> Form values output
@@ -257,6 +264,7 @@ checkboxField :
     { parser : Bool -> Result String output
     , value : values -> Bool
     , update : Bool -> values -> values
+    , error : values -> Maybe String
     , attributes : CheckboxField.Attributes
     }
     -> Form values output
@@ -276,6 +284,7 @@ radioField :
     { parser : String -> Result String output
     , value : values -> String
     , update : String -> values -> values
+    , error : values -> Maybe String
     , attributes : RadioField.Attributes
     }
     -> Form values output
@@ -295,6 +304,7 @@ selectField :
     { parser : String -> Result String output
     , value : values -> String
     , update : String -> values -> values
+    , error : values -> Maybe String
     , attributes : SelectField.Attributes
     }
     -> Form values output
