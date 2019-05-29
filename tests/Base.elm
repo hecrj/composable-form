@@ -62,17 +62,17 @@ field =
 
         withFieldAndError fn result =
             case result.fields of
-                [ fieldAndError_ ] ->
-                    fn fieldAndError_
+                [ field_ ] ->
+                    fn field_
 
                 _ ->
                     Expect.fail "fields do not contain a single field"
 
         withField fn =
-            withFieldAndError (Tuple.first >> fn)
+            withFieldAndError (.state >> fn)
 
         withFieldError fn =
-            withFieldAndError (Tuple.second >> fn)
+            withFieldAndError (.error >> fn)
     in
     describe "Form.Base.field"
         [ describe "when filled"
@@ -178,7 +178,7 @@ custom =
         form =
             Form.Base.custom
                 (\value ->
-                    { field = CustomField
+                    { state = CustomField
                     , result =
                         if value == invalidValue then
                             Err
@@ -202,7 +202,12 @@ custom =
             \_ ->
                 fill "hello"
                     |> Expect.equal
-                        { fields = [ ( CustomField, Nothing ) ]
+                        { fields =
+                            [ { state = CustomField
+                              , error = Nothing
+                              , isDisabled = False
+                              }
+                            ]
                         , result = Ok "valid"
                         , isEmpty = False
                         }
@@ -211,9 +216,10 @@ custom =
                 fill invalidValue
                     |> Expect.equal
                         { fields =
-                            [ ( CustomField
-                              , Just (Error.ValidationFailed "error 1")
-                              )
+                            [ { state = CustomField
+                              , error = Just (Error.ValidationFailed "error 1")
+                              , isDisabled = False
+                              }
                             ]
                         , result =
                             Err
@@ -305,7 +311,7 @@ append =
                 \_ ->
                     fill validValues
                         |> .fields
-                        |> List.map Tuple.second
+                        |> List.map .error
                         |> Expect.equal [ Nothing, Nothing ]
             , test "results in the correct output" <|
                 \_ ->
@@ -318,7 +324,7 @@ append =
                 \_ ->
                     fill invalidValues
                         |> .fields
-                        |> List.map Tuple.second
+                        |> List.map .error
                         |> Expect.equal
                             [ Just (Error.ValidationFailed emailError)
                             , Just (Error.ValidationFailed passwordError)
@@ -488,7 +494,7 @@ optional =
                 \_ ->
                     fill emptyValues
                         |> .fields
-                        |> List.map Tuple.second
+                        |> List.map .error
                         |> Expect.equal [ Nothing, Nothing ]
             , test "produces Nothing" <|
                 \_ ->
@@ -501,7 +507,7 @@ optional =
                 \_ ->
                     fill validValues
                         |> .fields
-                        |> List.map Tuple.second
+                        |> List.map .error
                         |> Expect.equal [ Nothing, Nothing ]
             , test "results in the correct output" <|
                 \_ ->
@@ -521,7 +527,7 @@ optional =
                 \_ ->
                     fill invalidValues
                         |> .fields
-                        |> List.map Tuple.second
+                        |> List.map .error
                         |> Expect.equal
                             [ Just (Error.ValidationFailed emailError)
                             , Just (Error.ValidationFailed passwordError)

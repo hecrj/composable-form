@@ -43,7 +43,7 @@ customEmailField { onChange, state, attributes } =
                     state values
                         |> ComplexValidationField.value
             in
-            { field =
+            { state =
                 Email
                     { onChange = ComplexValidationField.ValueChanged >> onChange
                     , state =
@@ -121,7 +121,7 @@ fill :
     Form values output msg
     -> values
     ->
-        { fields : List ( Field values msg, Maybe Error )
+        { fields : List (Base.FilledField (Field values msg))
         , result : Result ( Error, List Error ) output
         , isEmpty : Bool
         }

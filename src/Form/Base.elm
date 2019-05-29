@@ -1,9 +1,9 @@
 module Form.Base exposing
     ( Form
-    , field, FieldConfig, custom, FilledField
-    , succeed, append, andThen, optional, meta
+    , field, FieldConfig, custom, CustomField
+    , succeed, append, andThen, optional, disable, meta
     , map, mapValues, mapField
-    , FilledForm, fill
+    , FilledForm, FilledField, fill
     )
 
 {-| Build composable forms with your own custom fields.
@@ -46,12 +46,12 @@ For instance, you could start your own `MyProject.Form` module like this:
 Notice that we could avoid redefining `succeed`, `append`, and others, but that would force us to
 import `Form.Base` every time we needed to use those operations with our brand new form.
 
-@docs field, FieldConfig, custom, FilledField
+@docs field, FieldConfig, custom, CustomField
 
 
 # Composition
 
-@docs succeed, append, andThen, optional, meta
+@docs succeed, append, andThen, optional, disable, meta
 
 
 # Mapping
@@ -61,7 +61,7 @@ import `Form.Base` every time we needed to use those operations with our brand n
 
 # Output
 
-@docs FilledForm, fill
+@docs FilledForm, FilledField, fill
 
 -}
 
@@ -176,14 +176,14 @@ field { isEmpty } build config =
                         Err ( firstError, _ ) ->
                             ( Just firstError, firstError == Error.RequiredFieldIsEmpty )
             in
-            { fields = [ ( field_ values, error ) ]
+            { fields = [ { state = field_ values, error = error, isDisabled = False } ]
             , result = result
             , isEmpty = isEmpty_
             }
         )
 
 
-{-| Represents a field on a form that has been filled with values.
+{-| Represents a custom field on a form that has been filled with values.
 
 It contains:
 
@@ -192,8 +192,8 @@ It contains:
   - whether the field is empty or not
 
 -}
-type alias FilledField output field =
-    { field : field
+type alias CustomField output field =
+    { state : field
     , result : Result ( Error, List Error ) output
     , isEmpty : Bool
     }
@@ -208,7 +208,7 @@ You can check the [custom fields example][custom-fields] for some inspiration.
 [custom-fields]: https://hecrj.github.io/composable-form/#/custom-fields
 
 -}
-custom : (values -> FilledField output field) -> Form values output field
+custom : (values -> CustomField output field) -> Form values output field
 custom fillField =
     Form
         (\values ->
@@ -217,14 +217,16 @@ custom fillField =
                     fillField values
             in
             { fields =
-                [ ( filled.field
-                  , case filled.result of
-                        Ok _ ->
-                            Nothing
+                [ { state = filled.state
+                  , error =
+                        case filled.result of
+                            Ok _ ->
+                                Nothing
 
-                        Err ( firstError, _ ) ->
-                            Just firstError
-                  )
+                            Err ( firstError, _ ) ->
+                                Just firstError
+                  , isDisabled = False
+                  }
                 ]
             , result = filled.result
             , isEmpty = filled.isEmpty
@@ -337,7 +339,12 @@ optional form =
 
                 Err ( firstError, otherErrors ) ->
                     if filled.isEmpty then
-                        { fields = List.map (\( field_, _ ) -> ( field_, Nothing )) filled.fields
+                        { fields =
+                            List.map
+                                (\filledField ->
+                                    { filledField | error = Nothing }
+                                )
+                                filled.fields
                         , result = Ok Nothing
                         , isEmpty = True
                         }
@@ -347,6 +354,28 @@ optional form =
                         , result = Err ( firstError, otherErrors )
                         , isEmpty = False
                         }
+        )
+
+
+{-| Like [`Form.disable`](Form#disable) but not tied to a particular type of `field`.
+-}
+disable : Form values output field -> Form values output field
+disable form =
+    Form
+        (\values ->
+            let
+                filled =
+                    fill form values
+            in
+            { fields =
+                List.map
+                    (\filledField ->
+                        { filledField | isDisabled = True }
+                    )
+                    filled.fields
+            , result = filled.result
+            , isEmpty = filled.isEmpty
+            }
         )
 
 
@@ -395,7 +424,15 @@ mapField fn form =
                 filled =
                     fill form values
             in
-            { fields = List.map (\( field_, error ) -> ( fn field_, error )) filled.fields
+            { fields =
+                List.map
+                    (\filledField ->
+                        { state = fn filledField.state
+                        , error = filledField.error
+                        , isDisabled = filledField.isDisabled
+                        }
+                    )
+                    filled.fields
             , result = filled.result
             , isEmpty = filled.isEmpty
             }
@@ -412,9 +449,18 @@ You can obtain this by using [`fill`](#fill).
 
 -}
 type alias FilledForm output field =
-    { fields : List ( field, Maybe Error )
+    { fields : List (FilledField field)
     , result : Result ( Error, List Error ) output
     , isEmpty : Bool
+    }
+
+
+{-| Represents a filled field.
+-}
+type alias FilledField field =
+    { state : field
+    , error : Maybe Error
+    , isDisabled : Bool
     }
 
 

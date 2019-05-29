@@ -48,7 +48,7 @@ from the list.
 
 -}
 type alias Form values field =
-    { fields : List ( field, Maybe Error )
+    { fields : List (Base.FilledField field)
     , delete : () -> values
     }
 
@@ -164,7 +164,7 @@ form tagger { value, update, default, attributes } buildElement =
                                 Err ( currentHead, currentErrors ) ->
                                     Err ( head, errors ++ (currentHead :: currentErrors) )
             in
-            { field =
+            { state =
                 tagger
                     { forms = List.indexedMap toForm filledElements
                     , add = \_ -> update (listOfElementValues ++ [ default ]) values
