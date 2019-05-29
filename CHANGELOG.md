@@ -5,6 +5,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- `Form.disable` and `Form.Base.disable`, which allow disabling the fields of a
+  form. [#27]
+
+### Changed
+- `Form.Base.FilledField` has been renamed to `Form.Base.CustomField` and its
+  `field` property has been renamed to `state`. [#27]
+- The tuple `( field, Maybe Error )` is replaced with the new record
+  `Form.Base.FilledField` everywhere. [#27]
+
+[#27]: https://github.com/hecrj/composable-form/pull/27
 
 ## [7.1.0] - 2019-05-07
 ### Added
