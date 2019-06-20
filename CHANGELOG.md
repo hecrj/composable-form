@@ -14,8 +14,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   `field` property has been renamed to `state`. [#27]
 - The tuple `( field, Maybe Error )` is replaced with the new record
   `Form.Base.FilledField` everywhere. [#27]
+- An `error : values -> Maybe String` attribute was added to field configuration.
+  Useful to show server-side validation errors. [#29]
+- The `Error` type was extended with an `External` value. [#29]
 
 [#27]: https://github.com/hecrj/composable-form/pull/27
+[#29]: https://github.com/hecrj/composable-form/pull/29
 
 ## [7.1.0] - 2019-05-07
 ### Added
