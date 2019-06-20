@@ -21,7 +21,16 @@ type alias Values =
     , repeatPassword : String
     , favoriteLanguage : String
     , acceptTerms : Bool
+    , errors : Errors
     }
+
+
+type alias Errors =
+    { email : Maybe Error }
+
+
+type alias Error =
+    { value : String, error : String }
 
 
 type Msg
@@ -38,6 +47,7 @@ init =
     , repeatPassword = ""
     , favoriteLanguage = ""
     , acceptTerms = False
+    , errors = { email = Nothing }
     }
         |> Form.View.idle
         |> FillingForm
@@ -71,7 +81,26 @@ update msg model =
         SignupAttempted (Err error) ->
             case model of
                 FillingForm formModel ->
-                    ( FillingForm { formModel | state = Form.View.Error error }, Cmd.none )
+                    let
+                        values =
+                            formModel.values
+
+                        errors =
+                            values.errors
+                    in
+                    ( FillingForm
+                        { formModel
+                            | state = Form.View.Idle
+                            , values =
+                                { values
+                                    | errors =
+                                        { errors
+                                            | email = Just (Error values.email error)
+                                        }
+                                }
+                        }
+                    , Cmd.none
+                    )
 
                 _ ->
                     ( model, Cmd.none )
@@ -109,6 +138,13 @@ form =
                 { parser = EmailAddress.parse
                 , value = .email
                 , update = \value values -> { values | email = value }
+                , error =
+                    \{ email, errors } ->
+                        if Just email == Maybe.map .value errors.email then
+                            Maybe.map .error errors.email
+
+                        else
+                            Nothing
                 , attributes =
                     { label = "E-Mail"
                     , placeholder = "some@email.com"
@@ -120,6 +156,7 @@ form =
                 { parser = User.parseName
                 , value = .name
                 , update = \value values -> { values | name = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Name"
                     , placeholder = "Your name"
@@ -131,6 +168,7 @@ form =
                 { parser = User.parsePassword
                 , value = .password
                 , update = \value values -> { values | password = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Password"
                     , placeholder = "Your password"
@@ -152,6 +190,7 @@ form =
                         , update =
                             \newValue values_ ->
                                 { values_ | repeatPassword = newValue }
+                        , error = always Nothing
                         , attributes =
                             { label = "Repeat password"
                             , placeholder = "Your password again..."
@@ -173,6 +212,7 @@ form =
                             )
                 , value = .favoriteLanguage
                 , update = \value values -> { values | favoriteLanguage = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Which is your favorite language?"
                     , placeholder = "Choose a language"
@@ -198,6 +238,7 @@ form =
                             Err "You must accept the terms"
                 , value = .acceptTerms
                 , update = \value values -> { values | acceptTerms = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Accept Terms and Conditions" }
                 }

@@ -27,6 +27,7 @@ form =
                 { parser = Address.parseCountry
                 , value = .country
                 , update = \value values -> { values | country = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Country"
                     , placeholder = "Type your country"
@@ -38,6 +39,7 @@ form =
                 { parser = Address.parseCity
                 , value = .city
                 , update = \value values -> { values | city = value }
+                , error = always Nothing
                 , attributes =
                     { label = "City"
                     , placeholder = "Type your city"
@@ -49,6 +51,7 @@ form =
                 { parser = Address.parsePostalCode
                 , value = .postalCode
                 , update = \value values -> { values | postalCode = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Postal Code"
                     , placeholder = "Type your postal code"

@@ -67,6 +67,7 @@ form =
                 { parser = EmailAddress.parse
                 , value = .email
                 , update = \value values -> { values | email = value }
+                , error = always Nothing
                 , attributes =
                     { label = "E-Mail"
                     , placeholder = "some@email.com"
@@ -78,6 +79,7 @@ form =
                 { parser = Ok
                 , value = .password
                 , update = \value values -> { values | password = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Password"
                     , placeholder = "Your password"
@@ -89,6 +91,7 @@ form =
                 { parser = Ok
                 , value = .rememberMe
                 , update = \value values -> { values | rememberMe = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Remember me" }
                 }

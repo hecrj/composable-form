@@ -74,6 +74,7 @@ form =
                 { parser = Ok
                 , value = .validationStrategy
                 , update = \value values -> { values | validationStrategy = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Validation strategy"
                     , options =
@@ -95,6 +96,7 @@ form =
                 { parser = EmailAddress.parse
                 , value = .email
                 , update = \value values -> { values | email = value }
+                , error = always Nothing
                 , attributes =
                     { label = "E-Mail"
                     , placeholder = "some@email.com"
@@ -106,6 +108,7 @@ form =
                 { parser = User.parseName
                 , value = .name
                 , update = \value values -> { values | name = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Name"
                     , placeholder = "Your name"
@@ -117,6 +120,7 @@ form =
                 { parser = User.parsePassword
                 , value = .password
                 , update = \value values -> { values | password = value }
+                , error = always Nothing
                 , attributes =
                     { label = "Password"
                     , placeholder = "Your password"

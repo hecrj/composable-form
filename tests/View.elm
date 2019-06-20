@@ -48,6 +48,9 @@ optionalGroup =
                 Just (Error.ValidationFailed validationError) ->
                     validationError
 
+                Just (Error.External externalError) ->
+                    externalError
+
                 Nothing ->
                     ""
     in
@@ -87,6 +90,7 @@ nameField =
         { parser = Ok
         , value = .name
         , update = \value values -> { values | name = value }
+        , error = always Nothing
         , attributes =
             { label = "Name"
             , placeholder = "Type your name..."
@@ -100,6 +104,7 @@ surnameField =
         { parser = Ok
         , value = .surname
         , update = \value values -> { values | surname = value }
+        , error = always Nothing
         , attributes =
             { label = "Surname"
             , placeholder = "Type your surname..."
