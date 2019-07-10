@@ -28,7 +28,7 @@ custom fields or writing custom view code.
 
 -}
 type alias NumberField number values =
-    Field (Attributes number) (Maybe number) values
+    Field (Attributes number) String values
 
 
 {-| The attributes of a NumberField.
@@ -39,11 +39,13 @@ You need to provide these to:
 
 [numberField]: Form#numberField
 
+  - Its `step` is a Maybe -- `Nothing` represents the HTML attribute value of "any". If you want only integers allowed, use `Just 1`.
+
 -}
 type alias Attributes number =
     { label : String
     , placeholder : String
-    , step : number
+    , step : Maybe number
     , min : Maybe number
     , max : Maybe number
     }
@@ -57,7 +59,7 @@ custom fields.
 -}
 form :
     (NumberField number values -> field)
-    -> Base.FieldConfig (Attributes number) (Maybe number) values output
+    -> Base.FieldConfig (Attributes number) String values output
     -> Base.Form values output field
 form =
-    Base.field { isEmpty = (==) Nothing }
+    Base.field { isEmpty = String.isEmpty }

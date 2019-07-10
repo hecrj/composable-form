@@ -224,18 +224,18 @@ type alias TextFieldConfig msg =
 
 {-| Describes how a number field should be rendered.
 
-  - `onChange` accepts a `Maybe` so the field value can be cleared.
-  - `value` will be `Nothing` if the field is blank or `Just` a `Float`.
+  - `onChange` takes a new value for the field and returns the `msg` that should be produced.
+  - `value` contains the current value of the field.
   - `attributes` are [`NumberField.Attributes`](Form-Base-NumberField#Attributes).
 
 The other record fields are described in [`TextFieldConfig`](#TextFieldConfig).
 
 -}
 type alias NumberFieldConfig msg =
-    { onChange : Maybe Float -> msg
+    { onChange : String -> msg
     , onBlur : Maybe msg
     , disabled : Bool
-    , value : Maybe Float
+    , value : String
     , error : Maybe Error
     , showError : Bool
     , attributes : NumberField.Attributes Float
@@ -781,13 +781,19 @@ textareaField { onChange, onBlur, disabled, value, error, showError, attributes 
 
 numberField : NumberFieldConfig msg -> Html msg
 numberField { onChange, onBlur, disabled, value, error, showError, attributes } =
+    let
+        stepAttr =
+            attributes.step
+                |> Maybe.map String.fromFloat
+                |> Maybe.withDefault "any"
+    in
     Html.input
-        ([ Events.onInput (fromString String.toFloat value >> onChange)
+        ([ Events.onInput onChange
          , Attributes.disabled disabled
-         , Attributes.value (value |> Maybe.map String.fromFloat |> Maybe.withDefault "")
+         , Attributes.value value
          , Attributes.placeholder attributes.placeholder
          , Attributes.type_ "number"
-         , Attributes.step (String.fromFloat attributes.step)
+         , Attributes.step stepAttr
          ]
             |> withMaybeAttribute (String.fromFloat >> Attributes.max) attributes.max
             |> withMaybeAttribute (String.fromFloat >> Attributes.min) attributes.min
