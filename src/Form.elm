@@ -220,9 +220,9 @@ It has a very similar configuration to [`textField`](#textField), the only diffe
 
 -}
 numberField :
-    { parser : Maybe Float -> Result String output
-    , value : values -> Maybe Float
-    , update : Maybe Float -> values -> values
+    { parser : String -> Result String output
+    , value : values -> String
+    , update : String -> values -> values
     , error : values -> Maybe String
     , attributes : NumberField.Attributes Float
     }

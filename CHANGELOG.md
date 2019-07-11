@@ -17,9 +17,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - An `error : values -> Maybe String` attribute was added to field configuration.
   Useful to show server-side validation errors. [#29]
 - The `Error` type was extended with an `External` value. [#29]
+- `NumberField` value storage has been changed from `Maybe Float` to `String` to
+  fix issues entering values after the decimal point. [#25] & [#30]
+- The `step` item in the `Form.Base.NumberField.Attributes` record has been changed
+  from `number` to `Maybe number` to allow a step attribute of `"any"`. [#30]
 
+[#25]: https://github.com/hecrj/composable-form/issues/25
 [#27]: https://github.com/hecrj/composable-form/pull/27
 [#29]: https://github.com/hecrj/composable-form/pull/29
+[#30]: https://github.com/hecrj/composable-form/pull/30
 
 ## [7.1.0] - 2019-05-07
 ### Added
