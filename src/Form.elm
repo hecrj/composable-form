@@ -4,8 +4,7 @@ module Form exposing
     , radioField, selectField
     , succeed, append, optional, disable, group, section, andThen, meta, list
     , map, mapValues
-    , Field(..), TextType(..), fill
-    , FilledField
+    , Field(..), TextType(..), FilledField, fill
     )
 
 {-| Build [composable forms](#Form) comprised of [fields](#fields).
@@ -45,7 +44,7 @@ different fields and its `output`. This is mostly used to write custom view code
 If you just want to render a simple form as `Html`, check [`Form.View`](Form-View) first as it
 might suit your needs.
 
-@docs Field, TextType, fill
+@docs Field, TextType, FilledField, fill
 
 -}
 
