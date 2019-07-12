@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [8.0.1] - 2019-07-12
+### Fixed
+- `README` example. The new `error` attribute was missing.
+
 ## [8.0.0] - 2019-07-12
 ### Added
 - `Success` variant to `Form.View.State`. By default, it can be styled using the
@@ -173,7 +177,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/hecrj/composable-form/compare/8.0.0...HEAD
+[Unreleased]: https://github.com/hecrj/composable-form/compare/8.0.1...HEAD
+[8.0.1]: https://github.com/hecrj/composable-form/compare/8.0.0...8.0.1
 [8.0.0]: https://github.com/hecrj/composable-form/compare/7.1.0...8.0.0
 [7.1.0]: https://github.com/hecrj/composable-form/compare/7.0.2...7.1.0
 [7.0.2]: https://github.com/hecrj/composable-form/compare/7.0.1...7.0.2
