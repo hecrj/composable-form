@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [8.0.0] - 2019-07-12
 ### Added
-- `Success` variant to `Form.View.State`. It can be styled using the
+- `Success` variant to `Form.View.State`. By default, it can be styled using the
   `.elm-form-success` CSS selector. [#26]
 - `Form.disable` and `Form.Base.disable`, which allow disabling the fields of a
   form. [#27]
@@ -173,7 +173,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/hecrj/composable-form/compare/7.1.0...HEAD
+[Unreleased]: https://github.com/hecrj/composable-form/compare/8.0.0...HEAD
+[8.0.0]: https://github.com/hecrj/composable-form/compare/7.1.0...8.0.0
 [7.1.0]: https://github.com/hecrj/composable-form/compare/7.0.2...7.1.0
 [7.0.2]: https://github.com/hecrj/composable-form/compare/7.0.1...7.0.2
 [7.0.1]: https://github.com/hecrj/composable-form/compare/7.0.0...7.0.1
