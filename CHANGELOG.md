@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- `Success` variant to `Form.View.State`. It can be styled using the
+  `.elm-form-success` CSS selector. [#26]
 - `Form.disable` and `Form.Base.disable`, which allow disabling the fields of a
   form. [#27]
 
@@ -22,8 +24,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The `step` item in the `Form.Base.NumberField.Attributes` record has been changed
   from `number` to `Maybe number` to allow a step attribute of `"any"`. [#30]
 
+### Fixed
+- Default select field in `Form.View` now listens to the `change` event instead
+  of `input`. Internet Explorer and Edge now should work properly with this
+  field. [#28]
+
 [#25]: https://github.com/hecrj/composable-form/issues/25
+[#26]: https://github.com/hecrj/composable-form/pull/26
 [#27]: https://github.com/hecrj/composable-form/pull/27
+[#28]: https://github.com/hecrj/composable-form/pull/28
 [#29]: https://github.com/hecrj/composable-form/pull/29
 [#30]: https://github.com/hecrj/composable-form/pull/30
 
