@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   `Form.Base.FilledField` everywhere. [#27]
 - An `error : values -> Maybe String` attribute was added to field configuration.
   Useful to show server-side validation errors. [#29]
-- The `Error` type was extended with an `External` value. [#29]
+- The `Error` type was extended with an `External` variant. It is meant to
+  represent an external error not caused by client-side validation. [#29]
 - `NumberField` value storage has been changed from `Maybe Float` to `String` to
   fix issues entering values after the decimal point. [#25] & [#30]
 - The `step` item in the `Form.Base.NumberField.Attributes` record has been changed
