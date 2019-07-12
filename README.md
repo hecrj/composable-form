@@ -73,7 +73,6 @@ form =
         |> Form.append emailField
         |> Form.append passwordField
         |> Form.append rememberMeCheckbox
-
 ```
 
 Read the [`Form` module documentation][form-docs] to understand how this code works.
