@@ -5,6 +5,7 @@ module Form exposing
     , succeed, append, optional, disable, group, section, andThen, meta, list
     , map, mapValues
     , Field(..), TextType(..), FilledField, fill
+    , multiselectField
     )
 
 {-| Build [composable forms](#Form) comprised of [fields](#fields).
@@ -51,6 +52,7 @@ might suit your needs.
 import Form.Base as Base
 import Form.Base.CheckboxField as CheckboxField exposing (CheckboxField)
 import Form.Base.FormList as FormList exposing (FormList)
+import Form.Base.MultiselectField as MultiselectField exposing (MultiselectField)
 import Form.Base.NumberField as NumberField exposing (NumberField)
 import Form.Base.RadioField as RadioField exposing (RadioField)
 import Form.Base.RangeField as RangeField exposing (RangeField)
@@ -58,6 +60,7 @@ import Form.Base.SelectField as SelectField exposing (SelectField)
 import Form.Base.TextField as TextField exposing (TextField)
 import Form.Error exposing (Error)
 import Form.Field as Field
+import Multiselect
 
 
 
@@ -309,6 +312,18 @@ selectField :
     -> Form values output
 selectField =
     SelectField.form Select
+
+
+multiselectField :
+    { parser : Multiselect.Model -> Result String output
+    , value : values -> Multiselect.Model
+    , update : Multiselect.Model -> values -> values
+    , error : values -> Maybe String
+    , attributes : MultiselectField.Attributes
+    }
+    -> Form values output
+multiselectField =
+    MultiselectField.form Multiselect
 
 
 
@@ -708,6 +723,9 @@ mapFieldValues update values field =
         Select field_ ->
             Select (Field.mapValues newUpdate field_)
 
+        Multiselect field_ ->
+            Multiselect (Field.mapValues newUpdate field_)
+
         Group fields ->
             Group
                 (List.map
@@ -772,6 +790,7 @@ type Field values
     | Checkbox (CheckboxField values)
     | Radio (RadioField values)
     | Select (SelectField values)
+    | Multiselect (MultiselectField values)
     | Group (List (FilledField values))
     | Section String (List (FilledField values))
     | List (FormList values (Field values))
