@@ -5,14 +5,12 @@ module Form.Base.MultiselectField exposing
     )
 
 import Form.Base as Form exposing (Form)
+import Form.Field exposing (Field)
 import Multiselect
 
 
 type alias MultiselectField values =
-    { value : Multiselect.Model
-    , update : Multiselect.Model -> values
-    , attributes : Attributes
-    }
+    Field Attributes Multiselect.Model values
 
 
 

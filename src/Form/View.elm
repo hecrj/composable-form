@@ -139,7 +139,7 @@ type alias ViewConfig values msg =
     , action : String
     , loading : String
     , validation : Validation
-    , multiselectMsg : Multiselect.Msg -> Multiselect.Model -> (Multiselect.Model -> values) -> msg
+    , multiselectMsg : Multiselect.Msg -> (values -> Multiselect.Model) -> (Multiselect.Model -> values) -> msg
     }
 
 
@@ -455,7 +455,7 @@ type alias FieldConfig values msg =
     , onBlur : Maybe (String -> msg)
     , disabled : Bool
     , showError : String -> Bool
-    , multiselectMsg : Multiselect.Msg -> Multiselect.Model -> (Multiselect.Model -> values) -> msg
+    , multiselectMsg : Multiselect.Msg -> (values -> Multiselect.Model) -> (Multiselect.Model -> values) -> msg
     }
 
 
@@ -553,9 +553,9 @@ renderField customConfig ({ onChange, onBlur, disabled, showError, multiselectMs
                 , attributes = attributes
                 }
 
-        Form.Multiselect { attributes, value, update } ->
+        Form.Multiselect { attributes, value, getValue, update } ->
             customConfig.multiselectField
-                { onChange = \msg -> multiselectMsg msg value update
+                { onChange = \msg -> multiselectMsg msg getValue update
                 , onBlur = blur attributes.label
                 , disabled = field.isDisabled || disabled
                 , value = value

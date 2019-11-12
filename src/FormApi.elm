@@ -41,7 +41,7 @@ type Reply output
 type Msg values output
     = FormChanged (View.Model values)
     | Succeed output
-    | MultiselectMsg Multiselect.Msg Multiselect.Model (Multiselect.Model -> values)
+    | MultiselectMsg Multiselect.Msg (values -> Multiselect.Model) (Multiselect.Model -> values)
 
 
 update :
@@ -64,14 +64,14 @@ update msg model =
             , []
             )
 
-        MultiselectMsg subMsg value subUpdate ->
+        MultiselectMsg subMsg getValue subUpdate ->
             let
                 formModel =
                     Debug.log "multiselect old model"
                         model.formModel
 
                 ( subModel, subCmd, outMsg ) =
-                    Multiselect.update subMsg value
+                    Multiselect.update subMsg (getValue model.formModel.values)
             in
             Debug.log "multiselect new model"
                 ( { model
@@ -81,7 +81,7 @@ update msg model =
                                 subUpdate subModel
                         }
                   }
-                , Cmd.map (\a -> MultiselectMsg a value subUpdate) subCmd
+                , Cmd.map (\a -> MultiselectMsg a getValue subUpdate) subCmd
                 , []
                 )
 

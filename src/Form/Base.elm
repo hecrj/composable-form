@@ -167,6 +167,7 @@ field { isEmpty } build config =
             in
             build
                 { value = value
+                , getValue = config.value
                 , update = update
                 , attributes = config.attributes
                 }
