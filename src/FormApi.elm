@@ -2,15 +2,15 @@ module FormApi exposing (..)
 
 -- Encapsulation
 
-import DynamicForm.Form as Form exposing (Form)
-import DynamicForm.View
+import Form as Form exposing (Form)
 import Form.Error
+import Form.View as View
 import Html exposing (Html)
 import Multiselect
 
 
 type alias Model values output =
-    { formModel : DynamicForm.View.Model values
+    { formModel : View.Model values
     , form : Form values output
     , action : String
     , loading : String
@@ -27,7 +27,7 @@ init :
 init { form, action, loading, initialValues } =
     { formModel =
         initialValues
-            |> DynamicForm.View.idle
+            |> View.idle
     , form = form
     , action = action
     , loading = loading
@@ -39,7 +39,7 @@ type Reply output
 
 
 type Msg values output
-    = FormChanged (DynamicForm.View.Model values)
+    = FormChanged (View.Model values)
     | Succeed output
     | MultiselectMsg Multiselect.Msg Multiselect.Model (Multiselect.Model -> values)
 
@@ -98,11 +98,11 @@ view model =
         form_ =
             Form.map Succeed model.form
     in
-    DynamicForm.View.asHtml
+    View.asHtml
         { onChange = FormChanged
         , action = model.action
         , loading = model.loading
-        , validation = DynamicForm.View.ValidateOnSubmit
+        , validation = View.ValidateOnSubmit
         , multiselectMsg = MultiselectMsg
         }
         form_
