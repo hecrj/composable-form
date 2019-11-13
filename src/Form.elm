@@ -52,13 +52,12 @@ might suit your needs.
 import Form.Base as Base
 import Form.Base.CheckboxField as CheckboxField exposing (CheckboxField)
 import Form.Base.FormList as FormList exposing (FormList)
-import Form.Base.MultiselectField as MultiselectField exposing (MultiselectField)
 import Form.Base.NumberField as NumberField exposing (NumberField)
 import Form.Base.RadioField as RadioField exposing (RadioField)
 import Form.Base.RangeField as RangeField exposing (RangeField)
 import Form.Base.SelectField as SelectField exposing (SelectField)
 import Form.Base.TextField as TextField exposing (TextField)
-import Form.Error exposing (Error)
+import Form.Error exposing (Error(..))
 import Form.Field as Field
 import Multiselect
 
@@ -319,11 +318,28 @@ multiselectField :
     , value : values -> Multiselect.Model
     , update : Multiselect.Model -> values -> values
     , error : values -> Maybe String
-    , attributes : MultiselectField.Attributes
+    , attributes : { label : String, placeholder : String }
     }
     -> Form values output
-multiselectField =
-    MultiselectField.form Multiselect
+multiselectField { parser, value, update, error, attributes } =
+    Base.custom
+        (\values ->
+            { state =
+                Multiselect
+                    { value = value values
+                    , attributes = attributes
+                    , getValue = value
+                    , update = \value_ -> update value_ values
+                    }
+            , result =
+                parser (value values)
+                    |> Result.mapError (\error_ -> ( ValidationFailed error_, [] ))
+            , isEmpty =
+                value values
+                    |> Multiselect.getSelectedValues
+                    |> List.isEmpty
+            }
+        )
 
 
 
@@ -790,7 +806,15 @@ type Field values
     | Checkbox (CheckboxField values)
     | Radio (RadioField values)
     | Select (SelectField values)
-    | Multiselect (MultiselectField values)
+    | Multiselect
+        { attributes :
+            { label : String
+            , placeholder : String
+            }
+        , value : Multiselect.Model
+        , getValue : values -> Multiselect.Model
+        , update : Multiselect.Model -> values
+        }
     | Group (List (FilledField values))
     | Section String (List (FilledField values))
     | List (FormList values (Field values))

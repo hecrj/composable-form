@@ -44,7 +44,6 @@ custom view code. Take a look at [the source code of this module][source] for in
 
 import Form as Form exposing (Form)
 import Form.Base.CheckboxField as CheckboxField
-import Form.Base.MultiselectField as MultiselectField exposing (MultiselectField)
 import Form.Base.NumberField as NumberField
 import Form.Base.RadioField as RadioField
 import Form.Base.RangeField as RangeField
@@ -318,14 +317,14 @@ type alias SelectFieldConfig msg =
 
 
 type alias MultiselectFieldConfig msg =
-    --  { onChange : Multiselect.Msg -> ( msg, Cmd Multiselect.Msg, Maybe Multiselect.OutMsg )
     { onChange : Multiselect.Msg -> msg
-    , onBlur : Maybe msg
-    , disabled : Bool
     , value : Multiselect.Model
     , error : Maybe Error
     , showError : Bool
-    , attributes : SelectField.Attributes
+    , attributes :
+        { label : String
+        , placeholder : String
+        }
     }
 
 
@@ -556,8 +555,6 @@ renderField customConfig ({ onChange, onBlur, disabled, showError, multiselectMs
         Form.Multiselect { attributes, value, getValue, update } ->
             customConfig.multiselectField
                 { onChange = \msg -> multiselectMsg msg getValue update
-                , onBlur = blur attributes.label
-                , disabled = field.isDisabled || disabled
                 , value = value
                 , error = field.error
                 , showError = showError attributes.label
@@ -928,7 +925,7 @@ selectField { onChange, onBlur, disabled, value, error, showError, attributes } 
 
 
 multiselectField : MultiselectFieldConfig msg -> Html msg
-multiselectField { onChange, onBlur, disabled, value, error, showError, attributes } =
+multiselectField { onChange, value, error, showError, attributes } =
     (Html.map onChange <|
         Multiselect.view value
     )
