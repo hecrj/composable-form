@@ -5,6 +5,7 @@ module Form.View exposing
     , custom, CustomConfig, FormConfig, TextFieldConfig, NumberFieldConfig, RangeFieldConfig
     , CheckboxFieldConfig, RadioFieldConfig, SelectFieldConfig
     , FormListConfig, FormListItemConfig
+    , MultiselectFieldConfig
     )
 
 {-| This module provides helpers to render a [`Form`](Form#Form).
@@ -705,6 +706,7 @@ formList { forms, label, add, disabled } =
                     Html.button
                         [ Events.onClick add_.action
                         , Attributes.type_ "button"
+                        , Attributes.class "btn uie-border-black"
                         ]
                         [ Html.i [ Attributes.class "fas fa-plus" ] []
                         , Html.text add_.label
@@ -729,6 +731,7 @@ formListItem { fields, delete, disabled } =
                     Html.button
                         [ Events.onClick delete_.action
                         , Attributes.type_ "button"
+                        , Attributes.class "btn uie-border-black"
                         ]
                         [ Html.text delete_.label
                         , Html.i [ Attributes.class "fas fa-times" ] []
@@ -765,6 +768,7 @@ form { onSubmit, action, loading, state, fields } =
               , Html.button
                     [ Attributes.type_ "submit"
                     , Attributes.disabled (onSubmit == Nothing)
+                    , Attributes.class "btn uie-border-black"
                     ]
                     [ if state == Loading then
                         Html.text loading
