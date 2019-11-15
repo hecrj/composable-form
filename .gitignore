@@ -4,3 +4,6 @@ dist/
 documentation.json
 package.json
 yarn.lock
+
+# vim temporal files
+*.swp
