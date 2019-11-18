@@ -58,6 +58,7 @@ attributes. For example, you could render a `TextField` like this:
 -}
 type alias Field attributes value values =
     { value : value
+    , getValue : values -> value
     , update : value -> values
     , attributes : attributes
     }
@@ -69,8 +70,9 @@ It can be useful to build your own [`Form.mapValues`](Form#mapValues) function.
 
 -}
 mapValues : (a -> b) -> Field attributes value a -> Field attributes value b
-mapValues fn { value, update, attributes } =
+mapValues fn { value, getValue, update, attributes } =
     { value = value
+    , getValue = \_ -> value
     , update = update >> fn
     , attributes = attributes
     }

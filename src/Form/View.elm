@@ -5,6 +5,7 @@ module Form.View exposing
     , custom, CustomConfig, FormConfig, TextFieldConfig, NumberFieldConfig, RangeFieldConfig
     , CheckboxFieldConfig, RadioFieldConfig, SelectFieldConfig
     , FormListConfig, FormListItemConfig
+    , MultiselectFieldConfig
     )
 
 {-| This module provides helpers to render a [`Form`](Form#Form).
@@ -42,7 +43,7 @@ custom view code. Take a look at [the source code of this module][source] for in
 
 -}
 
-import Form exposing (Form)
+import Form as Form exposing (Form)
 import Form.Base.CheckboxField as CheckboxField
 import Form.Base.NumberField as NumberField
 import Form.Base.RadioField as RadioField
@@ -54,6 +55,7 @@ import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Json.Decode
+import Multiselect
 import Set exposing (Set)
 
 
@@ -137,6 +139,7 @@ type alias ViewConfig values msg =
     , action : String
     , loading : String
     , validation : Validation
+    , multiselectMsg : Multiselect.Msg -> (values -> Multiselect.Model) -> (Multiselect.Model -> values) -> msg
     }
 
 
@@ -173,6 +176,7 @@ type alias CustomConfig msg element =
     , checkboxField : CheckboxFieldConfig msg -> element
     , radioField : RadioFieldConfig msg -> element
     , selectField : SelectFieldConfig msg -> element
+    , multiselectField : MultiselectFieldConfig msg -> element
     , group : List element -> element
     , section : String -> List element -> element
     , formList : FormListConfig msg element -> element
@@ -313,6 +317,18 @@ type alias SelectFieldConfig msg =
     }
 
 
+type alias MultiselectFieldConfig msg =
+    { onChange : Multiselect.Msg -> msg
+    , value : Multiselect.Model
+    , error : Maybe Error
+    , showError : Bool
+    , attributes :
+        { label : String
+        , placeholder : String
+        }
+    }
+
+
 {-| Describes how a form list should be rendered.
 
   - `forms` is a list containing the elements of the form list.
@@ -362,7 +378,7 @@ custom :
     -> Form values msg
     -> Model values
     -> element
-custom config { onChange, action, loading, validation } form_ model =
+custom config { onChange, action, loading, validation, multiselectMsg } form_ model =
     let
         { fields, result } =
             Form.fill form_ model.values
@@ -397,6 +413,7 @@ custom config { onChange, action, loading, validation } form_ model =
             renderField
                 config
                 { onChange = \values -> onChange { model | values = values }
+                , multiselectMsg = multiselectMsg
                 , onBlur = onBlur
                 , disabled = model.state == Loading
                 , showError = showError
@@ -438,6 +455,7 @@ type alias FieldConfig values msg =
     , onBlur : Maybe (String -> msg)
     , disabled : Bool
     , showError : String -> Bool
+    , multiselectMsg : Multiselect.Msg -> (values -> Multiselect.Model) -> (Multiselect.Model -> values) -> msg
     }
 
 
@@ -446,7 +464,7 @@ renderField :
     -> FieldConfig values msg
     -> Form.FilledField values
     -> element
-renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConfig) field =
+renderField customConfig ({ onChange, onBlur, disabled, showError, multiselectMsg } as fieldConfig) field =
     let
         blur label =
             Maybe.map (\onBlurEvent -> onBlurEvent label) onBlur
@@ -529,6 +547,15 @@ renderField customConfig ({ onChange, onBlur, disabled, showError } as fieldConf
                 { onChange = update >> onChange
                 , onBlur = blur attributes.label
                 , disabled = field.isDisabled || disabled
+                , value = value
+                , error = field.error
+                , showError = showError attributes.label
+                , attributes = attributes
+                }
+
+        Form.Multiselect { attributes, value, getValue, update } ->
+            customConfig.multiselectField
+                { onChange = \msg -> multiselectMsg msg getValue update
                 , value = value
                 , error = field.error
                 , showError = showError attributes.label
@@ -621,6 +648,7 @@ htmlViewConfig =
     , checkboxField = checkboxField
     , radioField = radioField
     , selectField = selectField
+    , multiselectField = multiselectField
     , group = group
     , section = section
     , formList = formList
@@ -678,6 +706,7 @@ formList { forms, label, add, disabled } =
                     Html.button
                         [ Events.onClick add_.action
                         , Attributes.type_ "button"
+                        , Attributes.class "btn uie-border-black"
                         ]
                         [ Html.i [ Attributes.class "fas fa-plus" ] []
                         , Html.text add_.label
@@ -702,6 +731,7 @@ formListItem { fields, delete, disabled } =
                     Html.button
                         [ Events.onClick delete_.action
                         , Attributes.type_ "button"
+                        , Attributes.class "btn uie-border-black"
                         ]
                         [ Html.text delete_.label
                         , Html.i [ Attributes.class "fas fa-times" ] []
@@ -738,6 +768,7 @@ form { onSubmit, action, loading, state, fields } =
               , Html.button
                     [ Attributes.type_ "submit"
                     , Attributes.disabled (onSubmit == Nothing)
+                    , Attributes.class "btn uie-border-black"
                     ]
                     [ if state == Loading then
                         Html.text loading
@@ -894,6 +925,14 @@ selectField { onChange, onBlur, disabled, value, error, showError, attributes } 
             |> withMaybeAttribute Events.onBlur onBlur
         )
         (placeholderOption :: List.map toOption attributes.options)
+        |> withLabelAndError attributes.label showError error
+
+
+multiselectField : MultiselectFieldConfig msg -> Html msg
+multiselectField { onChange, value, error, showError, attributes } =
+    (Html.map onChange <|
+        Multiselect.view value
+    )
         |> withLabelAndError attributes.label showError error
 
 
