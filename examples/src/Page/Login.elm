@@ -71,6 +71,7 @@ form =
                 , attributes =
                     { label = "E-Mail"
                     , placeholder = "some@email.com"
+                    , htmlAttributes = [ ( "autocomplete", "email" ) ]
                     }
                 }
 
@@ -83,6 +84,7 @@ form =
                 , attributes =
                     { label = "Password"
                     , placeholder = "Your password"
+                    , htmlAttributes = [ ( "autocomplete", "current-password" ) ]
                     }
                 }
 
@@ -93,7 +95,9 @@ form =
                 , update = \value values -> { values | rememberMe = value }
                 , error = always Nothing
                 , attributes =
-                    { label = "Remember me" }
+                    { label = "Remember me"
+                    , htmlAttributes = []
+                    }
                 }
     in
     Form.succeed LogIn

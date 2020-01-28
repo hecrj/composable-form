@@ -148,6 +148,7 @@ form =
                 , attributes =
                     { label = "E-Mail"
                     , placeholder = "some@email.com"
+                    , htmlAttributes = [ ( "autocomplete", "email" ) ]
                     }
                 }
 
@@ -160,6 +161,7 @@ form =
                 , attributes =
                     { label = "Name"
                     , placeholder = "Your name"
+                    , htmlAttributes = [ ( "autocomplete", "name" ) ]
                     }
                 }
 
@@ -172,6 +174,7 @@ form =
                 , attributes =
                     { label = "Password"
                     , placeholder = "Your password"
+                    , htmlAttributes = [ ( "autocomplete", "new-password" ) ]
                     }
                 }
 
@@ -194,6 +197,7 @@ form =
                         , attributes =
                             { label = "Repeat password"
                             , placeholder = "Your password again..."
+                            , htmlAttributes = [ ( "autocomplete", "new-password" ) ]
                             }
                         }
                 )
@@ -224,6 +228,7 @@ form =
                                     , langLabel lang
                                     )
                                 )
+                    , htmlAttributes = []
                     }
                 }
 
@@ -240,7 +245,9 @@ form =
                 , update = \value values -> { values | acceptTerms = value }
                 , error = always Nothing
                 , attributes =
-                    { label = "Accept Terms and Conditions" }
+                    { label = "Accept Terms and Conditions"
+                    , htmlAttributes = []
+                    }
                 }
 
         langLabel lang =

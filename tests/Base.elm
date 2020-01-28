@@ -398,6 +398,7 @@ andThen =
                 , attributes =
                     { label = "Title"
                     , placeholder = "Write a title..."
+                    , htmlAttributes = []
                     }
                 }
 
@@ -410,6 +411,7 @@ andThen =
                 , attributes =
                     { label = "Body"
                     , placeholder = "Write the body..."
+                    , htmlAttributes = []
                     }
                 }
 
@@ -623,6 +625,7 @@ emailField =
         , attributes =
             { label = "E-Mail"
             , placeholder = "Type your e-mail..."
+            , htmlAttributes = []
             }
         }
 
@@ -652,6 +655,7 @@ passwordField =
         , attributes =
             { label = "Password"
             , placeholder = "Type your password..."
+            , htmlAttributes = []
             }
         }
 
@@ -685,6 +689,7 @@ repeatPasswordField =
                 , attributes =
                     { label = "Repeat password"
                     , placeholder = "Type your password again..."
+                    , htmlAttributes = []
                     }
                 }
         )
@@ -725,6 +730,7 @@ contentTypeField =
             { label = "Content type"
             , placeholder = "Select a type of content"
             , options = [ ( "post", "Post" ), ( "question", "Question" ) ]
+            , htmlAttributes = []
             }
         }
 

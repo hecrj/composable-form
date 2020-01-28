@@ -49,6 +49,7 @@ type alias Attributes number =
     , step : number
     , min : Maybe number
     , max : Maybe number
+    , htmlAttributes : List ( String, String )
     }
 
 

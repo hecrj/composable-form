@@ -49,6 +49,7 @@ You need to provide these to:
 type alias Attributes =
     { label : String
     , placeholder : String
+    , htmlAttributes : List ( String, String )
     }
 
 

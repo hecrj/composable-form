@@ -72,6 +72,7 @@ form =
                 , attributes =
                     { label = "Your name"
                     , placeholder = "Type your name"
+                    , htmlAttributes = []
                     }
                 }
     in
@@ -119,6 +120,7 @@ websiteForm index =
                 , attributes =
                     { label = "Name of website #" ++ String.fromInt (index + 1)
                     , placeholder = ""
+                    , htmlAttributes = []
                     }
                 }
 
@@ -131,6 +133,7 @@ websiteForm index =
                 , attributes =
                     { label = "Address of website #" ++ String.fromInt (index + 1)
                     , placeholder = "https://..."
+                    , htmlAttributes = []
                     }
                 }
     in

@@ -760,6 +760,7 @@ inputField type_ { onChange, onBlur, disabled, value, error, showError, attribut
          , Attributes.type_ type_
          ]
             |> withMaybeAttribute Events.onBlur onBlur
+            |> withHtmlAttributes attributes.htmlAttributes
         )
         []
         |> withLabelAndError attributes.label showError error
@@ -774,6 +775,7 @@ textareaField { onChange, onBlur, disabled, value, error, showError, attributes 
          , Attributes.value value
          ]
             |> withMaybeAttribute Events.onBlur onBlur
+            |> withHtmlAttributes attributes.htmlAttributes
         )
         []
         |> withLabelAndError attributes.label showError error
@@ -798,6 +800,7 @@ numberField { onChange, onBlur, disabled, value, error, showError, attributes } 
             |> withMaybeAttribute (String.fromFloat >> Attributes.max) attributes.max
             |> withMaybeAttribute (String.fromFloat >> Attributes.min) attributes.min
             |> withMaybeAttribute Events.onBlur onBlur
+            |> withHtmlAttributes attributes.htmlAttributes
         )
         []
         |> withLabelAndError attributes.label showError error
@@ -817,6 +820,7 @@ rangeField { onChange, onBlur, disabled, value, error, showError, attributes } =
                 |> withMaybeAttribute (String.fromFloat >> Attributes.max) attributes.max
                 |> withMaybeAttribute (String.fromFloat >> Attributes.min) attributes.min
                 |> withMaybeAttribute Events.onBlur onBlur
+                |> withHtmlAttributes attributes.htmlAttributes
             )
             []
         , Html.span [] [ Html.text (value |> Maybe.map String.fromFloat |> Maybe.withDefault "") ]
@@ -834,6 +838,7 @@ checkboxField { onChange, onBlur, value, disabled, error, showError, attributes 
              , Attributes.type_ "checkbox"
              ]
                 |> withMaybeAttribute Events.onBlur onBlur
+                |> withHtmlAttributes attributes.htmlAttributes
             )
             []
         , Html.text attributes.label
@@ -857,6 +862,7 @@ radioField { onChange, onBlur, disabled, value, error, showError, attributes } =
                      , Events.onClick (onChange key)
                      ]
                         |> withMaybeAttribute Events.onBlur onBlur
+                        |> withHtmlAttributes attributes.htmlAttributes
                     )
                     []
                 , Html.text label
@@ -892,6 +898,7 @@ selectField { onChange, onBlur, disabled, value, error, showError, attributes } 
          , Attributes.disabled disabled
          ]
             |> withMaybeAttribute Events.onBlur onBlur
+            |> withHtmlAttributes attributes.htmlAttributes
         )
         (placeholderOption :: List.map toOption attributes.options)
         |> withLabelAndError attributes.label showError error
@@ -982,6 +989,12 @@ withMaybeAttribute : (a -> Html.Attribute msg) -> Maybe a -> List (Html.Attribut
 withMaybeAttribute toAttribute maybeValue attrs =
     Maybe.map (toAttribute >> (\attr -> attr :: attrs)) maybeValue
         |> Maybe.withDefault attrs
+
+
+withHtmlAttributes : List ( String, String ) -> List (Html.Attribute msg) -> List (Html.Attribute msg)
+withHtmlAttributes list attributes =
+    List.map (\( a, b ) -> Attributes.attribute a b) list
+        |> (++) attributes
 
 
 fromString : (String -> Maybe a) -> Maybe a -> String -> Maybe a

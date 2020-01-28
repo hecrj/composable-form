@@ -44,6 +44,7 @@ type alias Attributes =
     { label : String
     , placeholder : String
     , options : List ( String, String )
+    , htmlAttributes : List ( String, String )
     }
 
 

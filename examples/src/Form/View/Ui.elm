@@ -223,6 +223,7 @@ selectField { onChange, onBlur, disabled, value, error, showError, attributes } 
         , attributes =
             { label = attributes.label
             , options = attributes.options
+            , htmlAttributes = []
             }
         }
 
