@@ -74,6 +74,7 @@ form =
                 , attributes =
                     { label = "Server-side validated e-mail"
                     , placeholder = "some@email.com"
+                    , htmlAttributes = []
                     }
                 }
     in

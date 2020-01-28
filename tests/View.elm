@@ -94,6 +94,7 @@ nameField =
         , attributes =
             { label = "Name"
             , placeholder = "Type your name..."
+            , htmlAttributes = []
             }
         }
 
@@ -108,5 +109,6 @@ surnameField =
         , attributes =
             { label = "Surname"
             , placeholder = "Type your surname..."
+            , htmlAttributes = []
             }
         }

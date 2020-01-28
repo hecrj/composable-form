@@ -92,6 +92,7 @@ publicationForm =
                     { label = "Type of publication"
                     , placeholder = "Choose a type"
                     , options = [ ( "post", "Post" ), ( "question", "Question" ) ]
+                    , htmlAttributes = []
                     }
                 }
     in
@@ -119,6 +120,7 @@ postForm =
                 , attributes =
                     { label = "Body"
                     , placeholder = "Type your post here..."
+                    , htmlAttributes = []
                     }
                 }
     in
@@ -139,6 +141,7 @@ questionForm =
                 , attributes =
                     { label = "Title"
                     , placeholder = "Type your question here..."
+                    , htmlAttributes = []
                     }
                 }
 
@@ -151,6 +154,7 @@ questionForm =
                 , attributes =
                     { label = "Body"
                     , placeholder = "Describe your question here... (optional)"
+                    , htmlAttributes = []
                     }
                 }
     in

@@ -73,6 +73,7 @@ form =
                 , attributes =
                     { label = "E-Mail"
                     , placeholder = "some@email.com"
+                    , htmlAttributes = []
                     }
                 }
 
@@ -85,6 +86,7 @@ form =
                 , attributes =
                     { label = "Name"
                     , placeholder = "Your name"
+                    , htmlAttributes = []
                     }
                 }
     in

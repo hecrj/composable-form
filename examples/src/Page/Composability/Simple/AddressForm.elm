@@ -31,6 +31,7 @@ form =
                 , attributes =
                     { label = "Country"
                     , placeholder = "Type your country"
+                    , htmlAttributes = []
                     }
                 }
 
@@ -43,6 +44,7 @@ form =
                 , attributes =
                     { label = "City"
                     , placeholder = "Type your city"
+                    , htmlAttributes = []
                     }
                 }
 
@@ -55,6 +57,7 @@ form =
                 , attributes =
                     { label = "Postal Code"
                     , placeholder = "Type your postal code"
+                    , htmlAttributes = []
                     }
                 }
     in

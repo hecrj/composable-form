@@ -80,6 +80,7 @@ form =
                     , options =
                         [ Form.View.ValidateOnSubmit, Form.View.ValidateOnBlur ]
                             |> List.map strategyToOption
+                    , htmlAttributes = []
                     }
                 }
 
@@ -100,6 +101,7 @@ form =
                 , attributes =
                     { label = "E-Mail"
                     , placeholder = "some@email.com"
+                    , htmlAttributes = []
                     }
                 }
 
@@ -112,6 +114,7 @@ form =
                 , attributes =
                     { label = "Name"
                     , placeholder = "Your name"
+                    , htmlAttributes = []
                     }
                 }
 
@@ -124,6 +127,7 @@ form =
                 , attributes =
                     { label = "Password"
                     , placeholder = "Your password"
+                    , htmlAttributes = []
                     }
                 }
     in

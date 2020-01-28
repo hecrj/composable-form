@@ -41,7 +41,9 @@ You need to provide these to:
 
 -}
 type alias Attributes =
-    { label : String }
+    { label : String
+    , htmlAttributes : List ( String, String )
+    }
 
 
 {-| Builds a [`Form`](Form-Base#Form) with a single `CheckboxField`.
