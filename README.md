@@ -78,7 +78,7 @@ form =
 Read the [`Form` module documentation][form-docs] to understand how this code works.
 
 [form-docs]: http://package.elm-lang.org/packages/hecrj/composable-form/latest/Form
-[ellie-example]: https://ellie-app.com/3Q3ydLznQRra1
+[ellie-example]: https://ellie-app.com/hTpyz8Sc3jxa1
 
 ## Demo / Examples
 
